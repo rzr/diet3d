@@ -9,7 +9,7 @@
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Raster.java.in,v 1.1 2004-03-08 13:55:38 rzr Exp $
+ * $Id: Raster.java.in,v 1.2 2004-03-10 17:59:43 rzr Exp $
  **/
 
 #ifndef INCLUDE_Raster
@@ -310,8 +310,88 @@ class Raster
     }
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #ifdef MAPPING     // TODO
+
+
+
+
     int[][] texmap = { { 0xFF, 0xFF00 } ,{ 0xFFFF, 0xFF0000 } };
 
+
+    //http://www.flipcode.com/articles/article_mobilegfx04.shtml
+    // ftp://hornet.madtracker.org/mirrors/hornet/code/3d/trifill/texmap/fatmap.txt
+
+    /** sample test for pixel filler **/
+    public void paintTriangleMapping(Graphics g, 
+                                     int xt, int yt,
+                                     int xm, int ym,
+                                     int xb, int yb,
+                                     int  col)
+    {
+        TYPE_COLOR color;
+        int t=0;
+        // sort 
+        if ( yt > yb ) { swap(yb,yt,t); swap(xb,xt,t); }
+        if ( yt > ym ) { swap(ym,yt,t); swap(xm,xt,t); }
+        if ( ym > yb ) { swap(ym,yb,t); swap(xm,xb,t); }
+
+        int dtb=0, dtm=0, dmb = 0 ; //float !
+        int r=0,l=0;
+        int x;
+        //debug("upper part of the triangle");
+        int rx=xt, lx=xt , ly = 0;
+        int srx, slx;
+
+        //#if 0
+        if ( (yt-yb) != 0 ) dtb = FPdiv(  (xb-xt) , (yb-yt) ); // float
+
+        if ( (yt-ym) != 0 )
+            dtm = FPdiv ( (xm-xt) ,  (ym-yt) ) ; // float
+
+        if ( xm < xt ) { l = dtm ; r = dtb; } else { l = dtb; r = dtm; }
+        
+        lx = tofloat(xt); rx = lx; // Fixed Point Maths
+        //setCurrentColor(g, 0xFF);
+
+        int du, dv, u,v;
+        for (ly=yt; ly<ym; ly++ ){
+            slx = FPtoInt(lx); srx = FPtoInt(rx);
+            if( slx > srx) swap(slx,srx,t);
+            for(x=slx ;x <= srx ; x++) {
+                color=texmap[FPtoInt(u)][FPtoInt(v)];
+                paintPixel(g,x,ly,color);
+                u+=du;
+                v+=dv;
+
+            }
+            lx += l;
+            rx += r;
+        }
+
+        //MACRO_println(" bottom part of the triangle");
+        if ( (yb-ym) != 0 ) 
+            dmb = FPdiv(  (xb-xm) , (yb-ym)  ) ; // float
+        else r = 0;
+        
+        if ( xb < xt ) { l = dmb ; r = dtb; } else { l = dtb; r = dmb; }
+
+        lx = xb <<8; rx = lx;
+        //setCurrentColor(g, 0xFF00);
+        for (ly=yb; ly>=ym; ly-- ) {
+            slx = toint(lx); srx = toint(rx);
+            if( slx > srx) swap(slx,srx,t);
+            for(x=slx ;x <= srx ; x++) {
+                //t = col;
+                //color = colormap[(2*(ly+x))% (colormapsize-1)] ;
+                color = colormap[(2*(ly+x))% (colormapsize-1)] ;
+                color &= col;
+                paintPixel(g,x,ly,color);
+                //g.drawLine( x , ly ,x , ly );
+            }
+            lx -= l;
+            rx -= r; 
+        }
+        //MACRO_println("-fillTriangle");
+    }
 
 
     public void paintLineHLinear(Graphics g,
@@ -343,8 +423,8 @@ class Raster
         debug("- paintLineLinear =" + l + " / " + r + " @ " + y);
     }
 
-    //http://www.flipcode.com/articles/article_mobilegfx04.shtml
-    public void paintTriangleMapping(Graphics g,
+
+    public void paintTriangleMappingLinear(Graphics g,
                                      int xt, int yt,
                                      int xm, int ym,
                                      int xb, int yb,

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.1 2004-03-08 13:55:38 rzr Exp $
+# $Id: GNUmakefile,v 1.2 2004-03-10 17:58:27 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -145,7 +145,7 @@ FILES=${PROJECT} ${PROJECT}Canvas
 #SRCS?=${FILES:=.java} 
 DATA=${PROJECT}.xml
 DATA_DIR=${SRC_DIR_ABS}
-ALL=${DIR_PATH} ${OBJS} exen-post
+ALL=${DIR_PATH} ${OBJS} all-exen
 TMP_DIR=./jclasses-${RT}/
 DESTDIR=jclasses-${RT}/
 SRC_DIR=src-${RT}/
@@ -767,7 +767,7 @@ run-url run-midp2.0fcs run-ri-url run-url-20:
 	@echo "### !!! Dont exit after shutdown? Hit ^C ($@)"
 	-killall -9 midp
 	-${SW_DIR}midp2.0fcs/bin/midp -autotest ${URL} &
-	sleep 10
+	sleep 999
 	-killall -9 midp
 	@echo "$@ ${URL}"
 
@@ -813,7 +813,7 @@ ${SRC_DIR_ABS}${PROJECT}.xml: ${SRC_IN_DIR}${PROJECT}.xml
 	${MKDIR} ${@D} 
 	cp $^ $@
 
-${SRC_DIR_ABS}${EXEN_TARGET}: ${SRC_DIR_ABS}${PROJECT}.xml
+${DESTDIR}${EXEN_TARGET}: ${SRC_DIR_ABS}${PROJECT}.xml
 	echo source ${SDK_DIR}bin/setupenv
 	@echo INFUSIO_PP_LIN=${INFUSIO_PP_LIN}
 	cd ${SDK_DIR}bin && exenc $<
@@ -821,22 +821,26 @@ ${SRC_DIR_ABS}${EXEN_TARGET}: ${SRC_DIR_ABS}${PROJECT}.xml
 %.pcp: %.exn
 	${EXN2CTC} $^
 
-${DESTDIR}${EXEN_TARGET}: ${SRC_DIR_ABS}${EXEN_TARGET}
-	${MKDIR} ${@D}
-	cp -a $< ${@D}
-	${EXN2CTC} $@
+#${DESTDIR}${EXEN_TARGET}: ${SRC_DIR_ABS}${EXEN_TARGET}
+#	${MKDIR} ${@D}
+#	cp -a $< ${@D}
+#	${EXN2CTC} $@
 
+#  ${DESTDIR}${EXEN_TARGET}
 all-exen: 
-	make RT=exen srcs ${SRC_DIR_ABS}${EXEN_TARGET}
+	make RT=exen \
+	 ${DESTDIR}${EXEN_TARGET} ${DESTDIR}${EXEN_TARGET:.exn=.pcp}
 	@echo "### - $@"
-exen-post all-exen: ${DESTDIR}${EXEN_TARGET}
+all-exen exen-post: ${DESTDIR}${EXEN_TARGET}
 
 
-run-all-exen run-exen: 
-	@echo "### $@"
+run-all-exen: 
+	@echo "### + $@"
 	${MAKE} RT=exen all-exen run
-#	${DESTDIR}${EXEN_TARGET}
-#	${MAKE} RT=exen run-exen-arg  ARG="$<"
+	@echo "### - $@"
+
+run-exen: ${DESTDIR}${EXEN_TARGET}
+	${MAKE} RT=exen run-exen-arg  ARG="$<"
 
 run-exen-arg:
 	ls -l $<
@@ -962,5 +966,5 @@ cvs-import:
 	cvs -d ${CVSROOT} import ${PROJECT} ${USER} orig
 
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.1 2004-03-08 13:55:38 rzr Exp $
+# $Id: GNUmakefile,v 1.2 2004-03-10 17:58:27 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
