@@ -1,4 +1,4 @@
-/* $Id: */
+/* $Id: Raster.java.in,v 1.4 2004-03-25 00:18:16 rzr Exp $ */
 #ifndef Raster_java_in
 #define Raster_java_in
 
@@ -9,8 +9,7 @@
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Raster.java.in,v 1.3 2004-03-14 22:50:23 rzr Exp $
- **/
+  **/
 
 #ifndef INCLUDE_Raster
 class Raster

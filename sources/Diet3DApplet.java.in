@@ -5,6 +5,7 @@ import java.applet.Applet;
 /**
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
+ * $Id: Diet3DApplet.java.in,v 1.2 2004-03-25 00:18:16 rzr Exp $
  **/
 
 public final class Diet3DApplet

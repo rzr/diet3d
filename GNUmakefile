@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.7 2004-03-14 22:50:21 rzr Exp $
+# $Id: GNUmakefile,v 1.8 2004-03-25 00:18:13 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -8,7 +8,6 @@ RT_LIST?=midp1_0 midp1_0-nokia midp2_0 imode exen
 RT ?=midp2_0
 #RT ?=midp1_0-nokia
 JAVA_HOME?=/usr/lib/j2se/1.4/
-
 SW_ARC?=${HOME}/mnt/software/
 # commands
 UNZIP ?= unzip -q
@@ -18,7 +17,6 @@ FS=\\/
 INFUSIO_PP_LIN ?=\/home\/${USER}\/
 INFUSIO_PP_WIN ?=y:
 export INFUSIO_PP_WIN INFUSIO_PP_LIN
-
 
 #
 SW_DIR ?= /opt/
@@ -33,18 +31,24 @@ DATE ?=$(shell date +%Y%m%d)
 #TMP ?=$(shell mktemp)
 TMP=/tmp/tmp-${USER}-${NAME}-${RT}-${SDKV}-${DATE}-tmp
 ID ?=$(shell date +%Y%m%d%s)
-VERSION ?=0.0.$(shell date +%Y%m%d%H)
+
 
 VERSION_MAJ=0
-VERSION_MIN=24
-VERSION_REV=2
-
+VERSION_MIN=25
+VERSION_REV=4
 # + 6600
-# -19 5500 : crash zsort
+# - 3510i  : arrayindexout of bound exc
+# - 3100 : pixel 
+# sx1!
+
+# -35 5500 : crash zsort
 # T610 : no exit/menu
 
 VERSION_DOT ?= ${VERSION_MAJ}.${VERSION_MIN}.${VERSION_REV}
 VERSION_CHAR ?= ${VERSION_MAJ}_${VERSION_MIN}_${VERSION_REV}
+
+VERSION ?= ${VERSION_DOT}
+#VERSION ?=0.0.$(shell date +%Y%m%d%H)
 
 #DEFINES+=-DNOINLINE -DDEBUG
 MKDIR ?= @mkdir -p
@@ -70,7 +74,9 @@ SRC_IN_DIR:=${PWD}sources/
 WEBDIR ?=${HOME}/mnt/public_html/docs/java/${PROJECT_DIST}/
 #URL_BASE?=file://
 #URL_BASE?=http://rzr.online.fr/docs/java/jclasses/
-URL_BASE?=http://localhost/~${USER}/${PROJECT}/
+#URL_BASE?=http://localhost/~${USER}/${PROJECT}/
+URL_BASE?=http://localhost/~rzr/${PROJECT}/
+
 URL?=${URL_BASE}${DESTDIR}${PROJECT}.jad
 #URL=http://rzr.online.fr/docs/java/jclasses/
 
@@ -92,7 +98,7 @@ endif
 ifeq ($(RT),midp2_0) 
 DEFINES+=-DMIDP_2_0 
 MIDPV="MIDP-2.0"
-ALL+=${DESTDIR}${PROJECT}.jad ${DESTDIR}${PROJECT}.wml
+ALL+=${DESTDIR}${PROJECT}.jad ${DESTDIR}${PROJECT}.wml ${DESTDIR}${PROJECT}.jar
 endif
 
 ifeq ($(RT),midp1_0-nokia) 
@@ -124,8 +130,8 @@ ifeq ($(RT),j2se)
 SDKV=00
 DEFINES+=-DAWT -DJ2SE
 API=""
-TMP_DIR=./jclasses-${RT}/
-DESTDIR=${TMP_DIR}
+OBJ_DIR=./jclasses-${RT}/
+DESTDIR=${OBJ_DIR}
 CLASSPATH=${DESTDIR}:.
 FILES=${PROJECT} ${PROJECT}Canvas ${PROJECT}Applet
 OBJS=$(FILES:=.class) ${PROJECT}CommandLine.class
@@ -146,17 +152,19 @@ SDKV=exen
 SDK=InFusioSDK
 SDK_DIR=${HOME}/mnt/${SDK}/
 API=${SDK_DIR}etc/lib/ExEnV2.jar
-#TMP_DIR=./jclasses-${RT}/
-TMP_DIR=${SRC_DIR}
+#OBJ_DIR=./jclasses-${RT}/
+OBJ_DIR=${SRC_DIR}
 #SRC_DIR_ABS=./src-${RT}/
 FILES=${PROJECT} ${PROJECT}Canvas
 #SRCS?=${FILES:=.java} 
 DATA=${PROJECT}.xml
 DATA_DIR=${SRC_DIR_ABS}
 ALL=${DIR_PATH} ${OBJS} all-exen
-TMP_DIR=./jclasses-${RT}/
 DESTDIR=jclasses-${RT}/
 SRC_DIR=src-${RT}/
+OBJ_DIR=${SRC_DIR}
+#/jclasses-${RT}/
+
 #SRCS_IN?=${FILES:=.java.in}
 #OBJS?=${FILES:=.class}
 #PREVERIFY=${SW_DIR}midp2.0fcs/bin/preverify
@@ -181,7 +189,7 @@ PVC2ROM=wine -- ${SDK_DIR}bin/vmtools/exenrom/exenrom
 
 VM_EXEN=${EXEN_RUN} ${SDK_DIR}bin/simulator_v2/generic/Color/gensimu.exe 
 EXN2CTC=wine -- ${HOME}/mnt/bin-WIN32/EXN2CTC.exe
-CLASSPATH=${TMP_DIR}:${API}
+CLASSPATH=${OBJ_DIR}:${API}
 endif#endif
 
 #FILES= MathFixed ${PROJECT}Render ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
@@ -194,16 +202,16 @@ FILES ?= ${PROJECT} ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ifeq ($(API),"")
-JAVACFLAGS=-d ${TMP_DIR} -classpath ${CLASSPATH}
+JAVACFLAGS=-d ${OBJ_DIR} -classpath ${CLASSPATH}
 else
-JAVACFLAGS=-bootclasspath ${API} -classpath ${CLASSPATH} -d ${TMP_DIR}
+JAVACFLAGS=-bootclasspath ${API} -classpath ${CLASSPATH} -d ${OBJ_DIR}
 endif
 
 ifeq ($(SDKV),10) 
 SDK:=WTK104
 SDK_DIR=${SW_DIR}${SDK}/
 API ?=${SDK_DIR}lib/midpapi.zip
-CLASSPATH=${API}:${EXT}:${TMP_DIR}
+CLASSPATH=${API}:${EXT}:${OBJ_DIR}
 VM=${SDK_DIR}bin/emulator
 endif
 
@@ -214,7 +222,7 @@ MIDP_HOME=${SDK_DIR}
 export MIDP_HOME
 API ?=${SDK_DIR}classes/
 VM=${SDK_DIR}bin/midp
-CLASSPATH=${API}:${EXT}:${TMP_DIR}
+CLASSPATH=${API}:${EXT}:${OBJ_DIR}
 endif
 
 ifeq ($(SDKV),21)
@@ -222,7 +230,7 @@ SDK:=WTK2.1
 SDK_DIR:=${SW_DIR}${SDK}/
 API ?=${SDK_DIR}lib/cldcapi10.zip
 API_MIDP ?=${SDK_DIR}lib/midpapi20.zip
-CLASSPATH=${API}:${API_MIDP}:${TMP_DIR}:${EXT}
+CLASSPATH=${API}:${API_MIDP}:${OBJ_DIR}:${EXT}
 VM=${SDK_DIR}bin/emulator
 endif
 
@@ -233,7 +241,8 @@ endif
 
 DESTDIR_ABS ?=${PWD}${DESTDIR}
 SRC_DIR_ABS ?=${PWD}${SRC_DIR}
-TMP_DIR ?=/tmp/${SRC_DIR_ABS}${DESTDIR}
+TMP_DIR ?=/tmp/${SRC_DIR_ABS}/tmp/
+OBJ_DIR ?=${TMP_DIR}${DESTDIR}
 
 #SRCS=$(wildcard *.java)
 #SRCS=
@@ -246,7 +255,7 @@ PREVERIFY ?= preverify
 
 #DESTDIR ?=./
 #DESTDIR = ../jclasses-${ENV}/
-DIRPATH=${SRC_DIR_ABS} ${TMP_DIR} ${DISTDIR_ABS} ${DESTDIR} ${SRC_IN_DIR}
+DIRPATH=${SRC_DIR_ABS} ${OBJ_DIR} ${DISTDIR_ABS} ${DESTDIR} ${SRC_IN_DIR}
 vpath:=${DIRPATH}
 VPATH:=${DIRPATH}
 PATH:=${JAVA_HOME}/bin/:${PATH}:${SDK_DIR}bin/
@@ -254,9 +263,9 @@ PATH:=${JAVA_HOME}/bin/:${PATH}:${SDK_DIR}bin/
 SRCS ?= $(FILES:=.java)
 SRCS_IN ?= $(FILES:=.java.in)
 OBJS ?= $(FILES:=.class)
-CLASSPATH ?= ${TMP_DIR}
+CLASSPATH ?= ${OBJ_DIR}
 
-export RT SDKV MIDPV SDK SDK_DIR
+#export RT SDKV MIDPV SDK SDK_DIR
 
 #DEFINES+="-DHAVE_AWT"
 export CLASSPATH
@@ -266,7 +275,7 @@ export CLASSPATH
 default: help info all
 
 all compile build: pre ${ALL} post
-
+	@echo "#- $@"
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~# Application rules
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 help: help-${PROJECT} help-${ENV}
@@ -299,7 +308,7 @@ help-${ENV}:
 # sed -e "s/\/\/\(.\*@use_awt\)/\1/g" < ${PROJECT}Render.java
 dist: clean-bak diet3d-java.zip
 	cp ../diet3d-java.zip ${WEBDIR}
-#	-cp ${TMP_DIR}*.java ${SRC_DIR_ABS}
+#	-cp ${OBJ_DIR}*.java ${SRC_DIR_ABS}
 
 
 ${PROJECT}Canvas.java.in: ${PROJECT}.java.in
@@ -384,7 +393,7 @@ xbrowse:
 
 
 %.class:%.java
-	${MKDIR} ${TMP_DIR}
+	${MKDIR} ${OBJ_DIR}
 	${JAVAC} ${JAVACFLAGS} ${SRC_DIR_ABS}${^F}
 
 %.java: %.java.in ${SRCS_IN}
@@ -427,9 +436,9 @@ default-MANIFEST.MF:
 
 
  #${PROJECT}MIDlet$$Tick.class ${PROJECT}Render.class 
-${DESTDIR}${PROJECT}.jar:${SRC_DIR_ABS}MANIFEST.MF ${OBJS}
+${DESTDIR}${PROJECT}.jar:${SRC_DIR_ABS}MANIFEST.MF ${OBJS} ${DESTDIR}
 	@echo "#+ $@"
-	cd ${TMP_DIR} && \
+	cd ${OBJ_DIR} && \
 	${PREVERIFY} -classpath ${CLASSPATH} -d . .  && \
 	jar cvfm ${DESTDIR_ABS}${PROJECT}.jar ${SRC_DIR_ABS}MANIFEST.MF . 
 	file ${DESTDIR}${PROJECT}.jar
@@ -456,7 +465,7 @@ check: ${DESTDIR}${PROJECT}.jad ${DESTDIR}${PROJECT}.jar
 jad: ${DESTDIR}${PROJECT}.jad
 
 jad-rm:
-	@-{CLEAN} ${DESTDIR}${PROJECT}.jad
+	@-${CLEAN} ${DESTDIR}${PROJECT}.jad
 	echo "#- $@"
 
 jad-re: jad-rm jad check
@@ -472,7 +481,8 @@ size-bug:
 	cat $< | grep "MIDlet-Jar-Size:" \
 	 | sed -e "s/MIDlet-Jar-Size: \([0-9]*\)\s*/\1/g"
 
-${DESTDIR}${PROJECT}.jad: ${SRC_DIR_ABS}MANIFEST.MF ${DESTDIR}${PROJECT}.jar size
+# TODO: size ?
+${DESTDIR}${PROJECT}.jad: ${SRC_DIR_ABS}MANIFEST.MF ${DESTDIR}${PROJECT}.jar
 	@echo "#+ $@ ${SIZE}"
 	cat $< > $@
 	echo "MIDlet-Jar-URL: ${PROJECT}.jar" >> $@
@@ -553,7 +563,7 @@ pro-all:
 ${PROJECT}.prc: ${DESTDIR} ${DESTDIR}${PROJECT}.jad  ${DESTDIR}${PROJECT}.jar
 	${CONVERTER} -type Data -jad ${DESTDIR}${PROJECT}.jad ${DESTDIR}${PROJECT}.jar
 
-jar: ${OBJS} ${TMP_DIR} ${DESTDIR_ABS} ${DESTDIR}${PROJECT}.jar
+jar: ${OBJS} ${OBJ_DIR} ${DESTDIR_ABS} ${DESTDIR}${PROJECT}.jar
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # hany rules for testing deploy etc
 #
@@ -624,9 +634,11 @@ ${DATA}: ${OBJS}
 	cp ${SRC_IN_DIR}$(@F) ${DATA_DIR}
 
 
+
+
+
 demo: 
-	-${MAKE} RT=midp2_0 all 
-	${MAKE} RT=midp2_0 all run-ri
+	${MAKE} RT=midp2_0 run-ri-url
 
 
 
@@ -648,15 +660,20 @@ names:
 	-mv authors AUTHORS
 	-mv copying COPYING
 
-info infos:
-	@echo "#default settings are : "
-	@echo "#SDK=${SDK}"
-	@echo "#SDK_DIR=${SDK_DIR}"
-	@echo "#CLASSPATH=${CLASSPATH}"
-	@echo "#PATH=${PATH}"
-	@echo "#DESTDIR=${DESTDIR}"
-	@echo "#DESTDIR_ABS=${DESTDIR_ABS}"
-	@echo "#VPATH=${VPATH}"
+info infos: info-proj
+	@echo "# default settings are : "
+	@echo "# SDK=${SDK}"
+	@echo "# SDK_DIR=${SDK_DIR}"
+	@echo "# CLASSPATH=${CLASSPATH}"
+	@echo "# PATH=${PATH}"
+	@echo "# DESTDIR=${DESTDIR}"
+	@echo "# DESTDIR_ABS=${DESTDIR_ABS}"
+	@echo "# VPATH=${VPATH}"
+
+info-proj:
+	@echo "# PROJECT=${PROJECT}"
+	@echo "# ALL=${ALL}"
+	@echo "# OBJS=${OBJS}"
 
 
 cc-wildcards:
@@ -664,6 +681,7 @@ cc-wildcards:
 	${JAVAC} ${JAVACFLAGS} *.java
 
 pre: ${SDK_DIR} dir
+	@echo "- $@"
 
 post: modes 
 
@@ -712,7 +730,7 @@ clean-bak:
 
 clean-bin:
 	-@${CLEAN} *.class *.jar \
-	${TMP_DIR}/*.class ${DESTDIR}/*.jad ${DESTDIR}/*.jar \
+	${OBJ_DIR}/*.class ${DESTDIR}/*.jad ${DESTDIR}/*.jar \
 	2>&1 2>/dev/null
 	@echo "# $@"
 
@@ -723,7 +741,7 @@ clean: clean-bak clean-bin clean-src
 GEN_PATH ?= tmpclasses tmplib  classes  res src bin
 
 clean-all: clean clean-src clean-src-all
-	-@${CLEAN} -rf ${DESTDIR}../jclasses* ${TMP_DIR}../jclasses* ${DESTDIR} jclasses-midp*  ${GEN_PATH} \
+	-@${CLEAN} -rf ${DESTDIR}../jclasses* ${OBJ_DIR}../jclasses* ${DESTDIR} jclasses-midp*  ${GEN_PATH} \
 	/tmp/home/${USER} 2>&1 2>/dev/null
 	-@${CLEAN} *.log 2>&1 2>/dev/null
 	ls
@@ -752,8 +770,7 @@ modes:
 	find ${PWD} -type f -exec chmod a-x+X {} \;
 	-@chmod -R a+rX ${HOME}/public_html/
 	@echo "#- $@"
-#	@find ${PWD} -name "*.jad" -exec chmod a+rX {} \;
-#	@find ${PWD} -name "*.jar" -exec chmod a+rX {} \;
+
 
 arc zip arch: ${PROJECT_DIST}-${VERSION_DOT}_${DATE}.zip
 
@@ -824,12 +841,13 @@ run-url-wtk2: browse
 run-url-wtk1: browse
 	${SW_DIR}WTK104/bin/emulator -Xjam:transient=${URL} 
 
-run-url run-midp2.0fcs run-ri-url run-url-20:
+run-url run-midp2.0fcs run-ri-url run-url-20: browse
 	@echo "### !!! Dont exit after shutdown? Hit ^C ($@)"
 	-killall -9 midp
 	-${SW_DIR}midp2.0fcs/bin/midp -autotest ${URL} &
 	@echo "$@ ${URL}"
 #	-killall -9 midp
+
 ri run-ri: ${DESTDIR}${PROJECT}.jad modes
 	${MAKE} run-ri-url RT=${RT}
 
@@ -879,9 +897,9 @@ ${DESTDIR}${EXEN_TARGET}: ${SRC_DIR_ABS}${PROJECT}.xml
 	@echo source ${SDK_DIR}bin/setupenv
 	@echo INFUSIO_PP_LIN=${INFUSIO_PP_LIN}
 	cd ${SDK_DIR}bin && exenc $<
-	@-${CLEAN} ${<D}*.class
 	@cp ${SRC_DIR_ABS}${@F} ${@}
 	@echo "#- $@"
+#	@-${CLEAN} ${<D}*.class
 
 pcp: ${DESTDIR}${EXEN_TARGET:.exn=.pcp}
 
@@ -922,6 +940,10 @@ run-exen-arg:
 
 install-exen: ${EXEN_ROM}
 
+
+clean-exen:
+	-@rm -rf *-exen
+	@echo "#- $@"
 exen:
 	echo source ${SDK_DIR}bin/setupenv
 	${MAKE} RT=$@ all all-exen 
@@ -956,8 +978,8 @@ exen-build:
 	${MAKE} RT=exen srcs exen-obj exen-pvc pvc-link exen-rom
 
 pvc-link exen-pvc-fast: ${OBJS}
-	-@${CLEAN} ${TMP_DIR}*.pvc 
-	cd ${TMP_DIR} &&  \
+	-@${CLEAN} ${OBJ_DIR}*.pvc 
+	cd ${OBJ_DIR} &&  \
 	${WMTRANS} ${WMTANS_FLAGS}\
 	${OBJS:.class=} && ls 
 	@echo "#- $@"
@@ -973,8 +995,8 @@ post-exen: exen-pvc-fast le_default.exn
 #${OBJS:.class=.pvc}
 bug-exen-rom:
 	@echo "... creating rom"
-	-@${CLEAN} ${TMP_DIR}*.exn
-	cd ${TMP_DIR} &&  ls && \
+	-@${CLEAN} ${OBJ_DIR}*.exn
+	cd ${OBJ_DIR} &&  ls && \
 	${PVC2ROM} -gv -dc . -dr ${EXEN_ROM} -do ${F} 
 	@echo "#- $@"
 
@@ -997,7 +1019,7 @@ bug-test-exen: le_default.exn
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-${TMP_DIR}${PROJECT}.pro: ${TMP_DIR}
+${SRC_DIR}${PROJECT}.pro: ${OBJ_DIR}
 	@echo "#+ $@"
 	@echo ""
 	@echo "#### Optimising Bytecode"
@@ -1005,7 +1027,7 @@ ${TMP_DIR}${PROJECT}.pro: ${TMP_DIR}
 	@echo "" > $@
 	@echo "-libraryjars ${API}:${API_MIDP}" >> $@
 	@echo "-injars ${DESTDIR}${PROJECT}.jar" >> $@
-	@echo "-outjar ${TMP_DIR}${PROJECT}obfuscated.jar" >> $@
+	@echo "-outjar ${OBJ_DIR}${PROJECT}obfuscated.jar" >> $@
 	@echo "-overloadaggressively" >> $@
 	@echo "-defaultpackage ''" >> $@
 	@echo "-keep public class * " >> $@
@@ -1013,24 +1035,25 @@ ${TMP_DIR}${PROJECT}.pro: ${TMP_DIR}
 	@echo "#- $@"
 
 OBFUSCATE=java -jar /mnt/c/usr/jclasses/proguard.jar
-${TMP_DIR}${PROJECT}obfuscated.jar: ${DESTDIR}${PROJECT}.jar
+
+${OBJ_DIR}${PROJECT}obfuscated.jar: ${DESTDIR}${PROJECT}.jar
 	@echo "#+ $@"
-	${OBFUSCATE} @${TMP_DIR}${PROJECT}.pro
+	${OBFUSCATE} @${SRC_DIR}${PROJECT}.pro
 	ls -l $<
 	ls -l $@
 	@echo "#- $@"
 
-pro-post:  ${TMP_DIR}${PROJECT}obfuscated.jar  pro-preverif 
+pro-post:  ${OBJ_DIR}${PROJECT}obfuscated.jar  pro-preverif ${DESTDIR_ABS}
 	@echo "#+ $@"
 	mv $< ${DESTDIR_ABS}${PROJECT}.jar
 	@echo "#- $@"
 
-pro-preverif-jar: ${TMP_DIR}${PROJECT}obfuscated.jar  
+pro-preverif-jar: ${OBJ_DIR}${PROJECT}obfuscated.jar  
 	${PREVERIFY} -classpath ${API}:${API_MIDP} $<
 	@echo "#- $@ # doesnt work"
 
-PREVERIFYDIR=${TMP_DIR}../obfuscated-${RT}/
-pro-preverif: ${TMP_DIR}${PROJECT}obfuscated.jar  
+PREVERIFYDIR=${OBJ_DIR}../obfuscated-${RT}/
+pro-preverif: ${OBJ_DIR}${PROJECT}obfuscated.jar  
 	@echo "#+ $@"
 	ls -l $<
 	-${CLEAN} ${PREVERIFYDIR}
@@ -1041,7 +1064,7 @@ pro-preverif: ${TMP_DIR}${PROJECT}obfuscated.jar
 	jar cvfm $< ${SRC_DIR_ABS}MANIFEST.MF . 
 	@echo "#- $@"
 
-obfuscate obfuscated proguard pro: ${TMP_DIR}${PROJECT}.pro  pro-post jad-re
+obfuscate obfuscated proguard pro: ${SRC_DIR}${PROJECT}.pro  pro-post jad-re
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1049,7 +1072,7 @@ info-project:
 	@echo DESTDIR=${DESTDIR}
 	@echo DESTDIR_ABS=${DESTDIR_ABS}
 	@echo SRC_DIR_ABS=${SRC_DIR_ABS} 
-	@echo TMP_DIR=${TMP_DIR}
+	@echo OBJ_DIR=${OBJ_DIR}
 # imported rules 
 
 version:
@@ -1086,5 +1109,5 @@ cvs-import:
 	cvs -d ${CVSROOT} import ${PROJECT} ${USER} orig
 
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.7 2004-03-14 22:50:21 rzr Exp $
+# $Id: GNUmakefile,v 1.8 2004-03-25 00:18:13 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
