@@ -42,7 +42,7 @@ public final class Diet3DRender
 
         
 #else
-        MathFixed.trimV(r);
+        trimV(r);
         r[0] =   ( r[0] << scale ) + screen[0];
         r[1] = - ( r[1] << scale ) + screen[1]; 
         r[2] =   ( r[2] << scale ) + screen[2]; //useless / needed  v lenght tranf
@@ -50,7 +50,7 @@ public final class Diet3DRender
     }
 #else
 #define MACROscreen(r) { \
- MathFixed.trimV(r); \
+ trimV(r); \
         r[0] =   (r[0] << scale) +  screen[0]  ; \
         r[1] = - (r[1] << scale) +  screen[1]  ; \
         r[2] =   (r[2] << scale) +  screen[2]  ; \
@@ -186,7 +186,7 @@ public final class Diet3DRender
             if ( vn[2] <= 0 ) { //
                 //MathFixed.printV(vn);
 
-                MathFixed.trimV(vn); // recalc ~~~ CHECK
+                trimV(vn); // recalc ~~~ CHECK
                 vn[0] =   (vn[0] << scale); 
                 vn[1] =   (vn[1] << scale); 
                 vn[2] =   (vn[2] << scale); 
@@ -237,7 +237,7 @@ public final class Diet3DRender
             if ( vn[2] <= 0 ) { //
                 //MathFixed.printV(vn);
 
-                MathFixed.trimV(vn); // recalc ~~~ CHECK
+                trimV(vn); // recalc ~~~ CHECK
                 vn[0] =   (vn[0] << scale); 
                 vn[1] =   (vn[1] << scale); 
                 vn[2] =   (vn[2] << scale); 
@@ -360,7 +360,7 @@ public final class Diet3DRender
             MathFixed.normVVV( va, vb, vc, vn);
             //MathFixed.printV(va); MathFixed.printV(vb); MathFixed.printV(vc);
             if ( vn[2] <= 0 ) { // 
-                MathFixed.trimV(vn); // recalc ~~~ CHECK
+                trimV(vn); // recalc ~~~ CHECK
                 vn[0] =   (vn[0] << scale); 
                 vn[1] =   (vn[1] << scale); 
                 vn[2] =   (vn[2] << scale); 

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.4 2004-03-14 13:23:46 rzr Exp $
+# $Id: GNUmakefile,v 1.5 2004-03-14 15:09:26 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,7 +34,7 @@ DATE ?=$(shell date +%Y%m%d)
 TMP=/tmp/tmp-${USER}-${NAME}-${RT}-${SDKV}-${DATE}-tmp
 ID ?=$(shell date +%Y%m%d%s)
 VERSION ?=0.0.$(shell date +%Y%m%d%H)
-VERSION2 ?= 0.17
+VERSION2 ?= 0.19
 # 6600 : menu crash # T610 : no exit/menu
 
 
@@ -961,10 +961,9 @@ bug-test-exen: le_default.exn
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-pro-post:  ${TMP_DIR}${PROJECT}ProGuard.jar  pro-preverif
+pro-post:  ${TMP_DIR}${PROJECT}ProGuard.jar  pro-preverif jad-re
 	ls -l $<
 	mv $< ${DESTDIR_ABS}${PROJECT}.jar
-	${MAKE} ${DESTDIR}${PROJECT}.jad
 	@echo "#- $@"
 
 pro-preverif-jar: ${TMP_DIR}${PROJECT}ProGuard.jar  
@@ -974,6 +973,7 @@ pro-preverif-jar: ${TMP_DIR}${PROJECT}ProGuard.jar
 pro-preverif: ${TMP_DIR}${PROJECT}ProGuard.jar  
 	@echo "#+ $@"
 	ls -l $<
+	-${CLEAN} ${TMP_DIR}$@
 	${MKDIR} ${TMP_DIR}$@/
 	cd ${TMP_DIR}$@/ && \
 	jar xvf $< && \
@@ -981,7 +981,7 @@ pro-preverif: ${TMP_DIR}${PROJECT}ProGuard.jar
 	jar cvfm $< ${SRC_DIR_ABS}MANIFEST.MF . 
 	@echo "#- $@"
 
-pro: ${TMP_DIR}${PROJECT}.pro  pro-post jad-re check
+pro: ${TMP_DIR}${PROJECT}.pro  pro-post
 
 
 ${TMP_DIR}${PROJECT}.pro: ${TMP_DIR}
@@ -1045,5 +1045,5 @@ cvs-import:
 	cvs -d ${CVSROOT} import ${PROJECT} ${USER} orig
 
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.4 2004-03-14 13:23:46 rzr Exp $
+# $Id: GNUmakefile,v 1.5 2004-03-14 15:09:26 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
