@@ -1,4 +1,4 @@
-/* $Id: HackJavaCpp.java.in,v 1.1 2004-03-08 13:55:38 rzr Exp $ */
+/* $Id: HackJavaCpp.java.in,v 1.2 2004-03-14 22:50:23 rzr Exp $ */
 #ifndef HackJavaCpp_java_in_
 #define HackJavaCpp_java_in_
 
@@ -27,6 +27,16 @@
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
  **/
+
+#if (( defined MIDP_2_0 ) || ( defined NOKIA ))
+#define WANT_INFO
+#endif
+
+#ifdef MIDP_1_0
+#define WANT_NO_INFO
+#endif
+
+//--------
 
 #ifdef JRE
 import java.lang.*;

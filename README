@@ -18,20 +18,10 @@ TODO:
 - shapes
 
 
+cvs tags:
+- 2004-03-14 "Diet3D-0_21-Nokia6600"
+
 Random Notes:
 
 <mahadeva1> RzR: still no luck with 3650...
-
-
-<glass>   try {
-<glass>             Class.forName("com.nokia.mid.ui.FullCanvas");
-<glass>             nokia = true;
-<glass>             Class klass = Class.forName("tayskangas");
-<glass>             System.out.println("nokia found");
-<fov> "tayskangas" .. eeh :D
-<glass>             kangas = (Canvas) klass.newInstance();
-<glass>         } catch (Exception e) {
-<glass>             nokia = false;
-<glass>             System.out.println("no nokia found, falling back to regular canvas.");
-<glass>             kangas = (Canvas) new skangas("back");
 
