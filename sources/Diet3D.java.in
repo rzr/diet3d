@@ -1,10 +1,10 @@
-/* $Id: Diet3D.java.in,v 1.7 2004-03-30 14:24:47 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.8 2004-03-30 18:44:15 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.7 2004-03-30 14:24:47 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.8 2004-03-30 18:44:15 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
@@ -19,7 +19,10 @@
 //#define debug(x) System.out.println(x)
 #define ZSORT
 #define PIXEL
-//#define MAPPING
+
+#ifdef DEVEL
+#define MAPPING
+#endif
 
 #ifdef NOKIA
 //#define WANT_NO_TUX
@@ -259,9 +262,9 @@ public final class Diet3D
         toggleShape(3); //4-11
         toggleMode(0);
 #else // test demo
-        toggleAnim(1);
+        toggleAnim(1); // 2=none
         toggleShape(0); //4-11
-        toggleMode(13); // 10 pixel  13 mapp//12 = zsort+l
+        toggleMode(10); // 10 pixel  13 mapp//12 = zsort+l
 #endif // init
 
         tick++;

@@ -1,4 +1,4 @@
-/* $Id: Raster.java.in,v 1.5 2004-03-29 23:37:49 rzr Exp $ */
+/* $Id: Raster.java.in,v 1.6 2004-03-30 18:44:15 rzr Exp $ */
 #ifndef Raster_java_in
 #define Raster_java_in
 
@@ -238,7 +238,6 @@ class Raster
 #endif //INLINE
 #endif //
 
-
     /** sample test for pixel filler **/
     public void paintTrianglePixel(Graphics g, 
                                    int dtx, int dty,
@@ -246,66 +245,57 @@ class Raster
                                    int dbx, int dby,
                                    int col)
     {
-        TYPE_COLOR color;
-        int t=0;
         // sort 
-        if ( dty > dby ) { swap(dby,dty,t); swap(dbx,dtx,t); }
+        int t=0;
         if ( dty > dmy ) { swap(dmy,dty,t); swap(dmx,dtx,t); }
+        if ( dty > dby ) { swap(dby,dty,t); swap(dbx,dtx,t); }
         if ( dmy > dby ) { swap(dmy,dby,t); swap(dmx,dbx,t); }
-
-        int dvtb=0, dvtm=0, dvmb = 0 ; //float !
-        int dorx=0,dolx=0;
-        int x;
-        //debug("upper part of the triangle");
-        int drx=dtx, dlx=dtx , dly = 0;
-        int ddrx, ddlx, ddry;
-        //#if 0
+        // calc variations
+        FPfloat dvtb, dvtm, dvmb; 
         dvtb = FPdivProtected( (dbx-dtx) , (dby-dty) , 0 ); // float
-
-        dvtm = FPdivProtected( (dmx-dtx) , (dmy-dty) , 0) ; // float
-
-        if ( dmx < dtx ) { dolx = dvtm ; dorx = dvtb; } 
+        dvtm = FPdivProtected( (dmx-dtx) , (dmy-dty) , 0 ); // float
+        dvmb = FPdivProtected( (dbx-dmx) , (dby-dmy) , 0 ); // float
+        //
+        FPfloat dorx,dolx; // step in X , when y++
+        //debug("upper part of the triangle");
+        if ( dbx > dmx ) { dolx = dvtm; dorx = dvtb; }
         else { dolx = dvtb; dorx = dvtm; }
-        
+        //debug2gtif( dolx , dorx );
+        //if ( dolx > dorx ) swap(dolx, dorx,t); //!!!
+        //
+        TYPE_COLOR color;
+        int dx,dy;
+        FPfloat dlx, drx;
+        int ddrx, ddlx, ddry;
         dlx = tofloat(dtx); drx = dlx; // Fixed Point Maths
-        //setCurrentColor(g, 0xFF);
-
-        if ( dolx > dorx ) { swap(dolx,dorx,t); }
-        for (dly=dty; dly<dmy; dly++ ){
+        for (dy=dty; dy<dmy; dy++ ){
+            //if ( dlx > drx ) System.out.println(">t");
             ddlx = FPtoInt(dlx); ddrx = FPtoInt(drx);
-            for(x=ddlx ;x <= ddrx ; x++) {
-                color = colormap[ 2*(dly+x)% (colormapsize-1)] ;
+            debug2gtif( ddlx , ddrx );
+            if ( ddlx > ddrx ) swap(ddlx, ddrx,t); //!!!
+            for(dx=ddlx ;dx <= ddrx ; dx++) {
+                color = colormap[ 2*(dy+dx)% (colormapsize-1)] ;
                 color &= col ;
-                paintPixel(g,x,dly,color);
-                //g.drawLine( x, ly, x, ly );
+                paintPixel(g,dx,dy,color);
             }
-            dlx += dolx;
-            drx += dorx;
+            dlx += dolx; drx += dorx;
         }
         //if ( true ) return ;
         //MACRO_println(" bottom part of the triangle");
-        if ( (dby-dmy) != 0 ) 
-            dvmb = FPdiv(  (dbx-dmx) , (dby-dmy)  ) ; // float
-        else dorx = 0; //!!
-        
-        if ( dbx < dtx ) { dolx = dvmb ; dorx = dvtb; } 
-        else { dolx = dvtb; dorx = dvmb; }
-        
+        if ( dtx < dmx ) { dolx = dvtb ; dorx = dvmb; }  //OPT
+        else { dolx = dvmb; dorx = dvtb; }
+        //if ( dolx > dorx ) swap(dolx, dorx,t);
         dlx = tofloat(dbx); drx = dlx;
-        //setCurrentColor(g, 0xFF00);
-        if ( dolx < dorx ) { swap(dolx,dorx,t); }
-        for (dly=dby; dly>=dmy; dly-- ) {
+        for (dy=dby; dy>=dmy; dy-- ) {
             ddlx = FPtoInt(dlx); ddrx = FPtoInt(drx);
-            for(x=ddlx ;x <= ddrx ; x++) {
-                //t = col;
-                //color = colormap[(2*(ly+x))% (colormapsize-1)] ;
-                color = colormap[(2*(dly+x))% (colormapsize-1)] ;
+            debug2gtif( ddlx , ddrx );
+            if ( ddlx > ddrx ) swap(ddlx, ddrx,t); //!!!
+            for(dx=ddlx ;dx <= ddrx ; dx++) {
+                color = colormap[(2*(dy+dx))% (colormapsize-1)] ;
                 color &= col;
-                paintPixel(g,x,dly,color);
-                //g.drawLine( x , ly ,x , ly );
+                paintPixel(g,dx,dy,color);
             }
-            dlx -= dolx;
-            drx -= dorx; 
+            dlx -= dolx; drx -= dorx; 
         }
         //MACRO_println("-fillTriangle");
     }
@@ -568,7 +558,6 @@ class Raster
                               int xm, int ym,
                               int xb, int yb)
     {
-    
         debug(
               " { " + xt + ","+ yt + "}, {"
               + xm + ","+ ym + "}, {" + xb + ","+ yb + "}");
@@ -584,6 +573,10 @@ class Raster
       fillTriangle6int = Graphics.getMethod("fillTriangle", args );
       } catch (Exception e) { }
 
+    */
+    /*
+
+Class.forName("com.nokia.mid.ui.Graphics");
 
 
 <glass>   try {
