@@ -1,12 +1,12 @@
-# $Id: GNUmakefile,v 1.13 2004-03-31 00:53:07 rzr Exp $
+# $Id: GNUmakefile,v 1.14 2004-03-31 21:43:07 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ENV ?= j2me
 RT_LIST?=midp1_0 midp1_0-nokia midp2_0 imode exen
 #RT ?=midp1_0
-#RT ?=midp2_0
-RT ?=midp1_0-nokia
+RT ?=midp2_0
+#RT ?=midp1_0-nokia
 JAVA_HOME?=/usr/lib/j2se/1.4/
 SW_ARC?=${HOME}/mnt/software/
 # commands
@@ -34,17 +34,8 @@ ID ?=$(shell date +%Y%m%d%s)
 
 
 VERSION_MAJ=0
-VERSION_MIN=26
-VERSION_REV=0
-#mapping
-
-# + 6600
-# - 3510i  : arrayindexout of bound exc
-# - 3100 : pixel 
-# sx1!
-
-# -35 5500 : crash zsort
-# T610 : no exit/menu
+VERSION_MIN=27
+VERSION_REV=2
 
 VERSION_DOT ?= ${VERSION_MAJ}.${VERSION_MIN}.${VERSION_REV}
 VERSION_CHAR ?= ${VERSION_MAJ}_${VERSION_MIN}_${VERSION_REV}
@@ -52,7 +43,7 @@ VERSION_CHAR ?= ${VERSION_MAJ}_${VERSION_MIN}_${VERSION_REV}
 VERSION ?= ${VERSION_DOT}
 #VERSION ?=0.0.$(shell date +%Y%m%d%H)
 
-#DEFINES+=-DDEVEL
+//DEFINES+=-DDEVEL
 # -NOINLINE
 MKDIR ?= @mkdir -p
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -722,6 +713,10 @@ install-classes install-dist dist-install:
 	cp -rf ./jclasses-* ${WEBDIR}
 	ls -l ${WEBDIR}${DESTDIR}
 
+install-post:
+	@echo "MIDlet-Jar-URL: Diet3D.jar"
+
+
 install-src:  ${HOME}/homedir/
 	mv ${HOME}/homedir/${PROJECT} ${HOME}/homedir/${PROJECT}-bak-${ID}
 	cp -rf ${PWD}   ${HOME}/homedir/
@@ -1101,5 +1096,5 @@ info-user:
 cvs-tag:
 	@echo cvs tag "${PROJECT}-${VERSION_CHAR}-${DATE}-${PROFILE}"
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.13 2004-03-31 00:53:07 rzr Exp $
+# $Id: GNUmakefile,v 1.14 2004-03-31 21:43:07 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

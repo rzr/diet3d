@@ -1,4 +1,4 @@
-/* $Id: Raster.java.in,v 1.6 2004-03-30 18:44:15 rzr Exp $ */
+/* $Id: Raster.java.in,v 1.7 2004-03-31 21:43:10 rzr Exp $ */
 #ifndef Raster_java_in
 #define Raster_java_in
 
@@ -107,53 +107,42 @@ class Raster
     //~~~~~~~~~~~~~~~~
 #if  ( ( defined MIDP_1_0 ) && ( ! defined NOKIA )) 
     /** Software triangle filler (when no accell is provided) **/
-    public void paintTriangleSoft(Graphics g, int[] a, int[] b, int[] c)
+    public void paintTriangleSoft(Graphics g, 
+                                  int tx, int ty,
+                                  int mx, int my,
+                                  int bx, int by)
     {
-        int xt = a[0];  int yt = a[1];    // top
-        int xm = b[0];  int ym = b[1];    // middle
-        int xb = c[0];  int yb = c[1];    // bottom
         int t=0;
         // sort 
-        if ( yt > yb ) { swap(yb,yt,t); swap(xb,xt,t); }
-        if ( yt > ym ) { swap(ym,yt,t); swap(xm,xt,t); }
-        if ( ym > yb ) { swap(ym,yb,t); swap(xm,xb,t); }
+        if ( ty > by ) { swap(by,ty,t); swap(bx,tx,t); }
+        if ( ty > my ) { swap(my,ty,t); swap(mx,tx,t); }
+        if ( my > by ) { swap(my,by,t); swap(mx,bx,t); }
 
-        int dtb=0, dtm=0, dmb = 0 ; //float !
+        FPfloat dtb=0, dtm=0, dmb = 0 ; //float !
         int r=0,l=0;
         //debug("upper part of the triangle");
-        int rx=xt, lx=xt , y = 0;
-        //#if 0
-        if ( (yt-yb) != 0 ) 
-            dtb = FPdiv ( (xb-xt), (yb-yt) ) ; // float
-
-        if ( (yt-ym) != 0 )
-            dtm = FPdiv ( (xm-xt) , (ym-yt) ) ; // float
-
-        if ( xm < xt ) { l = dtm ; r = dtb; } else { l = dtb; r = dtm; }
         
-        //
-        lx = tofloat(xt); rx = lx; // Fixed Point Maths
+        dtb = FPdivProtected ( (bx-tx) , (by-ty) , 0 ) ; // float
+        dtm = FPdivProtected ( (mx-tx) , (my-ty) , 0 ) ; // float
+        dmb = FPdivProtected ( (bx-mx) , (by-my) , 0 ) ; // float
+
+        ///
+        FPfloat rx,lx;       
+        int y = 0;
+        rx = lx  = FPtoFloat(tx);
+        if ( mx < tx ) { l = dtm ; r = dtb; } else { l = dtb; r = dtm; }
+
         //setCurrentColor(g, 0xFF);
-        for (y=yt; y<ym; y++ ){
+        for (y=ty; y<my; y++ ){
             paintLineH( g, y, toint(lx) , toint(rx));
             lx += l;
             rx += r;
         }
         //MACRO_println(" bottom part of the triangle");
-        if ( (yb-ym) != 0 ) 
-            dmb =  FPdiv ( ( xb-xm) ,   (yb-ym) ) ; // float
-        else r = 0;
-        
-        if ( xb < xt ) { l = dmb ; r = dtb; } else { l = dtb; r = dmb; }
-        /* may speed up cache , once debuged TODO!!!
-           for (int ly=ym; ly<=yb; ly++ ) {
-           g.drawLine( ( lx >> 8 ) , ly , ( rx >> 8 ) , ly );
-           lx += l;
-           rx += r; 
-           } */
-        lx = tofloat(xb); rx = lx;
+        if ( bx < tx ) { l = dmb ; r = dtb; } else { l = dtb; r = dmb; }
+        lx = FPtoFloat(bx); rx = lx;
         //setCurrentColor(g, 0xFF00);
-        for (y=yb; y>=ym; y-- ) {
+        for (y=by; y>=my; y-- ) { //may speed up ; TODO
             paintLineH( g, y, toint(lx) , toint(rx));
             lx -= l;
             rx -= r; 
@@ -167,7 +156,7 @@ class Raster
                               int[] a, int[] b, int[] c, TYPE_COLOR col)
     {
         setCurrentColor(g, col );
-        paintTriangleSoft(g,a,b,c);
+        paintTriangleSoft(g,a[0],a[1],b[0],b[1],c[0],c[1]);
     }
 #else
     // SEE MACROpaintTriangle for speed up
@@ -245,12 +234,12 @@ class Raster
                                    int dbx, int dby,
                                    int col)
     {
-        // sort 
+        //debug("sort");
         int t=0;
         if ( dty > dmy ) { swap(dmy,dty,t); swap(dmx,dtx,t); }
         if ( dty > dby ) { swap(dby,dty,t); swap(dbx,dtx,t); }
         if ( dmy > dby ) { swap(dmy,dby,t); swap(dmx,dbx,t); }
-        // calc variations
+        //debug("calc variations");
         FPfloat dvtb, dvtm, dvmb; 
         dvtb = FPdivProtected( (dbx-dtx) , (dby-dty) , 0 ); // float
         dvtm = FPdivProtected( (dmx-dtx) , (dmy-dty) , 0 ); // float
@@ -260,14 +249,15 @@ class Raster
         //debug("upper part of the triangle");
         if ( dbx > dmx ) { dolx = dvtm; dorx = dvtb; }
         else { dolx = dvtb; dorx = dvtm; }
-        //debug2gtif( dolx , dorx );
+        debug2gtif( dolx , dorx );
         //if ( dolx > dorx ) swap(dolx, dorx,t); //!!!
         //
         TYPE_COLOR color;
         int dx,dy;
         FPfloat dlx, drx;
         int ddrx, ddlx, ddry;
-        dlx = tofloat(dtx); drx = dlx; // Fixed Point Maths
+        //
+        dlx = FPtoFloat(dtx); drx = dlx; // Fixed Point Maths
         for (dy=dty; dy<dmy; dy++ ){
             //if ( dlx > drx ) System.out.println(">t");
             ddlx = FPtoInt(dlx); ddrx = FPtoInt(drx);
@@ -330,13 +320,12 @@ class Raster
                                      int col)
     {
         
+
         //int stx, int sty, int smx, int smy, int sbx, int sby; 
         int stx; int sty; int smx; int smy; int sbx; int sby; 
-        
         stx= sty=0; smx=0; smy=2; sbx=4; sby=4;
-            
 
-        TYPE_COLOR color;
+
         int t=0;
         // sort 
         if ( dty > dby ) {
@@ -351,25 +340,26 @@ class Raster
             swap(dmy,dby,t); swap(dmx,dbx,t); 
             swap(smy,sby,t); swap(smx,sbx,t); 
         }
-        int dvtb=0, dvtm=0, dvmb = 0 ; //float !
+        //debug("calc variations");
+        FPfloat dvtb, dvtm, dvmb; 
+        dvtb = FPdivProtected( (dbx-dtx) , (dby-dty) , 0 ); // float
+        dvtm = FPdivProtected( (dmx-dtx) , (dmy-dty) , 0 ); // float
+        dvmb = FPdivProtected( (dbx-dmx) , (dby-dmy) , 0 ); // float
+        //
+        FPfloat dorx,dolx; // step in X , when y++
+        //debug("upper part of the triangle");
+        if ( dbx > dmx ) { dolx = dvtm; dorx = dvtb; }
+        else { dolx = dvtb; dorx = dvtm; }
+        debug2gt( dolx , dorx );
+        debug2gtif( dolx , dorx );
+        ///
         int dor=0,dol=0;
         int dx, x;
         int sx, sy, slx, sly, srx;
         int sox=0, soy=0;
         int ssox=0, ssoy=0;
         //debug("upper part of the triangle");
-        int dorx=dtx, dolx=dtx  ;
-        //#if 0
-        dvtb = FPdivProtected(  (dbx-dtx) , (dby-dty) , 0); // float
-
-        dvtm = FPdivProtected( (dmx-dtx) ,  (dmy-dty) , 0) ; // float
-
-        if ( dmx < dtx ) { dolx = dvtm ; dorx = dvtb; } 
-        else { dolx = dvtb; dorx = dvtm; }
-        
-
         //setCurrentColor(g, 0xFF);
-
 
         sox = FPdivProtected ( ( sbx - smx ) , ( dby - dty ) , 0 );
         soy = FPdivProtected ( ( sby - sty ) , ( dby - dty ) , 0 );
@@ -384,12 +374,7 @@ class Raster
         int ddlx, ddrx, ddy;
         int ssx, ssy;
         int s = 1;
-
-        if ( dolx > dorx ) { 
-            System.out.println(">>>");
-            swap(dolx,dorx,t);
-            //s = -1 ;
-        }
+        TYPE_COLOR color;
         
         dlx = tofloat(dtx); drx = dlx; // Fixed Point Maths
         for (ddy=dty; ddy<dmy; ddy++ ) {
@@ -414,9 +399,9 @@ class Raster
             sy += s * soy;
                           
         }
-        if ( true ) return;
+        // if ( true ) return;
         //MACRO_println(" bottom part of the triangle");
-        //MACRO_println("-fillTriangle");
+        //debug("- paintTriangleMapping");
     }
 
 
