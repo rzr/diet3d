@@ -1,4 +1,4 @@
-/* $Id: MathFixed.java.in,v 1.1 2004-03-08 13:55:38 rzr Exp $ */
+/* $Id: MathFixed.java.in,v 1.2 2004-03-13 17:25:21 rzr Exp $ */
 #ifndef MathFixed_java_in_
 #define MathFixed_java_in_
 
@@ -55,11 +55,11 @@ srrt=() = 46340.95
     };
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    public static int precision_sqrt = 1;
-    static public int PI2= PI * 2; 
-    static public int half = one /2;
-    static public int sinstep=  (( PI * 2 ) / sinesize ); 
-    static public int sinoff=((sinesize*3) / 4);
+    public static final int precision_sqrt = 1;
+    public static final int PI2= PI * 2; 
+    public static final int half = one /2;
+    public static final int sinstep=  (( PI * 2 ) / sinesize ); 
+    public static final int sinoff=((sinesize*3) / 4);
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Reusable objects
@@ -151,14 +151,14 @@ srrt=() = 46340.95
     {
         int a = angle;
         a = a%(2 * PI );
-        int i = ( (a * sinesize + half )/ ( 2 * PI ) )%sinesize ;
+        int i = ( (a * sinesize + half )/ (  PI<<1 ) )%sinesize ;
         //MACRO_println("-cos "+ i);
         return sine[i];
     }
 
     public static int cos(int angle) 
     {
-        return sin( angle + (  PI / 2  ) );
+        return sin( angle + (  PI >>1  ) );
     }
     /*
       public static int cos(int angle) 
@@ -628,5 +628,5 @@ srrt=() = 46340.95
 
 //#define macroMultFF(a,b) ( ( a * b ) + half ) >> offset ) 
 
-/* $Id: MathFixed.java.in,v 1.1 2004-03-08 13:55:38 rzr Exp $ */
+/* $Id: MathFixed.java.in,v 1.2 2004-03-13 17:25:21 rzr Exp $ */
 #endif //#ifndef MathFixed_java_in_
