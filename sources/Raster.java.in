@@ -1,0 +1,481 @@
+/* $Id: */
+#ifndef Raster_java_in
+#define Raster_java_in
+
+#include "HackJavaCpp.java.in"
+
+/**
+ * This in a template java source file wich can be preprocessed with GNU cpp
+ * see CppHack.java.in
+ * @author www.Philippe.COVAL.free.fr
+ * Copyright and License : http://rzr.online.fr/license.htm
+ * $Id: Raster.java.in,v 1.1 2004-03-08 13:55:38 rzr Exp $
+ **/
+
+#ifndef INCLUDE_Raster
+class Raster
+{
+#endif
+
+#ifdef NOKIA
+    static DirectGraphics dg = null;
+    static int tmpRaster;
+#endif
+    static int[] colorbuffer = null;
+
+
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#if ( ( defined MIDP2_0 ) || ( defined NOKIA )) //
+#define MACROpaintPixel(g,x,y,c) \
+   if ( ( y < h_ ) && ( y >= 0 ) && ( x < w_ ) && ( x >= 0 )) \
+     colorbuffer[ y*w_ + x ] = 0xFF000000 | c;
+#else
+#define MACROpaintPixel(g,x,y,c) setCurrentColor(g,c); g.drawLine(x,y,x,y)
+#endif
+
+
+#ifdef  MACROpaintPixel
+#define paintPixel MACROpaintPixel
+#else
+    public void paintPixel(Graphics g, int x, int y, int c)
+    {
+        setCurrentColor(g,c);
+        g.drawLine(x,y,x,y);
+        //debug("- paintPixel : " + x + "," + y );
+    }
+#endif
+
+
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#if ( ( defined NOKIA ) || ( defined MIDP2_0 ))
+    public void paintInit(Graphics g)
+    {
+#ifdef NOKIA
+        if ( dg == null) { dg = DirectUtils.getDirectGraphics(g); }
+#endif
+        if ( colorbuffer == null) { 
+            //debug("TODO");
+            colorbuffer = new int[hw_];
+        }
+        for(int i=0;i< hw_;i++) colorbuffer[i] = COLOR_BG;
+        //debug
+        //debug("- paintInit "+ w_ + "*" + h_ );
+    }
+#else
+#define paintInit(g)
+#endif
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#if ( ( defined NOKIA )  || ( defined MIDP_2_0 ) )
+    public void paintFlush(Graphics g)
+    {
+        if ( colorbuffer != null ) {
+#if ( defined NOKIA )
+            dg.drawPixels( colorbuffer, false,  0, w_ , 0, 0, 
+                       w_, h_, 0, dg.TYPE_INT_8888_ARGB );
+                       
+#else
+            g.drawRGB( colorbuffer, 0 , w_ , 0 , 0 , w_ , h_ , false );
+#endif 
+        }
+        //debug("- paintFlush "  + colorbuffer );
+    }
+#else
+#define paintFlush(g)
+#endif
+
+
+
+#define MACROpaintLineH(g,y,xa,xb) g.drawLine(xa,y,xb,y)
+
+#define MACROpaintLineV(g,x,ya,yb) g.drawLine(x,ya,x,yb)
+
+#ifdef MACROpaintLineH
+#define paintLineH MACROpaintLineH
+#else
+    public void paintLineH(Graphics g, int y, int xa, int xb)
+    {
+        //paintPixel(g,xa,y); paintPixel(g,xb,y);
+        g.drawLine(xa,y,xb,y);
+        //debug("- paintLineH : " + xa + "," + xb );
+    }
+#endif
+
+    //~~~~~~~~~~~~~~~~
+#if  ( ( defined MIDP_1_0 ) && ( ! defined NOKIA )) 
+    /** Software triangle filler (when no accell is provided) **/
+    public void paintTriangleSoft(Graphics g, int[] a, int[] b, int[] c)
+    {
+        int xt = a[0];  int yt = a[1];    // top
+        int xm = b[0];  int ym = b[1];    // middle
+        int xb = c[0];  int yb = c[1];    // bottom
+        int t=0;
+        // sort 
+        if ( yt > yb ) { swap(yb,yt,t); swap(xb,xt,t); }
+        if ( yt > ym ) { swap(ym,yt,t); swap(xm,xt,t); }
+        if ( ym > yb ) { swap(ym,yb,t); swap(xm,xb,t); }
+
+        int dtb=0, dtm=0, dmb = 0 ; //float !
+        int r=0,l=0;
+        //debug("upper part of the triangle");
+        int rx=xt, lx=xt , y = 0;
+        //#if 0
+        if ( (yt-yb) != 0 ) 
+            dtb = FPdiv ( (xb-xt), (yb-yt) ) ; // float
+
+        if ( (yt-ym) != 0 )
+            dtm = FPdiv ( (xm-xt) , (ym-yt) ) ; // float
+
+        if ( xm < xt ) { l = dtm ; r = dtb; } else { l = dtb; r = dtm; }
+        
+        //
+        lx = tofloat(xt); rx = lx; // Fixed Point Maths
+        //setCurrentColor(g, 0xFF);
+        for (y=yt; y<ym; y++ ){
+            paintLineH( g, y, toint(lx) , toint(rx));
+            lx += l;
+            rx += r;
+        }
+        //MACRO_println(" bottom part of the triangle");
+        if ( (yb-ym) != 0 ) 
+            dmb =  FPdiv ( ( xb-xm) ,   (yb-ym) ) ; // float
+        else r = 0;
+        
+        if ( xb < xt ) { l = dmb ; r = dtb; } else { l = dtb; r = dmb; }
+        /* may speed up cache , once debuged TODO!!!
+           for (int ly=ym; ly<=yb; ly++ ) {
+           g.drawLine( ( lx >> 8 ) , ly , ( rx >> 8 ) , ly );
+           lx += l;
+           rx += r; 
+           } */
+        lx = tofloat(xb); rx = lx;
+        //setCurrentColor(g, 0xFF00);
+        for (y=yb; y>=ym; y-- ) {
+            paintLineH( g, y, toint(lx) , toint(rx));
+            lx -= l;
+            rx -= r; 
+        }
+        //MACRO_println("-fillTriangle");
+    }
+
+
+    // warning triangle filler may not be implemented in all devices
+    public void paintTriangle(Graphics g, 
+                              int[] a, int[] b, int[] c, TYPE_COLOR col)
+    {
+        setCurrentColor(g, col );
+        paintTriangleSoft(g,a,b,c);
+    }
+#else
+    // SEE MACROpaintTriangle for speed up
+#ifdef NO_INLINE
+    public void paintTriangle(Graphics g,
+                              int[] a, int[] b, int[] c, TYPE_COLOR col)
+    {
+
+#ifdef AWT
+        setCurrentColor(g, col );
+        Polygon poly= new Polygon();
+        poly.addPoint(a[0],a[1]);
+        poly.addPoint(b[0],b[1]);
+        poly.addPoint(c[0],c[1]);
+        g.fillPolygon(poly);
+#else
+#if (( defined MIDP_2_0 ) || ( defined EXEN ))
+        setCurrentColor(g, col );
+        g.fillTriangle( a[0],a[1],b[0],b[1],c[0],c[1] );
+#else
+#ifdef NOKIA 
+        setCurrentColor(g, col );
+        dg = DirectUtils.getDirectGraphics(g);
+        dg.fillTriangle(a[0],a[1],b[0],b[1],c[0],c[1], cpp); //cpp?
+#else //default
+        setCurrentColor(g, col );
+        g.drawLine( a[0] , a[1] , b[0] , b[1] );
+        g.drawLine( a[0] , a[1] , c[0] , c[1] );
+        g.drawLine( c[0] , c[1] , b[0] , b[1] );
+#endif // NOKIA
+#endif // MIDP_2_0
+#endif // AWT
+        //debug("-paintTriangle");
+    }
+#else // INLINE
+#ifdef AWT
+#define paintTriangle(g,a,b,c,col)  { \
+     Polygon poly= new Polygon(); \
+     poly.addPoint(a[0],a[1]); \
+     poly.addPoint(b[0],b[1]); \
+     poly.addPoint(c[0],c[1]); \
+     setCurrentColor(g, col ); \
+     g.fillPolygon(poly); \
+    } 
+#else //AWT
+#if (( defined MIDP_2_0 ) || ( defined EXEN ))
+#define paintTriangle(g,a,b,c,col)  { \
+     setCurrentColor(g, col );\
+     g.fillTriangle( a[0],a[1],b[0],b[1],c[0],c[1] ); \
+    }
+#else // MIDP
+#ifdef NOKIA
+#define paintTriangle(g,a,b,c,col)  { \
+     DirectGraphics dg = DirectUtils.getDirectGraphics(g); \
+     dg.setARGBColor(0xFF000000|col); /* fix N3650v*00 v4.13,20-08-2003,NHL-8 bug  */ \
+     dg.fillTriangle(a[0],a[1],b[0],b[1],c[0],c[1], 0xFF000000|col ); \
+    }
+#else // NOKIA / default 
+#define paintTriangle(g,a,b,c,col)  { \
+        setCurrentColor(g, col ); \
+        g.drawLine( a[0] , a[1] , b[0] , b[1] ); \
+        g.drawLine( a[0] , a[1] , c[0] , c[1] );\
+        g.drawLine( c[0] , c[1] , b[0] , b[1] );\
+    }
+#endif // nokia 
+#endif // mipd2_0
+#endif //AWT
+#endif //INLINE
+#endif //
+
+
+    /** sample test for pixel filler **/
+    public void paintTrianglePixel(Graphics g, 
+                                   int xt, int yt,
+                                   int xm, int ym,
+                                   int xb, int yb,
+                                   int  col)
+    {
+        TYPE_COLOR color;
+        int t=0;
+        // sort 
+        if ( yt > yb ) { swap(yb,yt,t); swap(xb,xt,t); }
+        if ( yt > ym ) { swap(ym,yt,t); swap(xm,xt,t); }
+        if ( ym > yb ) { swap(ym,yb,t); swap(xm,xb,t); }
+
+        int dtb=0, dtm=0, dmb = 0 ; //float !
+        int r=0,l=0;
+        int x;
+        //debug("upper part of the triangle");
+        int rx=xt, lx=xt , ly = 0;
+        int srx, slx;
+        //#if 0
+        if ( (yt-yb) != 0 ) dtb = FPdiv(  (xb-xt) , (yb-yt) ); // float
+
+        if ( (yt-ym) != 0 )
+            dtm = FPdiv ( (xm-xt) ,  (ym-yt) ) ; // float
+
+        if ( xm < xt ) { l = dtm ; r = dtb; } else { l = dtb; r = dtm; }
+        
+        lx = tofloat(xt); rx = lx; // Fixed Point Maths
+        //setCurrentColor(g, 0xFF);
+        for (ly=yt; ly<ym; ly++ ){
+            slx = FPtoInt(lx); srx = FPtoInt(rx);
+            if( slx > srx) swap(slx,srx,t);
+            for(x=slx ;x <= srx ; x++) {
+                color = colormap[ 2*(ly+x)% (colormapsize-1)] ;
+                color &= col ;
+                paintPixel(g,x,ly,color);
+                //g.drawLine( x, ly, x, ly );
+            }
+            lx += l;
+            rx += r;
+        }
+
+        //MACRO_println(" bottom part of the triangle");
+        if ( (yb-ym) != 0 ) 
+            dmb = FPdiv(  (xb-xm) , (yb-ym)  ) ; // float
+        else r = 0;
+        
+        if ( xb < xt ) { l = dmb ; r = dtb; } else { l = dtb; r = dmb; }
+
+        lx = xb <<8; rx = lx;
+        //setCurrentColor(g, 0xFF00);
+        for (ly=yb; ly>=ym; ly-- ) {
+            slx = toint(lx); srx = toint(rx);
+            if( slx > srx) swap(slx,srx,t);
+            for(x=slx ;x <= srx ; x++) {
+                //t = col;
+                //color = colormap[(2*(ly+x))% (colormapsize-1)] ;
+                color = colormap[(2*(ly+x))% (colormapsize-1)] ;
+                color &= col;
+                paintPixel(g,x,ly,color);
+                //g.drawLine( x , ly ,x , ly );
+            }
+            lx -= l;
+            rx -= r; 
+        }
+        //MACRO_println("-fillTriangle");
+    }
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#ifdef MAPPING     // TODO
+    int[][] texmap = { { 0xFF, 0xFF00 } ,{ 0xFFFF, 0xFF0000 } };
+
+
+
+    public void paintLineHLinear(Graphics g,
+                                 int y, int l, int r, 
+                                 int[][] M)
+    {
+        //debug("+ paintLineLinear =" + l + " / " + r + " @ " + y);
+        int t=0;
+        if ( l > r )  { swap(l,r ,t); }
+
+        //int l =  FPtoInt(cxl); int r = FPtoInt(cxr);
+        //paintLineH(g, y,l , r ); if ( true) return;
+        
+        int[] dest = { 0 , tofloat(y) , 1 };
+        int[] orig = { 0 , 0 };
+        
+        for (int x= l  ; x <= r ; x++) {
+            dest[0] = x ;
+            orig[0] = 0; orig[1] = 0;
+            for (int j=0; j<3; j++) {
+                orig[0] += FPmult( M[0][j] , dest[j] ) ;
+                orig[1] += FPmult( M[0][j] , dest[j] ) ;
+            }
+            debug("Texcoord:" + orig[0] + " ," + orig[1] );
+            //setCurrentColor( src );
+            paintPixel(g, FPtoInt(x) ,y , COLOR_FG);
+        }
+        //paintPixel(g, FPtoInt(cxr) ,y );   paintPixel(g, FPtoInt(cxl) ,y );
+        debug("- paintLineLinear =" + l + " / " + r + " @ " + y);
+    }
+
+    //http://www.flipcode.com/articles/article_mobilegfx04.shtml
+    public void paintTriangleMapping(Graphics g,
+                                     int xt, int yt,
+                                     int xm, int ym,
+                                     int xb, int yb,
+                                     int light)
+    {
+        debug("+ paintTriangleMapping" );
+        int t=0;
+
+        if ( yt > yb ) { swap(yb,yt,t); swap(xb,xt,t); }
+        if ( yt > ym ) { swap(ym,yt,t); swap(xm,xt,t); }
+        if ( ym > yb ) { swap(ym,yb,t); swap(xm,xb,t); }
+
+        int[][] d ={ { FPtoFloat(xt), FPtoFloat(yt) },
+                     { FPtoFloat(xm), FPtoFloat(ym) }, 
+                     { FPtoFloat(xb), FPtoFloat(yb) } };
+        
+        int[][] s ={ { 2 * one , 2 * one } , 
+                     { one , 2 *one } ,
+                     { one , 2* one } };
+        
+        //debug("compute linear transform");
+        int det =  
+            FPmult( s[0][0] , ( s[1][1]  - s[2][1] ) ) +
+            FPmult( s[1][0] , ( s[2][1]  - s[0][1] ) ) +
+            FPmult( s[2][0] , ( s[0][1]  - s[1][1] ) );
+        
+        debug("det == " + det );
+        if ( det == 0 ) {
+            debug("det == 0");
+            return;
+        }
+        int m[][] = new int[2][3];
+
+        int[][] inv = { 
+            { ( s[1][1] - s[2][1] ) ,
+              ( s[2][1] - s[0][1] ) ,
+              ( s[0][1] - s[1][1] ) } ,
+
+            { ( s[2][0] - s[1][0] ) ,
+              ( s[0][0] - s[2][0] ) ,
+              ( s[1][0] - s[0][0] ) } ,
+
+            {   FPmult( s[1][0] , s[2][1] ) - FPmult( s[2][0] , s[1][1] ),
+                FPmult( s[2][0] , s[0][1] ) - FPmult( s[0][0] , s[2][1] ),
+                FPmult( s[0][0] , s[1][1] ) - FPmult( s[1][0] , s[0][1] )
+            }
+        };
+
+        //
+
+        for (int i=0; i<3; i++) {
+            m[0][i] = 0;
+            m[1][i] = 0;
+            
+            for (int j=0; j<3; j++) {
+                m[0][i] += FPmult( inv[i][j] , d[j][0] );
+                m[1][i] += FPmult( inv[i][j] , d[j][1] );
+            }
+            m[0][i] = FPdiv( m[0][i] , det);
+            m[1][i] = FPdiv( m[1][i] , det);
+        }
+        //
+
+        int dtb=0, dtm=0, dmb = 0 ; //float !
+        int r=0,l=0;
+        //debug("upper part of the triangle");
+        int rx=xt, lx=xt , y = 0;
+        //#if 0
+        if ( (yt-yb) != 0 ) 
+            dtb = FPdiv ( (xb-xt), (yb-yt) ) ; // float
+
+        if ( (yt-ym) != 0 )
+            dtm = FPdiv ( (xm-xt) , (ym-yt) ) ; // float
+
+        if ( xm < xt ) { l = dtm ; r = dtb; } else { l = dtb; r = dtm; }
+        
+        lx = tofloat(xt); rx = lx; // Fixed Point Maths
+        //setCurrentColor(g, 0xFF);
+        for (y=yt; y<ym; y++ ) {
+            //paintLineH( g, y, toint(lx) , toint(rx));
+            paintLineHLinear(g,y,lx,rx, m);
+            lx += l;
+            rx += r;
+        }
+        //MACRO_println(" bottom part of the triangle");
+        if ( (yb-ym) != 0 ) dmb =  FPdiv( (xb-xm) ,(yb-ym) ) ; // float
+        else r = 0;
+        
+        if ( xb < xt ) { l = dmb ; r = dtb; } else { l = dtb; r = dmb; }
+
+        lx = tofloat(xb); rx = lx;
+        //setCurrentColor(g, 0xFF00);
+        for (y=yb; y>=ym; y-- ) {
+            //paintLineH( g, y, toint(lx) , toint(rx));
+            paintLineHLinear(g,y,lx,rx, m);
+            lx -= l;
+            rx -= r; 
+        }
+
+
+        
+    }
+    public void printTriangle(
+                              int xt, int yt,
+                              int xm, int ym,
+                              int xb, int yb)
+    {
+    
+        debug(
+              " { " + xt + ","+ yt + "}, {"
+              + xm + ","+ ym + "}, {" + xb + ","+ yb + "}");
+    }
+
+#endif
+    //TODO : use java.lang.reflexion
+    /*
+      Class[] args = { int.class ,int.class , 
+      int.class ,int.class ,int.class ,int.class };
+      Method fillTriangle6int = null;
+      try {
+      fillTriangle6int = Graphics.getMethod("fillTriangle", args );
+      } catch (Exception e) { }
+
+    */
+
+#undef swap
+
+#ifndef INCLUDE_Raster
+}
+#endif
+
+/* $Id: */
+#endif // Raster_java_in
+

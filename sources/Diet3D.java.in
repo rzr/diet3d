@@ -1,0 +1,593 @@
+/* $Id: Diet3D.java.in,v 1.1 2004-03-08 13:55:38 rzr Exp $ */
+/**
+ * This in a template java source file wich can be preprocessed with GNU cpp
+ * see CppHack.java.in
+ * @author www.Philippe.COVAL.free.fr
+ * Copyright and License : http://rzr.online.fr/license.htm
+ * $Id: Diet3D.java.in,v 1.1 2004-03-08 13:55:38 rzr Exp $
+ **/
+#ifndef Diet3D_java_in_
+#define Diet3D_java_in_
+
+
+#include "HackJavaCpp.java.in"
+
+#define INCLUDE_MathFixed
+#define INCLUDE_Diet3DRender
+#define INCLUDE_Raster
+
+//#define debug(x) System.out.println(x)
+#define ZSORT
+#define PIXEL
+
+#ifndef NOKIA
+#define TEST
+#endif
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+/**
+ * @author www.Philippe.COVAL.free.fr
+ * Copyright and License : http://rzr.online.fr/license.htm
+ **/
+#ifndef INCLUDE_Diet3D
+public final class Diet3D
+{
+#endif //Diet3D
+
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
+
+    /// 3d mesh
+    public static final int mesh_logo_nv=10; 
+
+    public static final int mesh_logo_nf=8;
+    
+    public static final int mesh_logo_vv[][]= {
+        { -11585, 8689, 0 },  { -11585, -8689, 0 },  { -8689, 0, 0 },  { 5793, -8689, 0 },  { 0, 2896, 0 },  { 11585, -8689, 0 },  { 11585, 8689, 0 },  { 8689, 0, 0 },  { -5793, 8689, 0 },  { 0, -2896, 0 }
+    };
+    public static final int mesh_logo_vf[][]= {
+        { 3, 9, 2 },  { 1, 2, 0 },  { 2, 9, 0 },  { 6, 7, 5 },  { 5, 7, 4 },  { 4, 7, 8 },  { 3, 4, 8 },  { 8, 9, 3 }
+    };
+
+#undef  mesh_nv
+#undef  mesh_nf
+#undef  mesh_vv
+#undef  mesh_vf
+#undef  mesh_vc
+
+#define mesh_nv mesh_cube_nv
+#define mesh_nf mesh_cube_nf
+#define mesh_vf mesh_cube_vf
+#define mesh_vv mesh_cube_vv
+#define mesh_vc mesh_cube_vc
+#include "MeshCube.java.in"
+
+#undef  mesh_nv
+#undef  mesh_nf
+#undef  mesh_vv
+#undef  mesh_vf
+#undef  mesh_vc
+    
+#define mesh_nv mesh_sphere_nv
+#define mesh_nf mesh_sphere_nf
+#define mesh_vf mesh_sphere_vf
+#define mesh_vv mesh_sphere_vv
+#define mesh_vc mesh_sphere_vc
+    //#include "MeshSphere.java.in"
+#include "MeshPumpkin.java.in"
+
+
+
+#undef  mesh_nv
+#undef  mesh_nf
+#undef  mesh_vv
+#undef  mesh_vf
+
+#ifndef MIDP_1_0
+#define mesh_nv mesh_cross_nv
+#define mesh_nf mesh_cross_nf
+#define mesh_vf mesh_cross_vf
+#define mesh_vv mesh_cross_vv
+#include "MeshCross.java.in"
+#else
+#define mesh_cross_nv  mesh_cube_nv
+#define mesh_cross_nf  mesh_cube_nf
+#define mesh_cross_vf  mesh_cube_vf
+#define mesh_cross_vv  mesh_cube_vv
+#endif
+
+#undef  mesh_nv
+#undef  mesh_nf
+#undef  mesh_vv
+#undef  mesh_vf
+#undef  mesh_vc
+
+#define mesh_nv mesh_tux_nv
+#define mesh_nf mesh_tux_nf
+#define mesh_vf mesh_tux_vf
+#define mesh_vv mesh_tux_vv
+#define mesh_vc mesh_tux_vc
+#include "MeshTux.java.in"
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    static int init=0;
+    
+    public int w_ = 160; //128;
+    
+    public int h_ = w_;
+    public int hw_ = h_ * w_;
+    
+    /* center of screen in pixels */
+    int[] screen = { 0 , 0 , 0};
+    
+    static final int scale = 2; //cube=2 2=2^2=4
+    static int screenscale = 12;
+
+    /** rotation effect */
+    public int rx_ = -1; // -1 1 0
+    public int ry_ = -1;
+    public int rz_ = 0;
+    
+    
+    public int updated=0;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    /** rendering mode */
+    public int mode=0;
+    
+    static final String vmode[] = { 
+        "demo" , "dots", "wire" , "flat" , "front", "face", //=5
+        "light", "dynlight", // 6 7 
+        "test/mixed" , "test/full" 
+#ifdef PIXEL
+, "pixel"  // 8 9 10
+#endif
+
+#ifdef ZSORT
+        , "zsort" , "zsort+light"  // 11 12
+#endif
+#ifdef MAPPING
+        , "test/mapping"     //=13
+#endif
+    };
+
+    static int shape = 0;
+    
+    static final String vshape[] = { "cube", "sphere", 
+                                     "axis" , "logo2d" , "tux"};
+    
+    static final String vanim[] = { "demo" , "spin" , "no" };
+
+    public static int anim=0;
+
+    public static int tick=0;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#ifdef INCLUDE_MathFixed
+#include "MathFixed.java.in"
+#endif
+
+#ifdef INCLUDE_Raster
+#include "Raster.java.in"
+#endif
+
+
+#ifdef INCLUDE_Diet3DRender
+#include "Diet3DRender.java.in"
+#endif
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    static int bound =   ( mult ( 11585  , sqrt2 ) ); //20070 //+/- 11585
+    static TYPE_COLOR[] colormap = null;
+    static final int colormapsize=64;
+
+    int[] light = { 0 , 0 , - MathFixed.one };
+    //int[] light = { MathFixed.sqrt3,MathFixed.sqrt3,MathFixed.sqrt3 };
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //#undef  mesh_nv
+    //#undef  mesh_nf
+    //#undef  mesh_vv
+    //#undef  mesh_vf
+
+    //#include "MeshFace.java.in"
+    //(Code of a method longer than 65535 bytes)
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // reusable objects
+    /** Viewing Tranformation - check for scale row - TODO */
+    static int[][] m_ = new int[4][4];
+    
+    static int[] va = { 0 , 0 , 0 };
+    static int[] vb = { 0 , 0 , 0 };
+    static int[] vc = { 0 , 0 , 0 };
+    static int[] vn = { 0 , 0 , 0 };
+
+
+    /** 3d mesh data (inlined) */
+    int obj_nv =   mesh_cube_nv ;
+    
+    int obj_nf =   mesh_cube_nf;
+    
+    int[][] obj_vv =   mesh_cube_vv ;
+    
+    int[][] obj_vf =   mesh_cube_vf ;
+
+    int[] obj_vc =   mesh_cube_vc ;
+
+    int[][] obj_trans = null;
+    
+    int[][] obj_norm = null;
+
+    int[][] obj_center = null;
+
+
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#ifndef INCLUDE_Diet3D
+    public  Diet3D() 
+    {
+        init();
+    }
+    public Diet3D(int w, int h)  
+    {
+        init(w,h);
+    }
+#endif //  INCLUDE_Diet3D
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    public void init(int w, int h)
+    {
+        w_ = w; h_ = h; //hw_ = h_ * w_;
+        init();
+
+#if 1 //def NOKIA //TEST
+        toggleAnim(0);
+        toggleShape(3); //4-11
+        toggleMode(0);
+#else //default demo mode
+        toggleAnim(0);
+        toggleShape(4); //4-11
+        toggleMode(12); //12 = zsort+l
+#endif // init
+
+        tick++;
+    }
+
+    public void init()
+    {
+        screen[0] = w_ / 2; screen[1] = h_ / 2;  
+        screen[2] = h_;
+        //screenscale = bound / ( 8 *  h_ ) ; //CHECK // =12 < 13
+        //debug(""+ screenscale );
+        //screen[2] = -  ( mult( MathFixed.sqrt2 ,  MathFixed.one * MathFixed.max(h_,w_) )  / 2 );  //perspective
+        // fast lightning
+        colormap = new TYPE_COLOR[colormapsize];
+        int offset = 0x000000FF / colormapsize;
+        int v = 0;
+        for(int i=0;i<colormapsize;i++) {
+            v+=offset;
+            //if ( COLOR_BG == COLOR_BLACK ) 
+            colormap[i] =  v + (v<<8) + (v<<16) ;
+            //else 
+            //colormap[colormapsize-1 - i]
+            //= COLOR( v + (v<<8) + (v<<16) );
+        }
+        reset();
+        rz_ = ry_ = 1;        
+        //toggleShape();
+    }
+    public void reset()
+    {
+        MathFixed.initIdentity(m_);
+        rx_ = ry_ = rz_ = 0;
+    }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    public void toggleShape(int i)
+    {
+        MathFixed.initIdentity(m_);
+        shape = i;
+        switch (i) {
+        case 1:
+            obj_nv =   mesh_sphere_nv ;
+            obj_nf =   mesh_sphere_nf ;
+            obj_vv =   mesh_sphere_vv ;
+            obj_vf =   mesh_sphere_vf ;
+            obj_vc =   mesh_sphere_vc ;
+            obj_trans = null ;
+            obj_center = null;
+            break;
+
+        case 3:
+            obj_nv =   mesh_logo_nv ;
+            obj_nf =   mesh_logo_nf ;
+            obj_vv =   mesh_logo_vv ;
+            obj_vf =   mesh_logo_vf ;
+            obj_vc = null;
+            obj_trans = null ;
+            obj_center = null;
+            break;
+
+        case 2:
+            obj_nv =   mesh_cross_nv ;
+            obj_nf =   mesh_cross_nf ;
+            obj_vv =   mesh_cross_vv ;
+            obj_vf =   mesh_cross_vf ;
+            obj_vc = null;
+            obj_trans = null ;
+            obj_center = null;
+            break;
+
+        case 4:
+            obj_nv =   mesh_tux_nv ;
+            obj_nf =   mesh_tux_nf ;
+            obj_vv =   mesh_tux_vv ;
+            obj_vf =   mesh_tux_vf ;
+            obj_vc =   mesh_tux_vc ;
+            obj_trans = null ;
+            obj_center = null;
+            break;
+
+        default: // 0 = cube
+            obj_nv =   mesh_cube_nv ;
+            obj_nf =   mesh_cube_nf ;
+            obj_vv =   mesh_cube_vv ;
+            obj_vf =   mesh_cube_vf ;
+            obj_vc =   mesh_cube_vc ;
+            obj_trans = null ;
+            obj_center = null;
+            shape = 0;
+
+            break;
+        }
+        recalc();
+    } 
+    public void toggleShape() 
+    {
+        toggleShape(1+shape);
+    }
+
+    public void toggleAnim(int i)
+    {
+        anim = i % vanim.length;
+        MathFixed.initIdentity(m_);
+    } 
+    public void toggleAnim() 
+    {
+        toggleAnim (1+anim);
+    }
+
+    public void toggleMode()
+    {
+        toggleMode(mode+1);
+    }
+
+    public void recalc()
+    {
+#ifdef ZSORT        
+        if ( (mode >= 11 ) && (obj_trans == null ) ) { 
+            //vmode[mode].equals("test/zort" ) ) {
+#if ( ( defined MIDP_1_0 ) || ( defined MIDP_2_0 ) )
+            System.gc();
+#endif
+            obj_trans = new int[obj_nv][3];
+            obj_center = new int[obj_nf][3];
+        }
+#endif //ZSORT
+ 
+#ifdef TEST
+        if ( false ) { // normals
+            obj_norm = new int[obj_nf][3];
+            int[] va,vb,vc;
+            int[] vn =new int[3];
+
+            for(int f=0; f < obj_nf; f++) {
+                va =  obj_vv[ obj_vf[f][0] ];
+                vb =  obj_vv[ obj_vf[f][1] ];
+                vc =  obj_vv[ obj_vf[f][2] ];
+                MathFixed.normVVV( va, vb, vc, vn);
+                obj_norm[f] = vn;
+            }
+        }
+#endif
+
+    }
+
+    public void toggleMode(int i)
+    {
+        light[0] = 0;
+        light[1] = 0;
+        light[2] = - one;
+
+        mode=i; // %n = 0 .... n-1
+        if ( mode >= vmode.length ) { 
+            toggleShape(); 
+            mode=0; 
+        }
+        recalc();
+
+    }
+    public void update()
+    {
+        rx_ = rx_%MathFixed.sinesize;
+        ry_ = ry_%MathFixed.sinesize;
+        rz_ = rz_%MathFixed.sinesize;
+        //rotation_ += MathFixed.one % MathFixed.PI2;
+        //MathFixed.rotate(rotation_,rotation_,rotation_, m_);
+        //MathFixed.rotate(rotation_,0,0, m_);
+        //MathFixed.rotate(0,rotation_,0, m_);
+        //MathFixed.rotate(0,0,rotation_, m_);
+        //MathFixed.rotate(rotation_,0,rotation_, m_);
+        if ( anim >= 2 ) { // dynlight fx
+            MathFixed.initIdentity(m_);
+        }
+        MathFixed.rotate( rx_*rotation_, ry_ *rotation_, rz_ *rotation_, m_);
+        updated++;
+    }
+
+    public void tick()
+    {
+        if( anim <= 0 ) { 
+            switch (tick) {
+            case 1: // point
+                toggleShape(1);  
+                toggleMode(1);  
+                break;
+            case 2: //wire
+                toggleShape(2);  
+                toggleMode(2);  
+                break;
+            case 3:  // flat
+                toggleShape(3);  
+                toggleMode(3);  
+                break;
+            case 4: // front
+                toggleShape(0);  
+                toggleMode(4);
+                break;
+            case 5: // face
+                toggleShape(1);  
+                toggleMode(5);  
+                break;
+            case 6: // light
+                toggleShape(0);  
+                toggleMode(6);  
+                break;
+            case 7: // dyn
+                toggleShape(1);  
+                toggleMode(7);  
+                break;
+            case 8: // mixed
+                toggleShape(0);  
+                toggleMode(9);  
+                break;
+
+            case 9: // zsort
+                toggleShape(4);  
+                toggleMode(11);  
+                break;
+#ifdef PIXEL
+            case 10: //mapp
+                toggleShape(0);  
+                toggleMode(10);  
+                break;
+#endif
+            case 11:
+                toggleShape(4);  
+                toggleMode(12);  
+                break;
+            case 12:
+                toggleShape(0);  
+                toggleMode(0);  
+                break;
+            case 0:
+                break;
+            default:
+                toggleMode();
+                break;
+            }
+        }
+        tick++;
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    /** Rotation step */
+    public int rotation_ = MathFixed.sinstep;
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    /** lightning */
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+#if ( ( defined  MIDP_2_0 ) || ( defined EXEN ))
+    public  
+#else
+        protected
+#endif //
+
+        void paint(Graphics g)
+    {
+        setCurrentColor(g, COLOR_BG );
+        g.fillRect( 0 , 0, w_ , h_ ); //bound box trick //TODO
+
+        switch(mode) { // [ %n : 0 ... n-1]
+        case 1: setCurrentColor(g, COLOR_FG ); paintVertex(g); break;
+
+        case 2: setCurrentColor(g, COLOR_FG_LINE ); paintLine(g); break;
+
+        case 3: setCurrentColor(g, COLOR_FG_FACE ); paintFlat(g); break;
+
+        case 4: setCurrentColor(g, COLOR_FG_FACE ); paintFront(g); break;
+
+        case 5: setCurrentColor(g, COLOR_FG_FACE ); paintFrontFace(g); break;
+
+        case 6: setCurrentColor(g, COLOR_FG_FACE ); paintLight(g); break;
+            
+        case 7: setCurrentColor(g, COLOR_FG_FACE ); paintDynLight(g); break;
+
+        case 8:
+            setCurrentColor(g, COLOR_FG_FACE);
+            paintFront(g);
+            setCurrentColor(g, COLOR_FG_POINT);
+            paintVertex(g);
+            break;
+
+        case 9:
+            paintLight(g);
+            setCurrentColor(g, COLOR_FG_POINT);
+            paintVertex(g);
+            setCurrentColor(g, COLOR_FG );
+            paintFront(g);
+            break;
+            
+        case 10: paintPixelFiller(g); break;
+#ifdef ZSORT            
+        case 11: paintSortFlat(g);  break;
+
+        case 12: paintSort(g);  break;
+#endif
+
+#ifdef MAPPING
+        case 13: paintMapping(g); break;
+#endif
+        default:
+            setCurrentColor(g, COLOR_FG_LINE );
+            paintLine(g);
+            setCurrentColor(g, COLOR_FG );
+            paintString(g, "Shape " + vshape[shape] + " # " + obj_nf );
+        }
+#if ! ( (defined AWT ) || ( defined EXEN ) || ( defined NTTDOCOMO ))
+        setCurrentColor(g, COLOR_FG );
+        g.drawString( "" + vmode[mode]  
+                      , ( w_ >> 1 )  , h_ - ( h_ >> 2 )  , 
+                      g.BASELINE  | g.HCENTER );
+#endif
+
+    }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#if 0 //def FULL
+    //ifdef FULL // (  ! defined RELEASE ) 
+    ///
+    public static String debug(Object o) 
+    {
+        //if ( true) return ""; //
+        String s= o.toString();
+        MACRO_println(s);
+        //showStatus(s);
+        return s;
+    }
+
+#endif //FULL
+
+#ifndef INCLUDE_Diet3D
+}
+#endif // INCLUDE_Diet3D
+#endif // Diet3D_java_in_
+/* $Id: */
+
