@@ -1,4 +1,4 @@
-/* $Id: HackJavaCpp.java.in,v 1.4 2004-03-30 18:44:15 rzr Exp $ */
+/* $Id: HackJavaCpp.java.in,v 1.5 2004-03-31 21:43:10 rzr Exp $ */
 #ifndef HackJavaCpp_java_in_
 #define HackJavaCpp_java_in_
 
@@ -27,6 +27,11 @@
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
  **/
+
+
+#ifndef VERSION
+#define VERSION "0.0.0unknown"
+#endif
 
 #if (( defined MIDP_2_0 ) || ( defined NOKIA ))
 #define WANT_INFO
@@ -88,7 +93,7 @@ import com.nokia.mid.ui.*;
 #endif
 
 
-#if(  (defined HAVE_SYSTEM_NO ) || ! (defined DEVEL ) )
+#if ( ! defined DEVEL ) 
 #define MACRO_print(x)  
 #define MACRO_println(x) 
 #else
@@ -96,23 +101,42 @@ import com.nokia.mid.ui.*;
 #define MACRO_println(x) System.out.println(x)
 #endif
 
-#ifndef VERSION
-#define VERSION "0.0.0unknown"
+
+
+#ifdef  DEVEL 
+#define debug MACRO_println
 #endif
 
+#define debug2lt( a , b ) \
+  MACRO_println("( " + a +" < " + b + " )"); 
 
-#ifndef debug 
-#define debug System.out.println
-#endif
+#define debug2ltif( a , b ) \
+  if ( a < b ) { debug2lt(a,b); }
 
-#define FPoff 8
+#define debug2gt( a , b ) \
+  MACRO_println("( " + a +" > " + b + " )"); 
+
+#define debug2gtif( a , b ) \
+  if ( a > b ) { debug2gt(a,b); }
+
+#define debug3lt( a , b , c ) \
+  MACRO_println("( " + a +" < " + b +" < " + c + " )");
+
+
+
 #define FPfloat int
-#define FPtoFloat(a) ( a << FPoff )
-#define FPtoInt(a) (a >> FPoff )
-#define FPdiv(a,b) ( (a << (FPoff<<1)) / (b << FPoff ) )
-#define FPdivProtected(a,b,c)  ( b != 0 ) ? FPdiv(a,b) : c
+//#define FPpow 
+#define FPoff 8
+#define FPtoFloat(a) ( a << FPoff ) //masks CHECK
+#define FPtoInt(a) (a >> FPoff ) //masks CHECK
 
 #define FPmult(a,b) ( (a*b) >> FPoff )
+
+//#define FPdiv(x,y)	((((x)<<6)/((y)>>6))>>4) //16:16 flipcode
+#define FPdiv(a,b) ( (a << (FPoff<<1)) / (b << FPoff ) ) //ok 
+
+
+#define FPdivProtected(a,b,c)  ( b != 0 ) ? FPdiv(a,b) : c
 
 #define toint FPtoInt
 #define tofloat FPtoFloat
@@ -153,21 +177,5 @@ import com.nokia.mid.ui.*;
 #define clip(x,min,max)  (( x < min) ? min : ( (x > max)  ? max : x ))
 
 
-#define debug2lt( a , b ) \
-  MACRO_println("( " + a +" < " + b + " )"); 
-
-#define debug2ltif( a , b ) \
-  if ( a < b ) { debug2lt(a,b); }
-
-#define debug2gt( a , b ) \
-  MACRO_println("( " + a +" > " + b + " )"); 
-
-#define debug2gtif( a , b ) \
-  if ( a > b ) { debug2gt(a,b); }
-
-#define debug3lt( a , b , c ) \
-  MACRO_println("( " + a +" < " + b +" < " + c + " )"); 
-
-
 #endif //HackJavaCpp_java_in_
-// $Id: HackJavaCpp.java.in,v 1.4 2004-03-30 18:44:15 rzr Exp $ 
+// $Id: HackJavaCpp.java.in,v 1.5 2004-03-31 21:43:10 rzr Exp $ 

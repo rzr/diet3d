@@ -1,4 +1,4 @@
-/* $Id: Diet3DMIDlet.java.in,v 1.1 2004-03-08 13:55:38 rzr Exp $ */
+/* $Id: Diet3DMIDlet.java.in,v 1.2 2004-03-31 21:43:10 rzr Exp $ */
 #ifndef Diet3DMIDlet_java_in_
 #define Diet3DMIDlet_java_in_
 
@@ -28,7 +28,7 @@ final public class Diet3DMIDlet
     ChoiceGroup lshape = null;
     ChoiceGroup lanim = null;
 
-    String onoff[] = { "off", "on" };
+    //String onoff[] = { "off", "on" };
     
     public void info()
     {
@@ -46,15 +46,17 @@ final public class Diet3DMIDlet
         //msg += System.getProperty("microedition.profiles" ); //crash uemu
         //fmMain.append( msg );
 
+        lanim = new ChoiceGroup( "Animation :", 
+                                 Choice.EXCLUSIVE, 
+                                 mCanvas.mRender.vanim, null);
+        fmMain.append( lanim ); 
+
+
         lshape = new ChoiceGroup( "Choose Shape :", 
                                   Choice.EXCLUSIVE, 
                                   mCanvas.mRender.vshape, null);
         fmMain.append( lshape); 
 
-        lanim = new ChoiceGroup( "Animation :", 
-                                 Choice.EXCLUSIVE, 
-                                 mCanvas.mRender.vanim, null);
-        fmMain.append( lanim ); 
 
         lrender = new ChoiceGroup( "Choose Rendering mode :", 
                                    Choice.EXCLUSIVE, 
@@ -100,9 +102,9 @@ final public class Diet3DMIDlet
         if (c.getCommandType() == Command.EXIT) {
             exit();
         } else { //if ( c == "" ) {
-            mCanvas.mRender.toggleAnim(  lanim.getSelectedIndex() );
-            mCanvas.mRender.toggleShape(  lshape.getSelectedIndex() );
-            mCanvas.mRender.toggleMode(  lrender.getSelectedIndex() );
+            mCanvas.mRender.toggleAnim( lanim.getSelectedIndex() );
+            mCanvas.mRender.toggleShape( lshape.getSelectedIndex() );
+            mCanvas.mRender.toggleMode( lrender.getSelectedIndex() );
             //Form waitForm = new Form("Waiting...");
             //mDisplay.setCurrent(waitForm);
             //mCanvas.start();
@@ -117,5 +119,11 @@ final public class Diet3DMIDlet
         }
     }
 }
+
+/*
+3650
+<A-Kaser> l'action d'aller le menu a fait l'erreur array que je t'ai dit plus haut
+<A-Kaser> non 8fps tux+light
+*/
 #endif
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

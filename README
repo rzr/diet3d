@@ -1,4 +1,4 @@
-# $Id: README,v 1.4 2004-03-31 00:53:07 rzr Exp $
+# $Id: README,v 1.5 2004-03-31 21:43:07 rzr Exp $
 Subject: Mini3d Java J2ME 3D Engine Demo
 @author: www.Philippe.COVAL.online.fr - Rev: $Author: rzr $ 
 Copyright: GPL @ http://rzr.online.fr/license.htm
@@ -9,26 +9,6 @@ Project Home at : http://rzr.online.fr/java.htm
 
 Changelog:
 
-
-TODO:
-- translation
-- perspective
-- texmap 
-- xml parser, loader
-- spiral
-- shapes
-
-### Random Notes:
-# mapping
-# + 6600
-# - 3510i  : arrayindexout of bound exc
-# - 3100 : pixel 
-# sx1!
-
-# -35 5500 : crash zsort
-# T610 : no exit/menu
-
-
 ### cvs tags:
 
 Diet3D-0_26_0-20040331
@@ -36,3 +16,30 @@ Diet3D-0_25_8-20040331-Sanyo8100
 Diet3D-0_25_8-20040331-SonyEricssonT610
 Diet3D-0_25_8-20040330-NokiaNGage
 Diet3D-0_21-Nokia6600 (2004-03-14)
+
+### TODO:
+
+- translation
+- perspective
+- texmap 
+- xml parser, loader
+- spiral
+- shapes
+- Absolute URL
+
+
+
+### Random Notes:
+
+http://www.atfgame.net/programming/j3dme.htm
+# mapping
+# + 6600
+# - 3510i  : arrayindexout of bound exc
+# 3650 <A-Kaser> là je passe sur le 
+# - 3100 : pixel 
+# sx1!
+
+# -35 5500 : crash zsort
+# T610 : no exit/menu
+
+# $Id: README,v 1.5 2004-03-31 21:43:07 rzr Exp $
