@@ -1,4 +1,4 @@
-/* $Id: */
+/* $Id: Diet3DCanvas.java.in,v 1.2 2004-03-10 17:59:43 rzr Exp $ */
 #ifndef Diet3DCanva_java_in_
 #define Diet3DCanva_java_in_
 /**
@@ -120,7 +120,7 @@ public final class Diet3DCanvas
         }
 #endif
 
-#if ( (defined MIDP_2_0 ) ) || (defined NOKIA ) ) 
+#if ( (defined MIDP_2_0 )  || (defined NOKIA ) ) 
         //TODO see isMutable && != null
         for(init=0; //(bug on nokia 6600 40<70)
             ( init<70 ) || ( g == null ) ;
@@ -212,15 +212,9 @@ public final class Diet3DCanvas
             time = ( getTimerTickCount() - time );
             if (  time <= 0  ) time = 1;
             fps = (int) 1000 / (int) time ;
-            
-            if ( time <= mspf ) { 
-                time = mspf - time ;
-                try { Thread.sleep(time); 
-                } catch (InterruptedException ex) {
-                    //ex.printStackTrace();  
-                }
-            }
-            // MACRO_println(".Fps ="+fps+" / time=" +time);        
+            if ( time <= mspf ) { time = mspf - time ; }else time=0;
+            try { Thread.sleep(time); // may unlock 
+            } catch (InterruptedException ex) { ex.printStackTrace(); }
         }
     }
 #endif //EXEN
@@ -378,3 +372,4 @@ public final class Diet3DCanvas
 
     */
 #endif // Diet3DCanva_java_in_
+/* $Id: Diet3DCanvas.java.in,v 1.2 2004-03-10 17:59:43 rzr Exp $ */
