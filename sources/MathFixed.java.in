@@ -1,0 +1,632 @@
+/* $Id: MathFixed.java.in,v 1.1 2004-03-08 13:55:38 rzr Exp $ */
+#ifndef MathFixed_java_in_
+#define MathFixed_java_in_
+
+/**
+ * @author www.Philippe.COVAL.free.fr
+ * Copyright and License : http://rzr.online.fr/license.htm
+ **/
+#include "HackJavaCpp.java.in"
+/**
+ * @author www.Philippe.COVAL.free.fr
+ * Copyright and License : http://rzr.online.fr/license.htm
+ * Provide basic Math operations on fixed reals stored on int's
+ * This a sample example, need some fix check for stabilty (+half may help)
+ * the idea is to >> when using reals , not needed on intergers
+ * TODO: check for stability, 
+ * Optimised : unroll loops, reuse vs create objects, inline as much as possible
+ * Was released in a bugged version; now ok 20031120
+ **/
+#ifndef INCLUDE_MathFixed
+class MathFixed
+{
+#else
+#define MathFixed this
+#endif //INCLUDE
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    // all this section will have to move is a separated Precision.class
+    /*
+2^16 =  65536
+2^32 =  4294967296
+4294967296 / 2 =  2147483648
+srrt=() = 46340.95
+/ 3 = 15446
+    */
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   
+    public static final int offset=10;
+    public static final int one=1024;
+    public static final int PI=3217;
+    public static final int sqrt2=1448;
+    public static final int sqrt3=1774;
+    public static final int exp=2784;
+    public static final int log10=2358;
+    //public static final int sinesize=32;
+    //public static final int sine[]={ 0, 200, 392, 569, 724, 851, 946, 1004, 1024, 1004, 946, 851, 724, 569, 392, 200, 0, -200, -392, -569, -724, -851, -946, -1004, -1024, -1004, -946, -851, -724, -569, -392, -200 };
+
+    public static final int sinesize=64;
+    public static final int sine[]={ 
+        0, 100, 200, 297, 392, 483, 569, 650, 724, 792, 851, 903, 946, 980, 1004, 1019,
+        1024, 1019, 1004, 980, 946, 903, 851, 792, 724, 650, 569, 483, 392, 297, 200, 100, 
+        0, -100, -200, -297, -392, -483, -569, -650, -724, -792, -851, -903, -946, -980, -1004, -1019, 
+        -1024, -1019, -1004, -980, -946, -903, -851, -792, -724, -650, -569, -483, -392, -297, -200, -100 
+    };
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    public static int precision_sqrt = 1;
+    static public int PI2= PI * 2; 
+    static public int half = one /2;
+    static public int sinstep=  (( PI * 2 ) / sinesize ); 
+    static public int sinoff=((sinesize*3) / 4);
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Reusable objects
+    static int[][] tmpint4x4a = new int[4][4];
+    static int[][] tmpint4x4b = new int[4][4];
+    static int[] sc = new int[2];
+    //static int[] tmpint3a = new int[3];
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ///
+
+    public static int max(int a, int b) 
+    {
+        return ((a > b ) ? a : b);
+    }
+
+    public static int trim(int a) 
+    {
+        return ( a + half ) >> offset;
+    }
+
+
+#define MACROtrim(a) { a = (( a + half ) >> offset ); }
+#define trim(a) MACROtrim(a)
+
+
+#ifdef EXTERN
+    public static int mult(int a, int b)
+    {
+        ////debug("+mult a=" +a +" b=" + b);
+        if ( a == 0 || b == 0 ) return 0;
+        return ( ( a * b ) + half ) >> offset;
+    }
+    public static int pow2(int a) { return (mult(a,b)) };
+#endif //EXTERN
+#define MACROmult(a,b) ( ( (a*b) + half ) >> offset )
+#define mult(a,b)  MACROmult(a,b)
+
+#define MACROpow2(a) (mult(a,a))
+#define pow2(a)  MACROpow2(a)
+
+
+#ifdef EXTERN
+    public static int div(int a, int b)
+    {
+        int r = 0;
+        r =( (a << offset ) / b );
+        return r;
+    }
+#endif
+#define MACROdiv(a,b) ( (a<<offset ) / b )
+#define div(a,b)  MACROdiv(a,b)
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    /// that one fix cohenrence and speed up
+#ifdef EXTERN
+    public static void sincos(int angle, int sc[])
+    {
+        while ( angle < 0 ) { angle += PI2; }
+        angle = ( angle  ) %PI2 ; //+2PI
+        sc[0] = ( (angle * sinesize + half ) /  PI2  ) ; // !!
+        sc[1] = (sc[0]+(sinesize>>2)); // = /4 //work on index not values
+        sc[0] = sine[ sc[0]%sinesize ]; // now values
+        sc[1] = sine[ sc[1]%sinesize ];
+        ////debug("sincos : 1 =? " +  (pow2(sc[0]) + pow2(sc[1])));
+    } 
+#endif
+#define MACROsincos(angle,sc)  { \
+        while ( angle < 0 ) { angle += PI2; } \
+        sc[0] = ( ( (angle%PI2) * sinesize + half ) / PI2 ) ; \
+        sc[1] = ( sc[0] + (sinesize/4)); \
+        sc[0] = sine[ (sc[0]%sinesize) ]; \
+        sc[1] = sine[ (sc[1]%sinesize) ]; \
+    }
+#define sincos(angle,sc)  MACROsincos(angle,sc) 
+
+#ifdef EXTRA
+    public static int pow(int a, int b) 
+    {
+        ////debug("+pow "+a+"^"+b);
+        if( a == 0 ) return 0;
+        if( a == one ) return  one;
+
+        int r=a;
+        for (int i=one;i<b;i+=one) r = mult( r,a);
+        ////debug("="+r);
+        return r;
+    }
+   
+    public static int sin(int angle) 
+    {
+        int a = angle;
+        a = a%(2 * PI );
+        int i = ( (a * sinesize + half )/ ( 2 * PI ) )%sinesize ;
+        //MACRO_println("-cos "+ i);
+        return sine[i];
+    }
+
+    public static int cos(int angle) 
+    {
+        return sin( angle + (  PI / 2  ) );
+    }
+    /*
+      public static int cos(int angle) 
+      {
+      int a = angle + 3 * ( PI / 2 );
+      a = a%(2 * PI );
+      int i = ( (a * sinesize + half) / ( 2 * PI )) %sinesize;
+      return sine[i];
+      }
+
+      public static int cos(int angle) 
+      {
+      int a = angle;
+      a = a%(2 * PI );
+      int i = ( (a * sinesize + half  ) / ( 2 * PI ) ) ; //check for that half
+      MACRO_println("-cos ("+angle +")=" + sinstep +"*"  + i );
+      return cos[i%sinesize];
+      }
+
+    */
+#endif //EXTRA
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    public static int sqrt(int a)
+    {
+        ////debug("+sqrt"); print(a);
+        if ( a == 0 ) return 0;
+        int g,q,r=0;
+        if ( a >= one ) g = one; else g = 1 ;
+        do {
+            q = div(a , g ) ;
+            g = ( g + q ) >> 1; // average /2
+            ////debug("srqt g="+g+" / q="+q);//
+            r = (q-g);
+            r = (r > 0 ) ? r : -r ;
+        } while(  r  > precision_sqrt);
+        return g;
+    }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    public static void trimV(int[]r) 
+    {
+        r[0] = ( r[0] + half ) >> offset;
+        r[1] = ( r[1] + half ) >> offset;
+        r[2] = ( r[2] + half ) >> offset;
+    }
+
+
+    //#define MACROtrimV(a) {  trim(a[0]); trim(a[1]);  trim(a[2]); }
+    //#define trimV(a) MACROtrimV(a)
+
+
+#ifdef EXTERN
+    public static int lenghtV(int[] a)
+    {
+        ////debug("+lenght"); print(a);
+        return sqrt( pow2(a) + pow2(b) + pow2(c) );
+    }
+#endif
+#define MACROlenghtV(a) (sqrt( pow2(a[0]) + pow2(a[1]) + pow2(a[2])))
+#define lenghtV(a)  MACROlenghtV(a) 
+
+#ifdef EXTERN
+    public  static void initMS(int d[][], int v)
+    {
+        for(int i=0;i<4;i++) for(int j=0;j<4;j++) d[i][j]=v;
+    } 
+#endif
+
+#define MACROinitMS(d,v) \
+             d[0][0] = d[0][1] = d[0][2] = d[0][3] = v ; \
+             d[1][0] = d[1][1] = d[1][2] = d[1][3] = v ; \
+             d[2][0] = d[2][1] = d[2][2] = d[2][3] = v ; \
+             d[3][0] = d[3][1] = d[3][2] = d[3][3] = v ;
+#define initMS(f,v) MACROinitMS(f,v)
+
+    public static void initIdentity(int[][] m) 
+    {
+        //for(int i=0;i<4;i++) for(int j=0;j<4;j++) m[i][j]=0;
+        //for(int i=0;i<4;i++) m[i][i]= one;
+        m[0][0] = m[1][1] = m[2][2] = one;
+        m[0][1] = m[0][2] = m[1][0] = m[1][2] = m[2][0] = m[2][1] = 0;
+        m[3][0] = m[3][1] = m[3][2] = one; //
+        m[0][3] = m[1][3] = m[2][3] = 0 ; 
+        m[3][3] = one; //tranlation
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#ifdef EXTERN    
+    public static void copyV(int s[], int d[]) 
+    {
+        //for(int i=0;i<4;i++) for(int j=0;j<4;j++) d[i][j] = s[i][j];
+        d[0]=s[0]; d[1]=s[1]; d[2]=s[2];
+    }
+#endif
+#define MACROcopyVV(s,d) {  d[0]=s[0]; d[1]=s[1]; d[2]=s[2]; }
+#define copyVV(s,d) MACROcopyVV(s,d)
+
+#if 1 // def DEBUG
+    public static void printV(int[] v) 
+    {
+        MACRO_print(  "{");
+        int i=0;
+        for( i=0; i < 2 ; i++) MACRO_print(""+ v[i] + ",");
+        MACRO_println( "" + v[i] + "}");
+        
+    }
+    public static void printS(int a) 
+    {
+        MACRO_println( "" + a);
+    }
+    public static void printM(int[][] m) 
+    {
+        for(int i=0;i<4;i++) { 
+            for(int j=0;j<4;j++) 
+                MACRO_print( m[i][j] + " , " );
+            MACRO_println( "");
+        }
+        MACRO_println( "");
+        //debug("-printM");
+    }
+#endif
+
+
+#ifdef EXTRA
+    public static int[] addVV(int[] a, int[] b)
+    {
+        int[] r = new int[3];
+        for(int i=0; i < 3 ; i++) r[i]=a[i] + b[i];
+        return r;
+    }
+    public static int[] multVV(int[] a, int[] b)
+    {
+        int[] r = new int[3];
+        for(int i=0; i < 3 ; i++) r[i]= ( a[i] * b[i] + half) >> offset;
+        return r;
+    }
+
+    
+    public static void subVV(int[] a, int[] b,int[] r)
+    {
+        //for(int i=0; i < 3 ; i++) r[i]=a[i] - b[i];
+        r[0]=a[0] - b[0]; r[1]=a[1] - b[1]; r[2]=a[2] - b[2];
+    }
+
+    public static void addVV(int[] a, int[] b, int[] r)
+    {
+        //for(int i=0; i < 3 ; i++) 
+        r[0]=a[0] + b[0]; r[1]=a[1] + b[1]; r[2]=a[2] + b[2];
+    }
+
+    public static void multVV(int[] a, int[] b,int[] r)
+    {
+        r[0]= ( a[0] * b[0] + half) >> offset;
+        r[1]= ( a[1] * b[1] + half) >> offset;
+        r[2]= ( a[2] * b[2] + half) >> offset;
+    }
+
+    public static int[] scaleVS(int[] a, int f)
+    {
+        int[] r = new int[3];
+        for(int i=0; i < 3 ; i++) r[i]= ( (a[i]*f + half) >> offset);
+        return r;
+    }
+
+
+    public static int[] subVV(int[] a, int[] b)
+    {
+        int[] r = new int[3];
+        for(int i=0; i < 3 ; i++) r[i]=a[i] - b[i];
+        return r;
+    }
+
+#endif //EXTRA //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#ifdef EXTRA    
+    public static void scaleVS(int[] a, int f,int[] r)
+    {
+        for(int i=0; i < 3 ; i++) r[i]= ( (a[i]*f + half) >> offset);
+    }
+#else
+#define MACROscaleVS(a,f,r) { \
+ r[0] = mult(a[0],f);  r[1] = mult(a[1],f);  r[2] = mult(a[2],f); }    
+#define scaleVS(a,f,r)  MACROscaleVS(a,f,r) 
+
+#endif
+    
+#define MACROsubVV(a,b,r) { \
+        r[0] = a[0]- b[0];   r[1] = a[1]- b[1];   r[2] = a[2]- b[2];  }
+#define subVV(a,b,r) MACROsubVV(a,b,r) 
+    ///TEST THIS
+    /// nrom(a) * norm(b) * cos(a,b)
+    // 1/2 * ( ( norm(u+v)^2 - norm(u)^2 - norm(v)^2 )
+    
+    ///TEST THIS
+    /// @param f is a real integer (2,3, etc)
+#ifdef EXTRA
+    public static int[] powV(int[] a, int f)
+    {
+        int[] r = new int[3];
+        r[0] = a[0];r[1] = a[1];r[2] = a[2];
+
+        for(int i=0; i < 3 ; i++) 
+            for(int j=0;j<f;j++) {
+                r[i] *= a[i];
+                r[i] = ( r[i] + half) >> offset;
+            }
+        return r;
+    }
+    
+
+    ///TEST THIS
+
+    public static int[] crossVV(int[] a, int[] b)
+    {
+        int[] r = new int[3];
+        crossVV(a,b,r);
+        return r;
+    }
+#endif
+    public static void crossVV(int[] a, int[] b , int[] r)
+    {
+        //print(a); print(b);
+        r[0] = mult( a[1] , b[2] ) - mult (a[2] , b[1] );
+        r[1] = mult( a[2] , b[0] ) - mult (a[0] , b[2] );
+        r[2] = mult( a[0] , b[1] ) - mult (a[1] , b[0] );
+        //        print(r);
+        ////debug("-cross");
+    }
+#ifdef EXTRA
+    public static int[] normVVV(int[] a, int[] b, int[] c)
+    {
+        //return crossVV( subVV(c,a), subVV(b,a) );
+        int[] x= new int[3]; int[] y= new int[3];
+        subVV(c,a,x);        subVV(b,a,y);
+        return crossVV(x,y);
+    }
+#endif
+    public static void normVVV(int[] a, int[] b, int[] c,int[] r)
+    {
+        int[] x= new int[3]; int[] y= new int[3]; //opt
+        subVV(c,a,x);        subVV(b,a,y);
+        crossVV(x,y,r);
+    }
+
+#ifdef EXTERN
+    public static int[] normV(int[] a) 
+    {
+        ////debug("+norm");        print(a);
+        int[] r = new int[3];
+        r[0] = a[0];r[1] = a[1];r[2] = a[2];
+        int l = lenghtV(a);
+        ////debug("lenght="+l);
+        if ( l != 0 )  l = div(one, l) ; //!!
+        scaleVS(r,l,r);
+        // print(r);        //debug("-norm");
+        return r;
+    }
+#endif
+
+    public static void normV(int[] a, int[] r) 
+    {
+        ////debug("+norm");        print(a);
+        r[0] = a[0]; r[1] = a[1]; r[2] = a[2];
+        int l = lenghtV(a);
+        ////debug("lenght="+l);
+        if ( l != 0 )  l = div(one, l) ; //!!
+        scaleVS(r,l,r);
+        // print(r);        //debug("-norm");
+    }
+
+#ifdef EXTERN
+#endif // EXTERN
+
+
+
+
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    /**
+     * dot product X . Y = |X| * |Y] * cos( angle(Y,X cw))
+     **/
+
+    public static int dotVV(int[] a, int[] b)
+    {
+        return(mult(a[0],b[0])) + (mult(a[1],b[1])) + (mult(a[2],b[2])) ;
+    }
+    //#define MACROdotVV(a,b,r) { \
+    //r =  mult(a[0],b[0]) + mult(a[1],b[1]) + mult(a[2],b[2]) ; }
+    //#define dotVV(a,b,r) MACROdotVV(a,b,r) 
+
+
+    public static void copyMM(int s[][], int d[][]) 
+    {
+        //for(int i=0;i<4;i++) for(int j=0;j<4;j++) d[i][j] = s[i][j];
+        d[0][0]=s[0][0]; d[0][1]=s[0][1]; d[0][2]=s[0][2];
+        d[1][0]=s[1][0]; d[1][1]=s[1][1]; d[1][2]=s[1][2];
+        d[2][0]=s[2][0]; d[2][1]=s[2][1]; d[2][2]=s[2][2];
+    }
+
+
+#ifdef EXTERN     ///optimise
+    public static void multMMIterative( int a[][] , int b[][] , int res[][] )
+    {
+        for(int i=0;i<3;i++)
+            for(int j=0;j<3;j++) {
+                res[i][j] = 0; 
+                for(int k=0;k<3;k++)
+                    res[i][j] += mult (a[i][k] , b[k][j] );
+            }
+    }
+#endif
+
+
+#define MACROmultVV(a,b)  \
+ ( mult(a[0],b[0]) + mult(a[1],b[1]) + mult(a[2],b[2]) ) 
+#define multVV(a,b) MACROmultVV(a,b)
+
+
+#define MACROmultMMpoint(a,b,i,j) \
+ ( mult(a[i][0],b[0][j])+mult(a[i][1],b[1][j])+mult(a[i][2],b[2][j]))
+
+#define MACROmultMM(a,b,r)  { \
+ r[0][0] = MACROmultMMpoint(a,b,0,0); \
+ r[0][1] = MACROmultMMpoint(a,b,0,1); \
+ r[0][2] = MACROmultMMpoint(a,b,0,2); \
+ r[1][0] = MACROmultMMpoint(a,b,1,0); \
+ r[1][1] = MACROmultMMpoint(a,b,1,1); \
+ r[1][2] = MACROmultMMpoint(a,b,1,2); \
+ r[2][0] = MACROmultMMpoint(a,b,2,0); \
+ r[2][1] = MACROmultMMpoint(a,b,2,1); \
+ r[2][2] = MACROmultMMpoint(a,b,2,2); \
+} 
+
+    
+    public static void multMM( int a[][] , int b[][] , int res[][] )
+    {
+        MACROmultMM(a,b,res);
+    }
+
+    //#define  multMM(a,b,r)  MACROmultMM(a,b,r)
+
+    public static void multMV( int[][] m, int[]v , int[] r)
+    {
+        r[0]= mult(v[0],m[0][0]) + mult(v[1],m[0][1]) + mult(v[2],m[0][2]);
+        r[1]= mult(v[0],m[1][0]) + mult(v[1],m[1][1]) + mult(v[2],m[1][2]);
+        r[2]= mult(v[0],m[2][0]) + mult(v[1],m[2][1]) + mult(v[2],m[2][2]);
+    }
+
+#ifdef EXTRA
+    public static void multMVFast( int[][] m, int[] v, int[] r)
+    {
+        r[0] = (( (v[0] * m[0][0]) + half) >> offset)
+            + (( (v[1] * m[0][1]) + half) >> offset)
+            + (( (v[2] * m[0][2]) + half) >> offset);
+        r[1] = (( (v[0] * m[1][0]) + half) >> offset)
+            + (( (v[1] * m[1][1]) + half) >> offset)
+            + (( (v[2] * m[1][2]) + half) >> offset);
+        r[2] = (( (v[0] * m[2][0]) + half) >> offset)
+            + (( (v[1] * m[2][1]) + half) >> offset)
+            + (( (v[2] * m[2][2]) + half) >> offset);
+    }
+#endif
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    /// warning  //TODO use quaternion for axe/angle rotations
+    public static void rotate(int x, int y, int z , int[][] m)
+    {
+        //debug("+rotate "+x);
+        //printM( m );
+        if ( z != 0 ) {
+            //debug(".rotateZ="+z);
+            sincos(z,sc); 
+            tmpint4x4a[0][0] =  sc[1];
+            tmpint4x4a[0][1] = - sc[0];
+            tmpint4x4a[0][2] = 0;
+           
+            tmpint4x4a[1][0] = sc[0];
+            tmpint4x4a[1][1] = sc[1];
+            tmpint4x4a[1][2] = 0 ;
+
+            tmpint4x4a[2][0] = 0 ;
+            tmpint4x4a[2][1] = 0 ;      
+            tmpint4x4a[2][2] = one ;
+
+            copyMM( m, tmpint4x4b );  multMM( tmpint4x4b, tmpint4x4a , m );
+        }
+
+        if ( y != 0) {
+            sincos(y,sc);
+            tmpint4x4a[0][0] = sc[1]; 
+            tmpint4x4a[0][1] = 0 ;
+            tmpint4x4a[0][2] = - sc[0];
+
+            tmpint4x4a[1][0] = 0;
+            tmpint4x4a[1][1] = one ; 
+            tmpint4x4a[1][2] = 0  ;
+
+            tmpint4x4a[2][0] = sc[0];
+            tmpint4x4a[2][1] = 0  ;      
+            tmpint4x4a[2][2] = sc[1]  ;
+
+            copyMM( m, tmpint4x4b );  multMM( tmpint4x4b, tmpint4x4a , m );
+        }
+        if ( x != 0 ) {
+            sincos(x,sc);
+            //MACRO_println("s/c="+c + " " +s);
+            tmpint4x4a[0][0] = one; 
+            tmpint4x4a[0][1] = 0 ;
+            tmpint4x4a[0][2] = 0;
+           
+            tmpint4x4a[1][0] = 0;
+            tmpint4x4a[1][1] = sc[1]  ;
+            tmpint4x4a[1][2] = -sc[0]  ;
+
+            tmpint4x4a[2][0] = 0;
+            tmpint4x4a[2][1] = sc[0]  ;      
+            tmpint4x4a[2][2] = sc[1]  ;
+
+            copyMM( m, tmpint4x4b );  multMM( tmpint4x4b, tmpint4x4a, m );
+        } 
+        //printM(m);
+        //debug("-rotate");
+    }
+    /*
+      Axis / angle Matrix
+      1 + (1-cos(angle))*(x*x-1)        -z*sin(angle)+(1-cos(angle))*x*y        y*sin(angle)+(1-cos(angle))*x*z
+      z*sin(angle)+(1-cos(angle))*x*y   1 + (1-cos(angle))*(y*y-1)      -x*sin(angle)+(1-cos(angle))*y*z
+      -y*sin(angle)+(1-cos(angle))*x*z  x*sin(angle)+(1-cos(angle))*y*z         1 + (1-cos(angle))*(z*z-1)
+
+
+    */
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+#ifdef Main_MathFixed
+    public static String debug(Object o) 
+    {
+        //if ( true) return ""; //
+        String s= o.toString();
+        MACRO_println(s);
+        return s;
+    }
+
+    public static void main( String[] arg) 
+    {
+        //debug("+main");
+        //debug(""+0x80000000); // -2147483647
+        //debug(""+0x7FFFFFFF); // +2147483648
+        //debug(""+0xFFFFFFFF); //-1;
+        int[] v3x={ one,0,0 };
+        int[] v3y={ 0,one,0 };
+        int[] v3z={ 0,0,one };
+        int[] t={0,0,0};
+        int temp= 4 * one;
+
+
+        MACRO_println("-main~~~~~~~~~" );
+    } 
+#endif //TEST
+#ifndef INCLUDE_MathFixed
+}
+#endif //INCLUDE
+//#define copyV3V3(s,d)  { d[0]=s[0]; d[1]=s[1]; d[2]=s[2]; }
+//#define lengthV3(a,SQRT) SQRT((a)[0]*(a)[0]+(a)[1]*(a)[1]+(a)[2]*(a)[2])
+//#define normV3(a,TYPE,SQRT){TYPE l=SQRT((a)[0]*(a)[0]+(a)[1]*(a)[1]+(a)[2]*(a)[2]);(a)[0]/=l;(a)[1]/=l;(a)[2]/=l;}
+//#define crossV3V3V3(a,b,r){(r)[0]=(a)[1]*(b)[2]-(a)[2]*(b)[1];(r)[1]=(a)[2]*(b)[0]-(a)[0]*(b)[2];(r)[2]=(a)[0]*(b)[1]-(a)[1]*(b)[0];}
+
+//#define macroMultFF(a,b) ( ( a * b ) + half ) >> offset ) 
+
+/* $Id: MathFixed.java.in,v 1.1 2004-03-08 13:55:38 rzr Exp $ */
+#endif //#ifndef MathFixed_java_in_

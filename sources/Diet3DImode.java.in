@@ -1,0 +1,12 @@
+import com.nttdocomo.ui.*;
+
+public class Diet3DImode extends IApplication
+{
+    public void start()
+    {
+        Diet3DCanvas o = new Diet3DCanvas();
+        Display.setCurrent(o);
+	o.start();
+
+    }
+}

@@ -1,0 +1,121 @@
+/* $Id: Diet3DMIDlet.java.in,v 1.1 2004-03-08 13:55:38 rzr Exp $ */
+#ifndef Diet3DMIDlet_java_in_
+#define Diet3DMIDlet_java_in_
+
+#include "HackJavaCpp.java.in"
+//#define SINGLE
+/**
+ * @author www.Philippe.COVAL.free.fr
+ * Copyright and License : http://rzr.online.fr/license.htm
+ **/
+final public class Diet3DMIDlet
+    extends MIDlet
+    implements CommandListener 
+{
+    Display mDisplay = null ;
+    Command mExitCommand = null ;
+    Command cmd = null;
+
+    Diet3DCanvas mCanvas = new Diet3DCanvas();
+
+    Form fmMain = null;
+    String msg="Diet3D\n (c) \nwww.rzr.free.fr\nPress Keys to toggle rendermode, shapes etc\n";
+    StringItem tbAction = null;
+    
+    boolean started = false;
+
+    ChoiceGroup lrender = null;
+    ChoiceGroup lshape = null;
+    ChoiceGroup lanim = null;
+
+    String onoff[] = { "off", "on" };
+    
+    public void info()
+    {
+        mCanvas.stop();
+        mDisplay.setCurrent( fmMain );
+    }
+
+    public void startApp() 
+    {
+        mDisplay = Display.getDisplay(this);
+        mCanvas.mDisplay = mDisplay;
+
+        fmMain = new Form("www.rzr.free.fr");
+        
+        //msg += System.getProperty("microedition.profiles" ); //crash uemu
+        //fmMain.append( msg );
+
+        lshape = new ChoiceGroup( "Choose Shape :", 
+                                  Choice.EXCLUSIVE, 
+                                  mCanvas.mRender.vshape, null);
+        fmMain.append( lshape); 
+
+        lanim = new ChoiceGroup( "Animation :", 
+                                 Choice.EXCLUSIVE, 
+                                 mCanvas.mRender.vanim, null);
+        fmMain.append( lanim ); 
+
+        lrender = new ChoiceGroup( "Choose Rendering mode :", 
+                                   Choice.EXCLUSIVE, 
+                                   mCanvas.mRender.vmode, null);
+        fmMain.append( lrender); 
+
+
+        //--
+        mExitCommand = new Command("Exit", Command.EXIT, 0);
+        cmd = new Command("[Menu/Back]", Command.SCREEN, 2);        
+        
+        fmMain.addCommand(mExitCommand);
+        fmMain.addCommand(cmd);
+        fmMain.setCommandListener(this);
+        
+        mCanvas.addCommand(mExitCommand);
+        mCanvas.addCommand(cmd);
+        mCanvas.setCommandListener(this);
+
+        mCanvas.start();
+        mDisplay.setCurrent(mCanvas);
+    }
+    
+    
+    public void pauseApp() 
+    {
+    }
+    
+    public void destroyApp(boolean unconditional) 
+    {
+        info();
+    }
+    public void exit()
+    {
+        mCanvas.stop();
+        pauseApp();
+        destroyApp( true );
+        notifyDestroyed();
+    }
+  
+    public void commandAction(Command c, Displayable s) 
+    {
+        if (c.getCommandType() == Command.EXIT) {
+            exit();
+        } else { //if ( c == "" ) {
+            mCanvas.mRender.toggleAnim(  lanim.getSelectedIndex() );
+            mCanvas.mRender.toggleShape(  lshape.getSelectedIndex() );
+            mCanvas.mRender.toggleMode(  lrender.getSelectedIndex() );
+            //Form waitForm = new Form("Waiting...");
+            //mDisplay.setCurrent(waitForm);
+            //mCanvas.start();
+            if ( mCanvas.mTrucking == true) {
+                mCanvas.stop(); 
+                info(); 
+            }
+            else {
+                mCanvas.start(); 
+                mDisplay.setCurrent(mCanvas); 
+            }
+        }
+    }
+}
+#endif
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

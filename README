@@ -1,0 +1,37 @@
+Subject: Mini3d Java J2ME 3D Engine Demo
+@author: www.Philippe.COVAL.online.fr - Rev: $Author: rzr $ 
+Copyright: GPL @ http://rzr.online.fr/license.htm
+
+Project Home at : http://rzr.online.fr/java.htm
+
+(Offline ? Read 00index.htm wich is a copy of the webpage )
+
+Changelog:
+
+
+TODO:
+- translation
+- perspective
+- texmap 
+- xml parser, loader
+- spiral
+- shapes
+
+
+Random Notes:
+
+<mahadeva1> RzR: still no luck with 3650...
+
+
+<glass>   try {
+<glass>             Class.forName("com.nokia.mid.ui.FullCanvas");
+<glass>             nokia = true;
+<glass>             Class klass = Class.forName("tayskangas");
+<glass>             System.out.println("nokia found");
+<fov> "tayskangas" .. eeh :D
+<glass>             kangas = (Canvas) klass.newInstance();
+<glass>         } catch (Exception e) {
+<glass>             nokia = false;
+<glass>             System.out.println("no nokia found, falling back to regular canvas.");
+<glass>             kangas = (Canvas) new skangas("back");
+

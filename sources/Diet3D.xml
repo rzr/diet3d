@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SDKProject project-type="ExEn" target-version="2" target-revision="0" output="" classes="" erasing="true" debug="true" resource-java="resource.java" package="" class="Diet3DCanvas" PVC="" resource-rxc="resource.rxc" little_endian="true">
+ <resource-units>
+
+  <resource-unit>
+   <resource type="manifest" name="manifest">
+    <rsc-file name="manifest.xml" />
+    
+   </resource>
+  </resource-unit>
+
+  <resource-unit>
+   <resource type="code" name="Diet3DCanvas">
+    <rsc-file name="Diet3DCanvas.java" />
+    
+   </resource>
+  </resource-unit>
+
+  <resource-unit>
+   <resource type="code" name="Diet3D">
+    <rsc-file name="Diet3D.java" />
+    
+   </resource>
+  </resource-unit>
+
+ </resource-units>
+ <criteria />
+ <simulator name="Generic (Color)" />
+</SDKProject>
+
