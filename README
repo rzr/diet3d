@@ -1,4 +1,4 @@
-# $Id: README,v 1.5 2004-03-31 21:43:07 rzr Exp $
+# $Id: README,v 1.6 2004-03-31 21:47:31 rzr Exp $
 Subject: Mini3d Java J2ME 3D Engine Demo
 @author: www.Philippe.COVAL.online.fr - Rev: $Author: rzr $ 
 Copyright: GPL @ http://rzr.online.fr/license.htm
@@ -11,6 +11,7 @@ Changelog:
 
 ### cvs tags:
 
+Diet3D-0_27_2-20040331-Nokia7650
 Diet3D-0_26_0-20040331
 Diet3D-0_25_8-20040331-Sanyo8100
 Diet3D-0_25_8-20040331-SonyEricssonT610
@@ -42,4 +43,4 @@ http://www.atfgame.net/programming/j3dme.htm
 # -35 5500 : crash zsort
 # T610 : no exit/menu
 
-# $Id: README,v 1.5 2004-03-31 21:43:07 rzr Exp $
+# $Id: README,v 1.6 2004-03-31 21:47:31 rzr Exp $
