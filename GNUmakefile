@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.9 2004-03-29 23:37:46 rzr Exp $
+# $Id: GNUmakefile,v 1.10 2004-03-30 14:24:45 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -171,6 +171,7 @@ OBJ_DIR=${SRC_DIR}
 #OBJS?=${FILES:=.class}
 #PREVERIFY=${SW_DIR}midp2.0fcs/bin/preverify
 PREVERIFY=echo ${SW_DIR}midp2.0fcs/bin/preverify
+JAR=echo jar
 JAVAC=javac -g:none -target 1.1
 JAVACP=javacp
 #SRC_DIR_ABS ?=
@@ -197,6 +198,7 @@ endif#endif
 #FILES= MathFixed ${PROJECT}Render ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
 FILES ?= ${PROJECT} ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
 #FILES=  ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
+
 
 ##
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -253,7 +255,7 @@ JAVAC ?= javac
 JAVA ?=java
 APPLETVIEWER ?= appletviewer
 PREVERIFY ?= preverify
-
+JAR ?= jar
 
 #DESTDIR ?=./
 #DESTDIR = ../jclasses-${ENV}/
@@ -266,6 +268,7 @@ SRCS ?= $(FILES:=.java)
 SRCS_IN ?= $(FILES:=.java.in)
 OBJS ?= $(FILES:=.class)
 CLASSPATH ?= ${OBJ_DIR}
+
 
 #export RT SDKV MIDPV SDK SDK_DIR
 
@@ -442,7 +445,7 @@ ${DESTDIR}${PROJECT}.jar:${SRC_DIR_ABS}MANIFEST.MF ${OBJS} ${DESTDIR}
 	@echo "#+ $@"
 	cd ${OBJ_DIR} && \
 	${PREVERIFY} -classpath ${CLASSPATH} -d . .  && \
-	jar cvfm ${DESTDIR_ABS}${PROJECT}.jar ${SRC_DIR_ABS}MANIFEST.MF . 
+	${JAR} cvfm ${DESTDIR_ABS}${PROJECT}.jar ${SRC_DIR_ABS}MANIFEST.MF . 
 	file ${DESTDIR}${PROJECT}.jar
 	-${CLEAN} ${DESTDIR}${PROJECT}.jad
 	@echo "-$(^F) $(^F:.class=)"
@@ -1095,5 +1098,5 @@ info-user:
 	hostname
 
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.9 2004-03-29 23:37:46 rzr Exp $
+# $Id: GNUmakefile,v 1.10 2004-03-30 14:24:45 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

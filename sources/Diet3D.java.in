@@ -1,10 +1,10 @@
-/* $Id: Diet3D.java.in,v 1.6 2004-03-29 23:37:49 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.7 2004-03-30 14:24:47 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.6 2004-03-29 23:37:49 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.7 2004-03-30 14:24:47 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
@@ -64,8 +64,10 @@ public final class Diet3D
 #define mesh_vc mesh_cube_vc
 #include "MeshCube.java.in"
 
+#ifdef MAPPING
 #undef  mesh_cube_nf
 #define mesh_cube_nf 1
+#endif
 
 #undef  mesh_nv
 #undef  mesh_nf
@@ -252,7 +254,7 @@ public final class Diet3D
         w_ = w; h_ = h; //hw_ = h_ * w_;
         init();
 
-#if 0 //default demo mode
+#ifndef DEVEL //default demo mode
         toggleAnim(0);
         toggleShape(3); //4-11
         toggleMode(0);
