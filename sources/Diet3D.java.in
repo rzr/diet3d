@@ -1,10 +1,10 @@
-/* $Id: Diet3D.java.in,v 1.3 2004-03-14 15:09:28 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.4 2004-03-14 20:17:11 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.3 2004-03-14 15:09:28 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.4 2004-03-14 20:17:11 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
@@ -20,8 +20,8 @@
 #define ZSORT
 #define PIXEL
 
-#ifndef NOKIA
-#define TEST
+#ifdef NOKIA
+//#define WANT_NO_TUX
 #endif
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,15 +76,13 @@ public final class Diet3D
 #define mesh_vc mesh_sphere_vc
     //#include "MeshSphere.java.in"
 #include "MeshPumpkin.java.in"
-
-
-
+    //
 #undef  mesh_nv
 #undef  mesh_nf
 #undef  mesh_vv
 #undef  mesh_vf
 
-#ifndef MIDP_1_0
+#ifndef WANT_NO_CROSS
 #define mesh_nv mesh_cross_nv
 #define mesh_nf mesh_cross_nf
 #define mesh_vf mesh_cross_vf
@@ -96,20 +94,27 @@ public final class Diet3D
 #define mesh_cross_vf  mesh_cube_vf
 #define mesh_cross_vv  mesh_cube_vv
 #endif
-
+    //
 #undef  mesh_nv
 #undef  mesh_nf
 #undef  mesh_vv
 #undef  mesh_vf
 #undef  mesh_vc
 
+#ifndef WANT_NO_TUX
 #define mesh_nv mesh_tux_nv
 #define mesh_nf mesh_tux_nf
 #define mesh_vf mesh_tux_vf
 #define mesh_vv mesh_tux_vv
 #define mesh_vc mesh_tux_vc
 #include "MeshTux.java.in"
-    
+#else
+#define mesh_tux_nv  mesh_cube_nv
+#define mesh_tux_nf  mesh_cube_nf
+#define mesh_tux_vf  mesh_cube_vf
+#define mesh_tux_vv  mesh_cube_vv
+#define mesh_tux_vc  mesh_cube_vc
+#endif
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     static int init=0;
@@ -245,14 +250,14 @@ public final class Diet3D
         w_ = w; h_ = h; //hw_ = h_ * w_;
         init();
 
-#if 1 //def NOKIA //TEST
+#if 1 //default demo mode
         toggleAnim(0);
         toggleShape(3); //4-11
         toggleMode(0);
-#else //default demo mode
-        toggleAnim(0);
-        toggleShape(4); //4-11
-        toggleMode(12); //12 = zsort+l
+#else // test demo
+        toggleAnim(1);
+        toggleShape(0); //4-11
+        toggleMode(10); //12 = zsort+l
 #endif // init
 
         tick++;
@@ -381,7 +386,7 @@ public final class Diet3D
         }
 #endif //ZSORT
  
-#ifdef TEST
+#ifdef WANT_NORMALS
         if ( false ) { // normals
             obj_norm = new int[obj_nf][3];
             int[] va,vb,vc;
@@ -562,7 +567,7 @@ public final class Diet3D
             setCurrentColor(g, COLOR_FG );
             paintString(g, "Shape " + vshape[shape] + " # " + obj_nf );
         }
-#if ! ( (defined AWT ) || ( defined EXEN ) || ( defined NTTDOCOMO ))
+#ifdef WANT_INFO 
         setCurrentColor(g, COLOR_FG );
         g.drawString( "" + vmode[mode]  
                       , ( w_ >> 1 )  , h_ - ( h_ >> 2 )  , 

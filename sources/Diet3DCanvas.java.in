@@ -1,4 +1,4 @@
-/* $Id: Diet3DCanvas.java.in,v 1.5 2004-03-14 15:09:28 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.6 2004-03-14 20:17:11 rzr Exp $ */
 #ifndef Diet3DCanva_java_in_
 #define Diet3DCanva_java_in_
 /**
@@ -7,7 +7,11 @@
  **/
 #include "HackJavaCpp.java.in"
 
+#define WANT_INFO
 
+#ifdef MIDP_2_0
+//#define WANT_INFO
+#endif
 
 #ifndef EXEN
 #define getTimerTickCount() System.currentTimeMillis()
@@ -133,38 +137,51 @@ public final class Diet3DCanvas
 #else
 #endif
         mRender.paint(g); //  +--javax.microedition.lcdui.Graphics
+
+#ifdef WANT_INFO
         paintInfo(g);
+#endif
+
 #ifdef EXEN
         update();
-#endif
+#endif        
+
 #ifdef MIPD_2_0
-        flushGraphics(); //@midp2
+        //flushGraphics(); //@midp2
 #endif
     }
 #endif
+    
     public void onTimerTick() //EXEN
     {
         MACRO_println(".time=" +time + " / last=" + last + " r=" + ( time - last) );        
         time = getTimerTickCount();
         
         if ( ( time - last )  >  tick ) { last = time; mRender.tick(); }
-        mRender.update();        
-#ifdef MIDP_2_0
-        //Graphics g = getGraphics(); //is it better ?
-        //paint(g);
-#endif
-        repaint();
 #ifdef MIDP_2_0
         input();
 #endif
-
-
-
-#if ( ( ! defined MIDP_2_0 )  &&  ( ( defined NOKIA ) || ( defined MIDP_1_0 ) ))
-        serviceRepaints(); //flush and block //BUG //OK @6600 3560
+        mRender.update();        
+#if 0 //def MIDP_2_0
+        Graphics g = getGraphics(); //is it better ?
+        paint(g);
+#else
+        repaint();
 #endif
+
+        //file:///opt/WTK2.1/docs/api/midp/javax/microedition/lcdui/Display.html#callSerially(java.lang.Runnable)
+
+        // 6600 = cs !sr 
+        // 5100 != sr + cr , sr +!cr = crash zsort
+        // ri midp2 : !sr + cr = missing parts
+        // ri midp2 : sr !cs = !timer
+        //#if ( ( ! defined MIDP_2_0 )  &&  ( ( defined NOKIA ) || ( defined MIDP_1_0 ) ))
+
+
+
 #if ( ( defined MIDP_2_0 )  || ( defined NOKIA ) || ( defined MIDP_1_0 ) )
-        mDisplay.callSerially(mThread); // TIMERBUG //ok 6600 3560
+        serviceRepaints(); //flush and block //BUG //OK @6600 3560
+        //mDisplay.callSerially(mThread); // TIMERBUG //ok 6600 3560
 #endif // BUG
 
     }
@@ -374,4 +391,4 @@ public final class Diet3DCanvas
 
     */
 #endif // Diet3DCanva_java_in_
-/* $Id: Diet3DCanvas.java.in,v 1.5 2004-03-14 15:09:28 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.6 2004-03-14 20:17:11 rzr Exp $ */
