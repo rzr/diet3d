@@ -1,10 +1,10 @@
-/* $Id: Diet3D.java.in,v 1.5 2004-03-25 00:18:16 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.6 2004-03-29 23:37:49 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.5 2004-03-25 00:18:16 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.6 2004-03-29 23:37:49 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
@@ -19,6 +19,7 @@
 //#define debug(x) System.out.println(x)
 #define ZSORT
 #define PIXEL
+//#define MAPPING
 
 #ifdef NOKIA
 //#define WANT_NO_TUX
@@ -62,6 +63,9 @@ public final class Diet3D
 #define mesh_vv mesh_cube_vv
 #define mesh_vc mesh_cube_vc
 #include "MeshCube.java.in"
+
+#undef  mesh_cube_nf
+#define mesh_cube_nf 1
 
 #undef  mesh_nv
 #undef  mesh_nf
@@ -230,8 +234,6 @@ public final class Diet3D
 
     int[][] obj_center = null;
 
-
-
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #ifndef INCLUDE_Diet3D
     public  Diet3D() 
@@ -250,14 +252,14 @@ public final class Diet3D
         w_ = w; h_ = h; //hw_ = h_ * w_;
         init();
 
-#if 1 //default demo mode
+#if 0 //default demo mode
         toggleAnim(0);
         toggleShape(3); //4-11
         toggleMode(0);
 #else // test demo
         toggleAnim(1);
         toggleShape(0); //4-11
-        toggleMode(10); //12 = zsort+l
+        toggleMode(13); // 10 pixel  13 mapp//12 = zsort+l
 #endif // init
 
         tick++;

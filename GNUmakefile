@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.8 2004-03-25 00:18:13 rzr Exp $
+# $Id: GNUmakefile,v 1.9 2004-03-29 23:37:46 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,7 +35,9 @@ ID ?=$(shell date +%Y%m%d%s)
 
 VERSION_MAJ=0
 VERSION_MIN=25
-VERSION_REV=4
+VERSION_REV=7
+#mapping
+
 # + 6600
 # - 3510i  : arrayindexout of bound exc
 # - 3100 : pixel 
@@ -1092,22 +1094,6 @@ info-user:
 	arch
 	hostname
 
-CVSROOT?=${HOME}/var/cvs
-
-
-cvs-init: ${CVSROOT}
-
-cvs-tag:
-	cvs tag "${Project}-${VERSION_DOT_CHAR}"
-
-${CVSROOT}:
-	${MKDIR} $@
-	cvs init
-
-cvs-import:
-	echo CVSROOT=${CVSROOT}
-	cvs -d ${CVSROOT} import ${PROJECT} ${USER} orig
-
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.8 2004-03-25 00:18:13 rzr Exp $
+# $Id: GNUmakefile,v 1.9 2004-03-29 23:37:46 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
