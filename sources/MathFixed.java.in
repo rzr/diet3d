@@ -1,4 +1,4 @@
-/* $Id: MathFixed.java.in,v 1.2 2004-03-13 17:25:21 rzr Exp $ */
+/* $Id: MathFixed.java.in,v 1.3 2004-03-14 15:09:28 rzr Exp $ */
 #ifndef MathFixed_java_in_
 #define MathFixed_java_in_
 
@@ -75,14 +75,17 @@ srrt=() = 46340.95
         return ((a > b ) ? a : b);
     }
 
+
+
+#define MACROtrim(a)  (( a + half ) >> offset ) 
+#ifdef MACROtrim
+#define trim(a) MACROtrim(a)
+#else
     public static int trim(int a) 
     {
         return ( a + half ) >> offset;
     }
-
-
-#define MACROtrim(a) { a = (( a + half ) >> offset ); }
-#define trim(a) MACROtrim(a)
+#endif
 
 
 #ifdef EXTERN
@@ -200,17 +203,17 @@ srrt=() = 46340.95
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#define MACROtrimV(a) { a[0]= trim(a[0]); a[1] = trim(a[1]); a[2] = trim(a[2]); }
+#ifdef MACROtrimV 
+#define trimV(a) MACROtrimV(a)
+#else
     public static void trimV(int[]r) 
     {
         r[0] = ( r[0] + half ) >> offset;
         r[1] = ( r[1] + half ) >> offset;
         r[2] = ( r[2] + half ) >> offset;
     }
-
-
-    //#define MACROtrimV(a) {  trim(a[0]); trim(a[1]);  trim(a[2]); }
-    //#define trimV(a) MACROtrimV(a)
-
+#endif
 
 #ifdef EXTERN
     public static int lenghtV(int[] a)
@@ -628,5 +631,5 @@ srrt=() = 46340.95
 
 //#define macroMultFF(a,b) ( ( a * b ) + half ) >> offset ) 
 
-/* $Id: MathFixed.java.in,v 1.2 2004-03-13 17:25:21 rzr Exp $ */
+/* $Id: MathFixed.java.in,v 1.3 2004-03-14 15:09:28 rzr Exp $ */
 #endif //#ifndef MathFixed_java_in_

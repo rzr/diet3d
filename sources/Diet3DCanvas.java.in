@@ -1,4 +1,4 @@
-/* $Id: Diet3DCanvas.java.in,v 1.4 2004-03-14 13:23:49 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.5 2004-03-14 15:09:28 rzr Exp $ */
 #ifndef Diet3DCanva_java_in_
 #define Diet3DCanva_java_in_
 /**
@@ -157,8 +157,13 @@ public final class Diet3DCanvas
 #ifdef MIDP_2_0
         input();
 #endif
-#if ( ( defined MIDP_2_0 )  || ( defined NOKIA ) || ( defined MIDP_1_0 ) )
+
+
+
+#if ( ( ! defined MIDP_2_0 )  &&  ( ( defined NOKIA ) || ( defined MIDP_1_0 ) ))
         serviceRepaints(); //flush and block //BUG //OK @6600 3560
+#endif
+#if ( ( defined MIDP_2_0 )  || ( defined NOKIA ) || ( defined MIDP_1_0 ) )
         mDisplay.callSerially(mThread); // TIMERBUG //ok 6600 3560
 #endif // BUG
 
@@ -369,4 +374,4 @@ public final class Diet3DCanvas
 
     */
 #endif // Diet3DCanva_java_in_
-/* $Id: Diet3DCanvas.java.in,v 1.4 2004-03-14 13:23:49 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.5 2004-03-14 15:09:28 rzr Exp $ */

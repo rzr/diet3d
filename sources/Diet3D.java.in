@@ -1,10 +1,10 @@
-/* $Id: Diet3D.java.in,v 1.2 2004-03-14 13:23:49 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.3 2004-03-14 15:09:28 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.2 2004-03-14 13:23:49 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.3 2004-03-14 15:09:28 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
@@ -166,6 +166,9 @@ public final class Diet3D
 
 #ifdef INCLUDE_MathFixed
 #include "MathFixed.java.in"
+#else //#ifndef MACROtrim
+    public void trimV(int[] a) { return MathFixed.trimV(a);
+    public int trim(int a) { return MathFixed.trim(a);
 #endif
 
 #ifdef INCLUDE_Raster
@@ -567,7 +570,6 @@ public final class Diet3D
 #endif
 
     }
-
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #if 0 //def FULL
