@@ -1,4 +1,4 @@
-/* $Id: Diet3DCanvas.java.in,v 1.3 2004-03-13 17:25:21 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.4 2004-03-14 13:23:49 rzr Exp $ */
 #ifndef Diet3DCanva_java_in_
 #define Diet3DCanva_java_in_
 /**
@@ -209,7 +209,7 @@ public final class Diet3DCanvas
             time = ( getTimerTickCount() - time );
             if (  time <= 0  ) time = 1;
             fps = (int) 1000 / (int) time ;
-            if ( time <= mspf ) { time = mspf - time ; }else time=0;
+            if ( time <= mspf ) { time = mspf - time ; } else time=1;
             try { Thread.sleep(time); // may unlock 
             } catch (InterruptedException ex) { ex.printStackTrace(); }
         }
@@ -369,4 +369,4 @@ public final class Diet3DCanvas
 
     */
 #endif // Diet3DCanva_java_in_
-/* $Id: Diet3DCanvas.java.in,v 1.3 2004-03-13 17:25:21 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.4 2004-03-14 13:23:49 rzr Exp $ */

@@ -1,10 +1,10 @@
-/* $Id: Diet3D.java.in,v 1.1 2004-03-08 13:55:38 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.2 2004-03-14 13:23:49 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.1 2004-03-08 13:55:38 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.2 2004-03-14 13:23:49 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
@@ -23,7 +23,6 @@
 #ifndef NOKIA
 #define TEST
 #endif
-
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
