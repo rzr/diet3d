@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.11 2004-03-30 18:44:13 rzr Exp $
+# $Id: GNUmakefile,v 1.12 2004-03-30 18:46:11 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,7 +35,7 @@ ID ?=$(shell date +%Y%m%d%s)
 
 VERSION_MAJ=0
 VERSION_MIN=25
-VERSION_REV=7
+VERSION_REV=8
 #mapping
 
 # + 6600
@@ -1099,5 +1099,5 @@ info-user:
 	hostname
 
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.11 2004-03-30 18:44:13 rzr Exp $
+# $Id: GNUmakefile,v 1.12 2004-03-30 18:46:11 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
