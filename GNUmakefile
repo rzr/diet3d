@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.12 2004-03-30 18:46:11 rzr Exp $
+# $Id: GNUmakefile,v 1.13 2004-03-31 00:53:07 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,8 +34,8 @@ ID ?=$(shell date +%Y%m%d%s)
 
 
 VERSION_MAJ=0
-VERSION_MIN=25
-VERSION_REV=8
+VERSION_MIN=26
+VERSION_REV=0
 #mapping
 
 # + 6600
@@ -1094,10 +1094,12 @@ info-user:
 	@echo OSTYPE=${OSTYPE}
 	@echo OS=${OS}
 	@echo DATE=${DATE}
+	@echo VERSION=${VERSION}
 	uname -a
 	arch
 	hostname
-
+cvs-tag:
+	@echo cvs tag "${PROJECT}-${VERSION_CHAR}-${DATE}-${PROFILE}"
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.12 2004-03-30 18:46:11 rzr Exp $
+# $Id: GNUmakefile,v 1.13 2004-03-31 00:53:07 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

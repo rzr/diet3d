@@ -1,4 +1,4 @@
-# $Id: README,v 1.3 2004-03-25 00:18:13 rzr Exp $
+# $Id: README,v 1.4 2004-03-31 00:53:07 rzr Exp $
 Subject: Mini3d Java J2ME 3D Engine Demo
 @author: www.Philippe.COVAL.online.fr - Rev: $Author: rzr $ 
 Copyright: GPL @ http://rzr.online.fr/license.htm
@@ -18,11 +18,21 @@ TODO:
 - spiral
 - shapes
 
+### Random Notes:
+# mapping
+# + 6600
+# - 3510i  : arrayindexout of bound exc
+# - 3100 : pixel 
+# sx1!
 
-cvs tags:
-- 2004-03-14 "Diet3D-0_21-Nokia6600"
+# -35 5500 : crash zsort
+# T610 : no exit/menu
 
-Random Notes:
 
-<mahadeva1> RzR: still no luck with 3650...
+### cvs tags:
 
+Diet3D-0_26_0-20040331
+Diet3D-0_25_8-20040331-Sanyo8100
+Diet3D-0_25_8-20040331-SonyEricssonT610
+Diet3D-0_25_8-20040330-NokiaNGage
+Diet3D-0_21-Nokia6600 (2004-03-14)
