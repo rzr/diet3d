@@ -1,11 +1,11 @@
-# $Id: GNUmakefile,v 1.5 2004-03-14 15:09:26 rzr Exp $
+# $Id: GNUmakefile,v 1.6 2004-03-14 20:17:09 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ENV ?= j2me
 RT_LIST?=midp1_0 midp1_0-nokia midp2_0 imode exen
-RT ?=midp1_0
-#RT ?=midp2_0
+#RT ?=midp1_0
+RT ?=midp2_0
 #RT ?=midp1_0-nokia
 JAVA_HOME?=/usr/lib/j2se/1.4/
 
@@ -34,9 +34,10 @@ DATE ?=$(shell date +%Y%m%d)
 TMP=/tmp/tmp-${USER}-${NAME}-${RT}-${SDKV}-${DATE}-tmp
 ID ?=$(shell date +%Y%m%d%s)
 VERSION ?=0.0.$(shell date +%Y%m%d%H)
-VERSION2 ?= 0.19
-# 6600 : menu crash # T610 : no exit/menu
-
+VERSION2 ?= 0.21
+# +21 6600 : menu crash 
+# -19 5500 : crash zsort
+# T610 : no exit/menu
 
 #DEFINES+=-DNOINLINE -DDEBUG
 MKDIR ?= @mkdir -p
@@ -391,7 +392,7 @@ xbrowse:
 
 %.java %.MF %.in: GNUmakefile
 
-${PROJECT}.jar: ${DESTDIR} GNUmakefile ${DESTDIR}${PROJECT}.jar 
+jar ${PROJECT}.jar: ${DESTDIR} GNUmakefile ${DESTDIR}${PROJECT}.jar 
 
 ${SRC_DIR_ABS}MANIFEST.MF: ${SRC_IN_DIR}MANIFEST.MF.in
 	@echo "#+ $@"
@@ -412,14 +413,16 @@ ${DESTDIR}${PROJECT}.jar:${SRC_DIR_ABS}MANIFEST.MF ${OBJS}
 	${PREVERIFY} -classpath ${CLASSPATH} -d . .  && \
 	jar cvfm ${DESTDIR_ABS}${PROJECT}.jar ${SRC_DIR_ABS}MANIFEST.MF . 
 	file ${DESTDIR}${PROJECT}.jar
+	-${CLEAN} ${DESTDIR}${PROJECT}.jad
 	@echo "-$(^F) $(^F:.class=)"
 	@echo "#- $@"
 
 jar-size: ${DESTDIR}${PROJECT}.jar
 	@stat $^ | grep "Size:" | sed -e "s/ *Size: \([0-9]*\).*/\1/g" | head -1
-SIZE:=$(shell \
+SIZE:=` \
  stat ${DESTDIR}${PROJECT}.jar \
- | grep "Size:" | sed -e "s/ *Size: \([0-9]*\).*/\1/g" | head -1)
+ | grep "Size:" | sed -e "s/ *Size: \([0-9]*\).*/\1/g" | head -1 \
+ `
 
 size:
 	@echo "$^ Size = ${SIZE}"
@@ -433,7 +436,8 @@ check: ${DESTDIR}${PROJECT}.jad ${DESTDIR}${PROJECT}.jar
 jad: ${DESTDIR}${PROJECT}.jad
 
 jad-rm:
-	rm ${DESTDIR}${PROJECT}.jad
+	@-{CLEAN} ${DESTDIR}${PROJECT}.jad
+	echo "#- $@"
 
 jad-re: jad-rm jad check
 
@@ -442,13 +446,14 @@ jad-all:
 	${MAKE} RT=midp2_0 jad-re
 	${MAKE} RT=midp1_0-nokia jad-re
 
-
-${DESTDIR}${PROJECT}.jad: ${SRC_DIR_ABS}MANIFEST.MF ${DESTDIR}${PROJECT}.jar size
-	@echo "#+ $@"
+size-bug:
 	stat ${DESTDIR}${PROJECT}.jar | grep "Size:" \
 	 | sed -e "s/ *Size: \([0-9]*\).*/\1/g"
 	cat $< | grep "MIDlet-Jar-Size:" \
 	 | sed -e "s/MIDlet-Jar-Size: \([0-9]*\)\s*/\1/g"
+
+${DESTDIR}${PROJECT}.jad: ${SRC_DIR_ABS}MANIFEST.MF ${DESTDIR}${PROJECT}.jar size
+	@echo "#+ $@ ${SIZE}"
 	cat $< > $@
 	echo "MIDlet-Jar-URL: ${PROJECT}.jar" >> $@
 	echo "MIDlet-Jar-Size: ${SIZE}">> $@
@@ -556,10 +561,14 @@ build-all compile-all:
 	${MAKE} RT=midp2_0
 	${MAKE} RT=midp1_0-nokia
 	${MAKE} RT=j2se SDKV=00
-	${MAKE} RT=midp1_0 prc
-	${MAKE} RT=midp2_0 prc
+	${MAKE} RT=midp1_0-nokia 
 	${MAKE} RT=imode
 	${MAKE} RT=exen
+
+all-post compile-post:
+	${MAKE} RT=midp1_0 pro prc 
+	${MAKE} RT=midp2_0 pro prc 
+	${MAKE} RT=midp1_0-nokia pro
 
 # uninstall 
 
@@ -634,7 +643,6 @@ cc-wildcards:
 	${MKDIR} ${DESTDIR}	
 	${JAVAC} ${JAVACFLAGS} *.java
 
-
 pre: ${SDK_DIR} dir
 
 post: modes 
@@ -659,7 +667,7 @@ log.txt: clean default clean
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Deploy
 
-release: clean-all test-all install
+release: clean-all compile-all  compile-post run-all install
 
 install: modes install-classes arch
 
@@ -790,10 +798,10 @@ run-all-midp1_0-nokia:
 
 run-url-all: modes ${SDK_PATH}
 
-run-url-wtk2:
+run-url-wtk2: browse
 	${SW_DIR}WTK2.1/bin/emulator -Xjam:transient=${URL} 
 
-run-url-wtk1:
+run-url-wtk1: browse
 	${SW_DIR}WTK104/bin/emulator -Xjam:transient=${URL} 
 
 run-url run-midp2.0fcs run-ri-url run-url-20:
@@ -802,8 +810,7 @@ run-url run-midp2.0fcs run-ri-url run-url-20:
 	-${SW_DIR}midp2.0fcs/bin/midp -autotest ${URL} &
 	@echo "$@ ${URL}"
 #	-killall -9 midp
-
-run-ri: ${DESTDIR}${PROJECT}.jad modes
+ri run-ri: ${DESTDIR}${PROJECT}.jad modes
 	${MAKE} run-ri-url RT=${RT}
 
 #run-WTK104 run-WTK2.1 ${PROJECT}: ${SDK_DIR} url
@@ -828,7 +835,7 @@ run-all-j2se:
 # standalone
 exec: exec-WTK104
 
-exec exec-midp20 exec-WTK2.1:
+emu 	wtk exec exec-midp20 exec-WTK2.1:
 	${SW_DIR}WTK2.1/bin/emulator -Xjam:force 
 
 exec-midp10 exec-WTK104:
@@ -960,30 +967,6 @@ bug-test-exen: le_default.exn
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-pro-post:  ${TMP_DIR}${PROJECT}ProGuard.jar  pro-preverif jad-re
-	ls -l $<
-	mv $< ${DESTDIR_ABS}${PROJECT}.jar
-	@echo "#- $@"
-
-pro-preverif-jar: ${TMP_DIR}${PROJECT}ProGuard.jar  
-	${PREVERIFY} -classpath ${API}:${API_MIDP} $<
-	@echo "#- $@ # doesnt work"
-
-pro-preverif: ${TMP_DIR}${PROJECT}ProGuard.jar  
-	@echo "#+ $@"
-	ls -l $<
-	-${CLEAN} ${TMP_DIR}$@
-	${MKDIR} ${TMP_DIR}$@/
-	cd ${TMP_DIR}$@/ && \
-	jar xvf $< && \
-	${PREVERIFY} -classpath ${API}:${API_MIDP} -d .  . && \
-	jar cvfm $< ${SRC_DIR_ABS}MANIFEST.MF . 
-	@echo "#- $@"
-
-pro: ${TMP_DIR}${PROJECT}.pro  pro-post
-
-
 ${TMP_DIR}${PROJECT}.pro: ${TMP_DIR}
 	@echo "#+ $@"
 	@echo ""
@@ -992,20 +975,45 @@ ${TMP_DIR}${PROJECT}.pro: ${TMP_DIR}
 	@echo "" > $@
 	@echo "-libraryjars ${API}:${API_MIDP}" >> $@
 	@echo "-injars ${DESTDIR}${PROJECT}.jar" >> $@
-	@echo "-outjar ${TMP_DIR}${PROJECT}ProGuard.jar" >> $@
+	@echo "-outjar ${TMP_DIR}${PROJECT}obfuscated.jar" >> $@
 	@echo "-overloadaggressively" >> $@
 	@echo "-defaultpackage ''" >> $@
 	@echo "-keep public class * " >> $@
 	cat $@
 	@echo "#- $@"
 
-
-${TMP_DIR}${PROJECT}ProGuard.jar: ${DESTDIR}${PROJECT}.jar
+OBFUSCATE=java -jar /mnt/c/usr/jclasses/proguard.jar
+${TMP_DIR}${PROJECT}obfuscated.jar: ${DESTDIR}${PROJECT}.jar
 	@echo "#+ $@"
+	${OBFUSCATE} @${TMP_DIR}${PROJECT}.pro
 	ls -l $<
-	java -jar /mnt/c/usr/jclasses/proguard.jar @${TMP_DIR}${PROJECT}.pro
 	ls -l $@
 	@echo "#- $@"
+
+pro-post:  ${TMP_DIR}${PROJECT}obfuscated.jar  pro-preverif 
+	@echo "#+ $@"
+	mv $< ${DESTDIR_ABS}${PROJECT}.jar
+	@echo "#- $@"
+
+pro-preverif-jar: ${TMP_DIR}${PROJECT}obfuscated.jar  
+	${PREVERIFY} -classpath ${API}:${API_MIDP} $<
+	@echo "#- $@ # doesnt work"
+
+PREVERIFYDIR=${TMP_DIR}../obfuscated-${RT}/
+pro-preverif: ${TMP_DIR}${PROJECT}obfuscated.jar  
+	@echo "#+ $@"
+	ls -l $<
+	-${CLEAN} ${PREVERIFYDIR}
+	${MKDIR} ${PREVERIFYDIR}
+	cd ${PREVERIFYDIR} && \
+	jar xvf $< && \
+	${PREVERIFY} -classpath ${API}:${API_MIDP} -d .  . && \
+	jar cvfm $< ${SRC_DIR_ABS}MANIFEST.MF . 
+	@echo "#- $@"
+
+obfuscate obfuscated proguard pro: ${TMP_DIR}${PROJECT}.pro  pro-post jad-re
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 info-project:
 	@echo DESTDIR=${DESTDIR}
@@ -1045,5 +1053,5 @@ cvs-import:
 	cvs -d ${CVSROOT} import ${PROJECT} ${USER} orig
 
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.5 2004-03-14 15:09:26 rzr Exp $
+# $Id: GNUmakefile,v 1.6 2004-03-14 20:17:09 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,4 +1,4 @@
-/* $Id: MathFixed.java.in,v 1.3 2004-03-14 15:09:28 rzr Exp $ */
+/* $Id: MathFixed.java.in,v 1.4 2004-03-14 20:17:12 rzr Exp $ */
 #ifndef MathFixed_java_in_
 #define MathFixed_java_in_
 
@@ -620,7 +620,7 @@ srrt=() = 46340.95
 
         MACRO_println("-main~~~~~~~~~" );
     } 
-#endif //TEST
+#endif //Main
 #ifndef INCLUDE_MathFixed
 }
 #endif //INCLUDE
@@ -631,5 +631,5 @@ srrt=() = 46340.95
 
 //#define macroMultFF(a,b) ( ( a * b ) + half ) >> offset ) 
 
-/* $Id: MathFixed.java.in,v 1.3 2004-03-14 15:09:28 rzr Exp $ */
+/* $Id: MathFixed.java.in,v 1.4 2004-03-14 20:17:12 rzr Exp $ */
 #endif //#ifndef MathFixed_java_in_
