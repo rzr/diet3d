@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.2 2004-03-10 17:58:27 rzr Exp $
+# $Id: GNUmakefile,v 1.3 2004-03-13 17:25:07 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,7 +34,7 @@ DATE ?=$(shell date +%Y%m%d)
 TMP=/tmp/tmp-${USER}-${NAME}-${RT}-${SDKV}-${DATE}-tmp
 ID ?=$(shell date +%Y%m%d%s)
 VERSION ?=0.0.$(shell date +%Y%m%d%H)
-VERSION2 ?= 0.14
+VERSION2 ?= 0.15
 # crash on : 6600, menu 6650
 
 
@@ -690,7 +690,8 @@ url: modes ${DESTDIR}${PROJECT}.jad ${DESTDIR}${PROJECT}.jar
 
 modes:
 	find ${PWD} -type f -exec chmod a-x+X {} \;
-	chmod -R a+rX ${HOME}/public_html/
+	-@chmod -R a+rX ${HOME}/public_html/
+	@echo "#- $@"
 #	@find ${PWD} -name "*.jad" -exec chmod a+rX {} \;
 #	@find ${PWD} -name "*.jar" -exec chmod a+rX {} \;
 
@@ -767,7 +768,6 @@ run-url run-midp2.0fcs run-ri-url run-url-20:
 	@echo "### !!! Dont exit after shutdown? Hit ^C ($@)"
 	-killall -9 midp
 	-${SW_DIR}midp2.0fcs/bin/midp -autotest ${URL} &
-	sleep 999
 	-killall -9 midp
 	@echo "$@ ${URL}"
 
@@ -966,5 +966,5 @@ cvs-import:
 	cvs -d ${CVSROOT} import ${PROJECT} ${USER} orig
 
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.2 2004-03-10 17:58:27 rzr Exp $
+# $Id: GNUmakefile,v 1.3 2004-03-13 17:25:07 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
