@@ -1,10 +1,10 @@
-/* $Id: Diet3D.java.in,v 1.4 2004-03-14 20:17:11 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.5 2004-03-25 00:18:16 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.4 2004-03-14 20:17:11 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.5 2004-03-25 00:18:16 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
@@ -376,14 +376,14 @@ public final class Diet3D
     public void recalc()
     {
 #ifdef ZSORT        
-        if ( (mode >= 11 ) && (obj_trans == null ) ) { 
+        //if ( (mode >= 11 ) && (obj_trans == null ) ) { 
             //vmode[mode].equals("test/zort" ) ) {
-#if ( ( defined MIDP_1_0 ) || ( defined MIDP_2_0 ) )
+#if ( ( defined MIDP_1_0 ) || ( defined MIDP_2_0 )|| ( defined NOKIA ) )
             System.gc();
 #endif
             obj_trans = new int[obj_nv][3];
             obj_center = new int[obj_nf][3];
-        }
+            //}
 #endif //ZSORT
  
 #ifdef WANT_NORMALS
@@ -401,7 +401,6 @@ public final class Diet3D
             }
         }
 #endif
-
     }
 
     public void toggleMode(int i)
@@ -416,7 +415,6 @@ public final class Diet3D
             mode=0; 
         }
         recalc();
-
     }
     public void update()
     {
