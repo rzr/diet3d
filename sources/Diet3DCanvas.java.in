@@ -1,4 +1,4 @@
-/* $Id: Diet3DCanvas.java.in,v 1.7 2004-03-14 22:50:23 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.8 2004-03-29 23:37:49 rzr Exp $ */
 #ifndef Diet3DCanva_java_in_
 #define Diet3DCanva_java_in_
 /**
@@ -112,6 +112,10 @@ public final class Diet3DCanvas
         //if ( init == 0 )
         // Pretty strange bug // poco then kern-exec 3 
         //if ( init == 0 )  // 60 //40=bug // 80-
+#if ( (defined MIDP_1_0 )  ||(defined MIDP_2_0 )  || (defined NOKIA ) ) 
+        g.setClip(0, 0, getWidth(), getHeight());
+#endif
+
 #if ( (defined MIDP_1_0 ) ) //|| (defined MIDP_2_0 ) )     
         if( ( moff != null ) &&  ( g != moff.getGraphics() ) ) {
             paint( moff.getGraphics() );
@@ -387,4 +391,4 @@ public final class Diet3DCanvas
 
     */
 #endif // Diet3DCanva_java_in_
-/* $Id: Diet3DCanvas.java.in,v 1.7 2004-03-14 22:50:23 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.8 2004-03-29 23:37:49 rzr Exp $ */
