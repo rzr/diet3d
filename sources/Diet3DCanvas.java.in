@@ -1,4 +1,4 @@
-/* $Id: Diet3DCanvas.java.in,v 1.8 2004-03-29 23:37:49 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.9 2004-11-02 14:33:14 rzr Exp $ */
 #ifndef Diet3DCanva_java_in_
 #define Diet3DCanva_java_in_
 /**
@@ -63,7 +63,7 @@ public final class Diet3DCanvas
 #endif
     
     Image moff = null;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     public Diet3DCanvas() 
     {
@@ -73,14 +73,13 @@ public final class Diet3DCanvas
 #ifndef INCLUDE_Diet3D
         mRender = new Diet3D( getWidth() , getHeight() );
 #else
-        mRender.init( getWidth() , getHeight() ); // possible bug here // CHECK!!!
+        mRender.init( getWidth() , getHeight() ); // possible bug here // CHK
         //init(); //crash the phone
 #endif
 
 #if ( (defined MIDP_1_0 ) ) // || (defined MIDP_2_0 ) )     
         if ( ! isDoubleBuffered() ) {  //BUG
             moff = Image.createImage( getWidth() , getHeight());
-                                      
             //MACRO_println("not double buffer"); 
         }
 #endif
@@ -154,7 +153,7 @@ public final class Diet3DCanvas
     
     public void onTimerTick() //EXEN
     {
-        MACRO_println(".time=" +time + " / last=" + last + " r=" + ( time - last) );        
+        // MACRO_println(".time=" +time + " / last=" + last + " r=" + ( time - last) );        
         time = getTimerTickCount();
         
         if ( ( time - last )  >  tick ) { last = time; mRender.tick(); }
@@ -391,4 +390,4 @@ public final class Diet3DCanvas
 
     */
 #endif // Diet3DCanva_java_in_
-/* $Id: Diet3DCanvas.java.in,v 1.8 2004-03-29 23:37:49 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.9 2004-11-02 14:33:14 rzr Exp $ */

@@ -1,4 +1,4 @@
-/* $Id: HackJavaCpp.java.in,v 1.5 2004-03-31 21:43:10 rzr Exp $ */
+/* $Id: HackJavaCpp.java.in,v 1.6 2004-11-02 14:33:14 rzr Exp $ */
 #ifndef HackJavaCpp_java_in_
 #define HackJavaCpp_java_in_
 
@@ -178,4 +178,5 @@ import com.nokia.mid.ui.*;
 
 
 #endif //HackJavaCpp_java_in_
-// $Id: HackJavaCpp.java.in,v 1.5 2004-03-31 21:43:10 rzr Exp $ 
+
+/* $Id: */

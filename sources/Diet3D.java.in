@@ -1,17 +1,15 @@
-/* $Id: Diet3D.java.in,v 1.9 2004-03-31 21:43:10 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.10 2004-11-02 14:33:14 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.9 2004-03-31 21:43:10 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.10 2004-11-02 14:33:14 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
 
-
 #include "HackJavaCpp.java.in"
-
 #define INCLUDE_MathFixed
 #define INCLUDE_Diet3DRender
 #define INCLUDE_Raster
@@ -28,7 +26,7 @@
 //#define WANT_NO_TUX
 #endif
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 /**
  * @author www.Philippe.COVAL.free.fr
@@ -39,8 +37,7 @@ public final class Diet3D
 {
 #endif //Diet3D
 
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     /// 3d mesh
     public static final int mesh_logo_nv=10; 
@@ -67,7 +64,7 @@ public final class Diet3D
 #define mesh_vc mesh_cube_vc
 #include "MeshCube.java.in"
 
-#ifdef MAPPING
+#if 0 //def MAPPING
 #undef  mesh_cube_nf
 #define mesh_cube_nf 1
 #endif
@@ -151,20 +148,23 @@ public final class Diet3D
     public int mode=0;
     
     static final String vmode[] = { 
-        "demo" , "dots", "wire" , "flat" , "front", "face", //=5
-        "light", "dynlight", // 6 7 
-        "test/mixed" , "test/full" 
+        "demo" , "dots", "wire" 
+#ifdef PRIVATE
+        , "flat" , "front", "face" //=5
+        , "light", "dynlight" // 6 7 
+        , "test/mixed" , "test/full" 
 #ifdef PIXEL
-, "pixel"  // 8 9 10
+        , "pixel"  // 8 9 10
 #endif
-
 #ifdef ZSORT
         , "zsort" , "zsort+light"  // 11 12
 #endif
 #ifdef MAPPING
         , "test/mapping"     //=13
 #endif
+#endif // PRIVATE
     };
+    
 
     static int shape = 0;
     
@@ -253,20 +253,18 @@ public final class Diet3D
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     public void init(int w, int h)
-    {
+        {
         w_ = w; h_ = h; //hw_ = h_ * w_;
         init();
-
-#ifndef DEVEL //default demo mode
-        toggleAnim(0);
-        toggleShape(3); //4-11
+#if 0 // ndef DEVEL //default demo mode
+        toggleAnim(2);
+        toggleShape(4); //4-11
         toggleMode(0);
 #else // test demo
-        toggleAnim(1); // 2=none
-        toggleShape(0); //4-11
-        toggleMode(13); // 10 pixel  13 mapp//12 = zsort+l
+        toggleAnim(0);  // 2=none
+        toggleShape(2); //4-11
+        toggleMode(0);  // 10 pixel  13 mapp//12 = zsort+l
 #endif // init
-
         tick++;
     }
 
@@ -359,6 +357,7 @@ public final class Diet3D
             break;
         }
         recalc();
+        // debug("#- toggleShape "+ shape + " ; " + obj_nf );
     } 
     public void toggleShape() 
     {
@@ -386,17 +385,17 @@ public final class Diet3D
         //if ( (mode >= 11 ) && (obj_trans == null ) ) { 
             //vmode[mode].equals("test/zort" ) ) {
 #if ( ( defined MIDP_1_0 ) || ( defined MIDP_2_0 )|| ( defined NOKIA ) )
-            System.gc();
+      System.gc();
 #endif
-            obj_trans = new int[obj_nv][3];
-            obj_center = new int[obj_nf][3];
+      obj_trans = new int[obj_nv][3];
+      obj_center = new int[obj_nf][3];
             //}
 #endif //ZSORT
  
 #ifdef WANT_NORMALS
-        if ( false ) { // normals
-            obj_norm = new int[obj_nf][3];
-            int[] va,vb,vc;
+      if ( false ) { // normals
+        obj_norm = new int[obj_nf][3];
+        int[] va,vb,vc;
             int[] vn =new int[3];
 
             for(int f=0; f < obj_nf; f++) {
@@ -453,6 +452,7 @@ public final class Diet3D
                 toggleShape(2);  
                 toggleMode(2);  
                 break;
+#ifdef PRIVATE
             case 3:  // flat
                 toggleShape(3);  
                 toggleMode(3);  
@@ -487,11 +487,12 @@ public final class Diet3D
                 toggleShape(0);  
                 toggleMode(10);  
                 break;
-#endif
+#endif // PIXEL
             case 11:
                 toggleShape(4);  
                 toggleMode(12);  
                 break;
+#endif // PRIVATE
             case 12:
                 toggleShape(0);  
                 toggleMode(0);  
@@ -516,14 +517,14 @@ public final class Diet3D
 
 
 #if ( ( defined  MIDP_2_0 ) || ( defined EXEN ))
-    public  
+    public  //
 #else
         protected
 #endif //
 
         void paint(Graphics g)
-    {
-        setCurrentColor(g, COLOR_BG );
+        {
+            setCurrentColor(g, COLOR_BG );
         g.fillRect( 0 , 0, w_ , h_ ); //bound box trick //TODO
 
         switch(mode) { // [ %n : 0 ... n-1]
@@ -531,6 +532,7 @@ public final class Diet3D
 
         case 2: setCurrentColor(g, COLOR_FG_LINE ); paintLine(g); break;
 
+#ifdef PRIVATE
         case 3: setCurrentColor(g, COLOR_FG_FACE ); paintFlat(g); break;
 
         case 4: setCurrentColor(g, COLOR_FG_FACE ); paintFront(g); break;
@@ -566,7 +568,9 @@ public final class Diet3D
 #ifdef MAPPING
         case 13: paintMapping(g); break;
 #endif
-        default:
+
+#endif // PRIVATE
+        default: // 0
             setCurrentColor(g, COLOR_FG_LINE );
             paintLine(g);
             setCurrentColor(g, COLOR_FG );
@@ -600,5 +604,5 @@ public final class Diet3D
 }
 #endif // INCLUDE_Diet3D
 #endif // Diet3D_java_in_
-/* $Id: */
+/* $Id: Diet3D.java.in,v 1.10 2004-11-02 14:33:14 rzr Exp $ */
 
