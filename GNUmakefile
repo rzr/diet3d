@@ -1,12 +1,12 @@
-# $Id: GNUmakefile,v 1.10 2004-03-30 14:24:45 rzr Exp $
+# $Id: GNUmakefile,v 1.11 2004-03-30 18:44:13 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ENV ?= j2me
 RT_LIST?=midp1_0 midp1_0-nokia midp2_0 imode exen
 #RT ?=midp1_0
-RT ?=midp2_0
-#RT ?=midp1_0-nokia
+#RT ?=midp2_0
+RT ?=midp1_0-nokia
 JAVA_HOME?=/usr/lib/j2se/1.4/
 SW_ARC?=${HOME}/mnt/software/
 # commands
@@ -52,7 +52,8 @@ VERSION_CHAR ?= ${VERSION_MAJ}_${VERSION_MIN}_${VERSION_REV}
 VERSION ?= ${VERSION_DOT}
 #VERSION ?=0.0.$(shell date +%Y%m%d%H)
 
-#DEFINES+=-DNOINLINE -DDEBUG
+#DEFINES+=-DDEVEL
+# -NOINLINE
 MKDIR ?= @mkdir -p
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # PROJECTlication Specific
@@ -933,7 +934,7 @@ run-exen: ${DESTDIR}${EXEN_TARGET}
 	@echo "#+ $@"
 	ls -l $<
 	cd ${<D} && \
-	${VM_EXEN} ${<F}
+	echo ${VM_EXEN} ${<F}
 	@echo "#- $@"
 
 run-exen-arg:
@@ -1098,5 +1099,5 @@ info-user:
 	hostname
 
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.10 2004-03-30 14:24:45 rzr Exp $
+# $Id: GNUmakefile,v 1.11 2004-03-30 18:44:13 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
