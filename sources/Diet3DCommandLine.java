@@ -21,7 +21,7 @@ import java.util.Vector;
 public final class Diet3DCommandLine
 {
 
-    static int h_ = 200;
+    static int h_ = 60;
     static int w_ = h_;
     static Image  gi = null;
     static Gif89Encoder ge = null;
@@ -43,6 +43,13 @@ public final class Diet3DCommandLine
         }
     }
 
+    public static void demoLoop() throws Exception
+    {
+        m_.toggleAnim(1);
+        m_.toggleShape(4);
+        m_.toggleMode(11);
+        loop(46);
+    }
     public static void demo() throws Exception
     {
         /*
@@ -53,8 +60,6 @@ public final class Diet3DCommandLine
             m_.toggleMode(4);
             loop(16);
             m_.toggleMode(5);
-            loop(16);
-            m_.toggleMode(7);
             loop(16);
         */
         /*
@@ -82,7 +87,7 @@ public final class Diet3DCommandLine
             g = gi.getGraphics();
             ge = new Gif89Encoder();   
 
-            demo();
+            demoLoop();
             //m_.toggleMode(10);
             //loop( 2 );
 

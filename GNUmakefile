@@ -1,12 +1,12 @@
-# $Id: GNUmakefile,v 1.3 2004-03-13 17:25:07 rzr Exp $
+# $Id: GNUmakefile,v 1.4 2004-03-14 13:23:46 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ENV ?= j2me
 RT_LIST?=midp1_0 midp1_0-nokia midp2_0 imode exen
-#RT ?=midp1_0
+RT ?=midp1_0
 #RT ?=midp2_0
-RT ?=midp1_0-nokia
+#RT ?=midp1_0-nokia
 JAVA_HOME?=/usr/lib/j2se/1.4/
 
 SW_ARC?=${HOME}/mnt/software/
@@ -23,8 +23,8 @@ export INFUSIO_PP_WIN INFUSIO_PP_LIN
 #
 SW_DIR ?= /opt/
 SDKV_LIST?=21 20 00 exen
-#SDKV ?=21
-SDKV ?=20
+SDKV ?=21
+#SDKV ?=20
 #SDKV=00
 CONFIG=${RT}
 SDK_PATH ?=${SW_DIRW}WTK104 ${SW_DIR}WTK2.1 ${SW_DIR}midp2.0fcs
@@ -34,8 +34,8 @@ DATE ?=$(shell date +%Y%m%d)
 TMP=/tmp/tmp-${USER}-${NAME}-${RT}-${SDKV}-${DATE}-tmp
 ID ?=$(shell date +%Y%m%d%s)
 VERSION ?=0.0.$(shell date +%Y%m%d%H)
-VERSION2 ?= 0.15
-# crash on : 6600, menu 6650
+VERSION2 ?= 0.17
+# 6600 : menu crash # T610 : no exit/menu
 
 
 #DEFINES+=-DNOINLINE -DDEBUG
@@ -213,7 +213,8 @@ ifeq ($(SDKV),21)
 SDK:=WTK2.1
 SDK_DIR:=${SW_DIR}${SDK}/
 API ?=${SDK_DIR}lib/cldcapi10.zip
-CLASSPATH=${API}:${SDK_DIR}lib/midpapi20.zip:${TMP_DIR}:${EXT}
+API_MIDP ?=${SDK_DIR}lib/midpapi20.zip
+CLASSPATH=${API}:${API_MIDP}:${TMP_DIR}:${EXT}
 VM=${SDK_DIR}bin/emulator
 endif
 
@@ -393,42 +394,67 @@ xbrowse:
 ${PROJECT}.jar: ${DESTDIR} GNUmakefile ${DESTDIR}${PROJECT}.jar 
 
 ${SRC_DIR_ABS}MANIFEST.MF: ${SRC_IN_DIR}MANIFEST.MF.in
+	@echo "#+ $@"
 	${MKDIR}  ${SRC_DIR_ABS}
 	cat $< | \
 	sed -e "s/\(MicroEdition-Profile: \)MIDP-[0-9]*.[0-9]*/\1${MIDPV}/g" |\
 	sed -e "s/\(MIDlet-Version: \)[0-9]*.[0-9]*/\1${VERSION2}/g" \
 	> $@
-
+	@echo "#- $@"
 #	s/\(MIDlet-Version:\) .*/\1 ${VERSION}/g
 
 
 
  #${PROJECT}MIDlet$$Tick.class ${PROJECT}Render.class 
 ${DESTDIR}${PROJECT}.jar:${SRC_DIR_ABS}MANIFEST.MF ${OBJS}
+	@echo "#+ $@"
 	cd ${TMP_DIR} && \
 	${PREVERIFY} -classpath ${CLASSPATH} -d . .  && \
 	jar cvfm ${DESTDIR_ABS}${PROJECT}.jar ${SRC_DIR_ABS}MANIFEST.MF . 
 	file ${DESTDIR}${PROJECT}.jar
 	@echo "-$(^F) $(^F:.class=)"
+	@echo "#- $@"
 
+jar-size: ${DESTDIR}${PROJECT}.jar
+	@stat $^ | grep "Size:" | sed -e "s/ *Size: \([0-9]*\).*/\1/g" | head -1
+SIZE:=$(shell \
+ stat ${DESTDIR}${PROJECT}.jar \
+ | grep "Size:" | sed -e "s/ *Size: \([0-9]*\).*/\1/g" | head -1)
 
-SIZE=`stat $^ | grep "Size:" | sed -e "s/ *Size: \([0-9]*\).*/\1/g" | head -1`
-
-size: ${PROJECT}.jar
+size:
 	@echo "$^ Size = ${SIZE}"
 
+check: ${DESTDIR}${PROJECT}.jad ${DESTDIR}${PROJECT}.jar
+	@echo "#+ $@"
+	@ls -l ${DESTDIR}${PROJECT}.jar
+	@grep Size: ${DESTDIR}${PROJECT}.jad
+	@echo "#- $@"
 
-${DESTDIR}${PROJECT}.jad:  ${DESTDIR}${PROJECT}.jar ${SRC_DIR_ABS}MANIFEST.MF 
+jad: ${DESTDIR}${PROJECT}.jad
+
+jad-rm:
+	rm ${DESTDIR}${PROJECT}.jad
+
+jad-re: jad-rm jad check
+
+jad-all:	
+	${MAKE} RT=midp1_0 jad-re
+	${MAKE} RT=midp2_0 jad-re
+	${MAKE} RT=midp1_0-nokia jad-re
+
+
+${DESTDIR}${PROJECT}.jad: ${SRC_DIR_ABS}MANIFEST.MF ${DESTDIR}${PROJECT}.jar size
+	@echo "#+ $@"
 	stat ${DESTDIR}${PROJECT}.jar | grep "Size:" \
 	 | sed -e "s/ *Size: \([0-9]*\).*/\1/g"
-	cat $@ | grep "MIDlet-Jar-Size:" \
+	cat $< | grep "MIDlet-Jar-Size:" \
 	 | sed -e "s/MIDlet-Jar-Size: \([0-9]*\)\s*/\1/g"
-	cat ${SRC_DIR_ABS}MANIFEST.MF > $@
+	cat $< > $@
 	echo "MIDlet-Jar-URL: ${PROJECT}.jar" >> $@
 	echo "MIDlet-Jar-Size: ${SIZE}">> $@
 	echo "" >> $@
 	sed -e "s/MIDlet-Jar-Size: \([0-9]*\)/MIDlet-Jar-Size: \1/g" < $@
-
+	@echo "#- $@"
 # 	echo "MIDlet-Version: ${VERSION2}">> $@
 
 
@@ -446,6 +472,7 @@ ${DESTDIR}${PROJECT}.jam: ${DESTDIR}${PROJECT}.jar ${SRC_DIR_ABS}MANIFEST.MF GNU
 	@echo "LastModified = `date`" >> $@
 	@echo "" >> $@
 	@cat $@
+	@echo "#- $@"
 #	cat ${SRC_DIR_ABS}${PROJECT}.jam > $@
 #	#sed -e "s/MIDlet-Jar-Size: \([0-9]*\)/MIDlet-Jar-Size: \1/g" < $@
 
@@ -463,7 +490,7 @@ ${DESTDIR}${PROJECT}.wml: ${DESTDIR}${PROJECT}.jad
 </card>\n\
 </wml>\
 " > $@
-
+	@echo "#- $@"
 
 applethtml: ${DESTDIR}${PROJECT}Applet.html
 
@@ -473,6 +500,7 @@ ${DESTDIR}${PROJECT}Applet.html: ${PROJECT}Applet.class
 	@echo "code=${<F:.class=}" >> $@
 	@echo "></applet>" >> $@
 	@echo "</html>" >> $@
+	@echo "#- $@"
 
 ${DESTDIR}${PROJECT}.html: ${PROJECT}.jar
 	@echo "<html>" > $@
@@ -487,11 +515,15 @@ ${DESTDIR}${PROJECT}.html: ${PROJECT}.jar
 	@echo "</applet><hr><pre>">> $@
 	${MAKE} info-user >> $@
 	@echo "</html>" >> $@
-
+	@echo "#- $@"
 
 palmos pda prc: 
 	${MAKE} RT=midp1_0 ${PROJECT}.prc
 	${MAKE} RT=midp2_0 ${PROJECT}.prc
+pro-all: 
+	${MAKE} RT=midp1_0 pro
+	${MAKE} RT=midp2_0 pro
+	${MAKE} RT=midp1_0-nokia pro
 
 ${PROJECT}.prc: ${DESTDIR} ${DESTDIR}${PROJECT}.jad  ${DESTDIR}${PROJECT}.jar
 	${CONVERTER} -type Data -jad ${DESTDIR}${PROJECT}.jad ${DESTDIR}${PROJECT}.jar
@@ -605,7 +637,7 @@ cc-wildcards:
 
 pre: ${SDK_DIR} dir
 
-post: modes
+post: modes 
 
 force:
 	echo "forced"
@@ -768,8 +800,8 @@ run-url run-midp2.0fcs run-ri-url run-url-20:
 	@echo "### !!! Dont exit after shutdown? Hit ^C ($@)"
 	-killall -9 midp
 	-${SW_DIR}midp2.0fcs/bin/midp -autotest ${URL} &
-	-killall -9 midp
 	@echo "$@ ${URL}"
+#	-killall -9 midp
 
 run-ri: ${DESTDIR}${PROJECT}.jad modes
 	${MAKE} run-ri-url RT=${RT}
@@ -926,7 +958,54 @@ bug-test-exen: le_default.exn
 	ls -l $<
 	${MAKE} run-exen ARG=$<
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+pro-post:  ${TMP_DIR}${PROJECT}ProGuard.jar  pro-preverif
+	ls -l $<
+	mv $< ${DESTDIR_ABS}${PROJECT}.jar
+	${MAKE} ${DESTDIR}${PROJECT}.jad
+	@echo "#- $@"
+
+pro-preverif-jar: ${TMP_DIR}${PROJECT}ProGuard.jar  
+	${PREVERIFY} -classpath ${API}:${API_MIDP} $<
+	@echo "#- $@ # doesnt work"
+
+pro-preverif: ${TMP_DIR}${PROJECT}ProGuard.jar  
+	@echo "#+ $@"
+	ls -l $<
+	${MKDIR} ${TMP_DIR}$@/
+	cd ${TMP_DIR}$@/ && \
+	jar xvf $< && \
+	${PREVERIFY} -classpath ${API}:${API_MIDP} -d .  . && \
+	jar cvfm $< ${SRC_DIR_ABS}MANIFEST.MF . 
+	@echo "#- $@"
+
+pro: ${TMP_DIR}${PROJECT}.pro  pro-post jad-re check
+
+
+${TMP_DIR}${PROJECT}.pro: ${TMP_DIR}
+	@echo "#+ $@"
+	@echo ""
+	@echo "#### Optimising Bytecode"
+	@echo "#"
+	@echo "" > $@
+	@echo "-libraryjars ${API}:${API_MIDP}" >> $@
+	@echo "-injars ${DESTDIR}${PROJECT}.jar" >> $@
+	@echo "-outjar ${TMP_DIR}${PROJECT}ProGuard.jar" >> $@
+	@echo "-overloadaggressively" >> $@
+	@echo "-defaultpackage ''" >> $@
+	@echo "-keep public class * " >> $@
+	cat $@
+	@echo "#- $@"
+
+
+${TMP_DIR}${PROJECT}ProGuard.jar: ${DESTDIR}${PROJECT}.jar
+	@echo "#+ $@"
+	ls -l $<
+	java -jar /mnt/c/usr/jclasses/proguard.jar @${TMP_DIR}${PROJECT}.pro
+	ls -l $@
+	@echo "#- $@"
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 info-project:
 	@echo DESTDIR=${DESTDIR}
@@ -966,5 +1045,5 @@ cvs-import:
 	cvs -d ${CVSROOT} import ${PROJECT} ${USER} orig
 
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.3 2004-03-13 17:25:07 rzr Exp $
+# $Id: GNUmakefile,v 1.4 2004-03-14 13:23:46 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
