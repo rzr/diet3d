@@ -1,4 +1,4 @@
-/* $Id: MathFixed.java.in,v 1.4 2004-03-14 20:17:12 rzr Exp $ */
+/* $Id: MathFixed.java.in,v 1.5 2004-11-02 14:33:14 rzr Exp $ */
 #ifndef MathFixed_java_in_
 #define MathFixed_java_in_
 
@@ -629,7 +629,7 @@ srrt=() = 46340.95
 //#define normV3(a,TYPE,SQRT){TYPE l=SQRT((a)[0]*(a)[0]+(a)[1]*(a)[1]+(a)[2]*(a)[2]);(a)[0]/=l;(a)[1]/=l;(a)[2]/=l;}
 //#define crossV3V3V3(a,b,r){(r)[0]=(a)[1]*(b)[2]-(a)[2]*(b)[1];(r)[1]=(a)[2]*(b)[0]-(a)[0]*(b)[2];(r)[2]=(a)[0]*(b)[1]-(a)[1]*(b)[0];}
 
-//#define macroMultFF(a,b) ( ( a * b ) + half ) >> offset ) 
+//#define macroMultFF(a,b) ( ( a * b ) + half ) >> offset )
 
-/* $Id: MathFixed.java.in,v 1.4 2004-03-14 20:17:12 rzr Exp $ */
 #endif //#ifndef MathFixed_java_in_
+/* $Id: MathFixed.java.in,v 1.5 2004-11-02 14:33:14 rzr Exp $ */

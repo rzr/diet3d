@@ -1,17 +1,19 @@
-# $Id: GNUmakefile,v 1.14 2004-03-31 21:43:07 rzr Exp $
+# $Id: GNUmakefile,v 1.15 2004-11-02 14:33:08 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ENV ?= j2me
 RT_LIST?=midp1_0 midp1_0-nokia midp2_0 imode exen
-#RT ?=midp1_0
-RT ?=midp2_0
+RT ?=midp1_0
 #RT ?=midp1_0-nokia
+#RT ?=midp2_0
+
 JAVA_HOME?=/usr/lib/j2se/1.4/
 SW_ARC?=${HOME}/mnt/software/
 # commands
 UNZIP ?= unzip -q
-CONVERTER ?=java -cp ${SW_DIR}midp4palm1.0/Converter/Converter.jar com.sun.midp.palm.database.MakeMIDPApp  
+CONVERTER ?=java -cp ${SW_DIR}midp4palm1.0/Converter/Converter.jar \
+	com.sun.midp.palm.database.MakeMIDPApp  
 FS=\\/
 #export 
 INFUSIO_PP_LIN ?=\/home\/${USER}\/
@@ -35,7 +37,7 @@ ID ?=$(shell date +%Y%m%d%s)
 
 VERSION_MAJ=0
 VERSION_MIN=27
-VERSION_REV=2
+VERSION_REV=3
 
 VERSION_DOT ?= ${VERSION_MAJ}.${VERSION_MIN}.${VERSION_REV}
 VERSION_CHAR ?= ${VERSION_MAJ}_${VERSION_MIN}_${VERSION_REV}
@@ -43,7 +45,8 @@ VERSION_CHAR ?= ${VERSION_MAJ}_${VERSION_MIN}_${VERSION_REV}
 VERSION ?= ${VERSION_DOT}
 #VERSION ?=0.0.$(shell date +%Y%m%d%H)
 
-//DEFINES+=-DDEVEL
+# DEFINES+=-DDEVEL -DPRIVATE
+# DEFINES+= -DPRIVATE
 # -NOINLINE
 MKDIR ?= @mkdir -p
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -269,7 +272,7 @@ export CLASSPATH
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Rules
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-default: help info all
+default: all
 
 all compile build: pre ${ALL} post
 	@echo "#- $@"
@@ -355,10 +358,10 @@ ${PROJECT}.gif: ${PROJECT}CommandLine.class
 
 #${SRCS}: GNUmakefile
 
-run-micro:
-	${MAKE} RT=midp1_0 run-memu
+exec-micro:
+	${MAKE} RT=midp1_0 exec-memu
 
-run-memu: ${DESTDIR}${PROJECT}.html  ${DESTDIR}../lib/me-applet.jar modes
+exec-memu: ${DESTDIR}${PROJECT}.html  ${DESTDIR}../lib/me-applet.jar modes
 	echo "$@ : $<"
 	ls ${DESTDIR}
 	-${MAKE} browse URL="${URL_BASE}$<"
@@ -501,13 +504,14 @@ ${DESTDIR}${PROJECT}.jam: ${DESTDIR}${PROJECT}.jar ${SRC_DIR_ABS}MANIFEST.MF GNU
 	@echo "AppClass = ${PROJECT}Imode" >>$@
 	@echo "PackageURL = ${PROJECT}.jar" >> $@
 	@echo "AppSize = ${SIZE}">> $@
-	@echo "LastModified = `date`" >> $@
+	@echo "LastModified = `date -R -u`" >> $@
 	@echo "" >> $@
 	@cat $@
 	@echo "#- $@"
 #	cat ${SRC_DIR_ABS}${PROJECT}.jam > $@
 #	#sed -e "s/MIDlet-Jar-Size: \([0-9]*\)/MIDlet-Jar-Size: \1/g" < $@
-
+#  Sun, 20 Jun 2004 06:17:48 = good
+# dim avr 11 12:34:33 CEST 2004 = bad
 wml: ${DESTDIR}${PROJECT}.wml
 
 ${DESTDIR}${PROJECT}.wml: ${DESTDIR}${PROJECT}.jad
@@ -564,24 +568,24 @@ jar: ${OBJS} ${OBJ_DIR} ${DESTDIR_ABS} ${DESTDIR}${PROJECT}.jar
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # hany rules for testing deploy etc
 #
-run run: modes ${DESTDIR} ${DESTDIR}${PROJECT}.wml url run-${RT}
+exec exec: modes ${DESTDIR} ${DESTDIR}${PROJECT}.wml url exec-${RT}
 
-test test-all: clean-all compile-all modes run-all clean-all
+test test-all: clean-all compile-all modes exec-all clean-all
 
 test-ri:
-	${MAKE} RT=midp1_0 rebuild run-ri
+	${MAKE} RT=midp1_0 rebuild exec-ri
 
 test-nokia n nokia midp1_0-nokia: 
-	${MAKE} RT=midp1_0-nokia rebuild run
+	${MAKE} RT=midp1_0-nokia rebuild exec
 
 test-midp1_0 1 10 midp1_0:
-	${MAKE} RT=midp1_0 rebuild run
+	${MAKE} RT=midp1_0 rebuild exec
 
 test-midp2_0 20 midp2_0:
-	${MAKE} RT=midp2_0 rebuild run
+	${MAKE} RT=midp2_0 rebuild exec
 
 j2se:
-	${MAKE} RT=j2se SDKV=0 rebuild run
+	${MAKE} RT=j2se SDKV=0 rebuild exec
 
 build-all compile-all: 
 	${MAKE} RT=midp1_0 
@@ -635,15 +639,15 @@ ${DATA}: ${OBJS}
 
 
 demo: 
-	${MAKE} RT=midp2_0 run-ri-url
+	${MAKE} RT=midp2_0 exec-ri-url
 
 
 
-run-application: ${PROJECT}Applet
+exec-application: ${PROJECT}Applet
 	cd ${DESTDIR} && \
 	${JAVA} $^
 
-run-j2se run-applet: ${DESTDIR}applet.htm 
+exec-j2se exec-applet: ${DESTDIR}applet.htm 
 	-${APPLETVIEWER} $<
 
 
@@ -702,7 +706,7 @@ log.txt: clean default clean
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Deploy
 
-release: clean-all compile-all  compile-post run-all install
+release: clean-all compile-all  compile-post exec-all install
 
 install: modes install-classes arch
 
@@ -717,9 +721,13 @@ install-post:
 	@echo "MIDlet-Jar-URL: Diet3D.jar"
 
 
-install-src:  ${HOME}/homedir/
-	mv ${HOME}/homedir/${PROJECT} ${HOME}/homedir/${PROJECT}-bak-${ID}
-	cp -rf ${PWD}   ${HOME}/homedir/
+TMP_DIR=${HOME}/tmp/${PROJECT}/${DATE}/${PROJECT}/
+install-src:  AUTHORS README COPYING src-midp1_0 jclasses-midp1_0 
+	-mkdir -p ${TMP_DIR}
+	cp -rf $^ ${TMP_DIR}
+	ls -lR ${TMP_DIR}
+	cd ${TMP_DIR}.. && zip -r9 ${PROJECT_DIST}-src.zip ${PROJECT}
+	ls -lR ${TMP_DIR}../${PROJECT_DIST}-src.zip
 
 CLEAN=rm -rf
 
@@ -819,65 +827,65 @@ install-all: ${SDK_PATH}
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~# Emulators
 # 
 
-run-all: run-all-midp1_0 run-all-midp1_0-nokia run-all-midp2_0 run-all-j2se run-all-exen
+exec-all: exec-all-midp1_0 exec-all-midp1_0-nokia exec-all-midp2_0 exec-all-j2se exec-all-exen
 
-run-all-midp1_0:
-	${MAKE} RT=midp1_0 run-WTK2.1 run-WTK104 
-	${MAKE} RT=midp1_0 run-nokia-40 run-nokia-60 run-micro
-	-${MAKE} RT=midp1_0 run-midp2.0fcs
+exec-all-midp1_0:
+	${MAKE} RT=midp1_0 exec-WTK2.1 exec-WTK104 
+	${MAKE} RT=midp1_0 exec-nokia-40 exec-nokia-60 exec-micro
+	-${MAKE} RT=midp1_0 exec-midp2.0fcs
 
-run-all-midp2_0:
-	${MAKE} RT=midp2_0 run-WTK2.1 run-nokia 
-	-${MAKE} RT=midp2_0 run-midp2.0fcs 
+exec-all-midp2_0:
+	${MAKE} RT=midp2_0 exec-WTK2.1 exec-nokia 
+	-${MAKE} RT=midp2_0 exec-midp2.0fcs 
 
-run-all-midp1_0-nokia:
-	${MAKE} RT=midp1_0-nokia run
-	${MAKE} RT=midp1_0-nokia run-nokia-60
+exec-all-midp1_0-nokia:
+	${MAKE} RT=midp1_0-nokia exec
+	${MAKE} RT=midp1_0-nokia exec-nokia-60
 
-run-url-all: modes ${SDK_PATH}
+exec-url-all: modes ${SDK_PATH}
 
-run-url-wtk2: browse
+exec-url-wtk2: browse
 	${SW_DIR}WTK2.1/bin/emulator -Xjam:transient=${URL} 
 
-run-url-wtk1: browse
+exec-url-wtk1: browse
 	${SW_DIR}WTK104/bin/emulator -Xjam:transient=${URL} 
 
-run-url run-midp2.0fcs run-ri-url run-url-20: browse
+exec-url exec-midp2.0fcs exec-ri-url exec-url-20: browse
 	@echo "### !!! Dont exit after shutdown? Hit ^C ($@)"
 	-killall -9 midp
 	-${SW_DIR}midp2.0fcs/bin/midp -autotest ${URL} &
 	@echo "$@ ${URL}"
 #	-killall -9 midp
 
-ri run-ri: ${DESTDIR}${PROJECT}.jad modes
-	${MAKE} run-ri-url RT=${RT}
+ri exec-ri: ${DESTDIR}${PROJECT}.jad modes
+	${MAKE} exec-ri-url RT=${RT}
 
-#run-WTK104 run-WTK2.1 ${PROJECT}: ${SDK_DIR} url
+#exec-WTK104 exec-WTK2.1 ${PROJECT}: ${SDK_DIR} url
 #	${VM} -Xdescriptor:${URL}
 
-run-midp2_0 run-wtk run-21  run-WTK2.1: ${DESTDIR}${PROJECT}.jad
+exec-midp2_0 exec-wtk exec-21  exec-WTK2.1: ${DESTDIR}${PROJECT}.jad
 	${SW_DIR}WTK2.1/bin/emulator -Xdescriptor:$^ 
 
-run-midp1_0 run-bw run-WTK104: ${DESTDIR}${PROJECT}.jad
+exec-midp1_0 exec-bw exec-WTK104: ${DESTDIR}${PROJECT}.jad
 	${SW_DIR}WTK104/bin/emulator -Xdescriptor:$^ 
 
 EMU_HOME?=${SW_DIR}Nokia/Devices/Nokia_Series_40_MIDP_Concept_SDK_Beta_0_3/
 
-run-midp1_0-nokia run-nokia-40 run-Nokia: ${DESTDIR}${PROJECT}.jad
+exec-midp1_0-nokia exec-nokia-40 exec-Nokia: ${DESTDIR}${PROJECT}.jad
 	java -cp ${EMU_HOME}tools/emulator.jar  -Demulator.home="${EMU_HOME}"   com.nokia.phone.sdk.Emulator -uei $<
 
-run-nokia run-nokia-60 run-n60: ${DESTDIR}${PROJECT}.jad
+exec-nokia exec-nokia-60 exec-n60: ${DESTDIR}${PROJECT}.jad
 	${SW_DIR}Nokia/Devices/Series_60_MIDP_Concept_SDK_Beta_0_3_1_Nokia_edition/bin/emulator $^
 
-run-all-j2se:
-	${MAKE} RT=j2se run
+exec-all-j2se:
+	${MAKE} RT=j2se exec
 # standalone
-exec: exec-WTK104
+start: start-WTK104
 
-emu 	wtk exec exec-midp20 exec-WTK2.1:
+emu 	wtk start start-midp20 start-WTK2.1:
 	${SW_DIR}WTK2.1/bin/emulator -Xjam:force 
 
-exec-midp10 exec-WTK104:
+start-midp10 start-WTK104:
 	${SW_DIR}WTK104/bin/emulator -Xjam:force 
 
 
@@ -920,19 +928,19 @@ all-exen:
 all-exen exen-post: ${DESTDIR}${EXEN_TARGET}
 
 
-run-all-exen: 
+exec-all-exen: 
 	@echo "### + $@"
-	${MAKE} RT=exen all-exen pcp run 
+	${MAKE} RT=exen all-exen pcp exec 
 	@echo "### - $@"
 
-run-exen: ${DESTDIR}${EXEN_TARGET}
+exec-exen: ${DESTDIR}${EXEN_TARGET}
 	@echo "#+ $@"
 	ls -l $<
 	cd ${<D} && \
 	echo ${VM_EXEN} ${<F}
 	@echo "#- $@"
 
-run-exen-arg:
+exec-exen-arg:
 	@echo "#+ $@"
 	ls -l $<
 	cd ${<D} && \
@@ -1002,7 +1010,7 @@ bug-exen-rom:
 	@echo "#- $@"
 
 test-exen: src-exen/ExEn/${EXEN_TARGET}
-	${MAKE} RT=exen	run-exen ARG="${<D}/${<F}"
+	${MAKE} RT=exen	exec-exen ARG="${<D}/${<F}"
 
 bug-exen: 
 	${MAKE} RT=exen default post-exen-pvc post-exen
@@ -1016,7 +1024,7 @@ bug-all-exen:
 
 bug-test-exen: le_default.exn
 	ls -l $<
-	${MAKE} run-exen ARG=$<
+	${MAKE} exec-exen ARG=$<
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1067,6 +1075,10 @@ pro-preverif: ${OBJ_DIR}${PROJECT}obfuscated.jar
 
 obfuscate obfuscated proguard pro: ${SRC_DIR}${PROJECT}.pro  pro-post jad-re
 
+api: doc-api-${RT} force
+
+doc-api-${RT}:
+	javadoc -d $@ ${SRC_DIR}/*.java
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 info-project:
@@ -1095,6 +1107,9 @@ info-user:
 	hostname
 cvs-tag:
 	@echo cvs tag "${PROJECT}-${VERSION_CHAR}-${DATE}-${PROFILE}"
+
+force:
+	@echo "- $@"
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.14 2004-03-31 21:43:07 rzr Exp $
+# $Id: GNUmakefile,v 1.15 2004-11-02 14:33:08 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

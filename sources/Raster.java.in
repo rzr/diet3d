@@ -1,4 +1,4 @@
-/* $Id: Raster.java.in,v 1.7 2004-03-31 21:43:10 rzr Exp $ */
+/* $Id: Raster.java.in,v 1.8 2004-11-02 14:33:14 rzr Exp $ */
 #ifndef Raster_java_in
 #define Raster_java_in
 
@@ -22,16 +22,15 @@ class Raster
 #endif
     static int[] colorbuffer = null;
 
-
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
 #if ( ( defined MIDP2_0 ) || ( defined NOKIA )) //
 #define MACROpaintPixel(g,x,y,c) \
    if ( ( y < h_ ) && ( y >= 0 ) && ( x < w_ ) && ( x >= 0 )) \
      colorbuffer[ y*w_ + x ] = 0xFF000000 | c;
 #else
-#define MACROpaintPixel(g,x,y,c) setCurrentColor(g,c); g.drawLine(x,y,x,y)
+#define MACROpaintPixel(g,x,y,c) \
+   setCurrentColor(g,c); g.drawLine(x,y,x,y)
 #endif
 
 
@@ -46,9 +45,8 @@ class Raster
     }
 #endif
 
-
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#ifdef PRIVATE
 
 #if ( ( defined NOKIA ) || ( defined MIDP2_0 ))
     public void paintInit(Graphics g)
@@ -292,42 +290,33 @@ class Raster
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #ifdef MAPPING     // TODO
 
-#if 0
-    int[][] texmap = { { 0xFF, 0xFF00 , 0xFFFF, 0xFF0000 } , 
-                       { 0xFF000FF, 0xFFFF00 , 0xFFFFFF, 0xFF0000 } ,
-                       { 0xFF5500, 0x55FF00 , 0xFFFF55, 0xFF5555 } ,
-                       { 0xFF0055, 0x33FF00 , 0xFF55FF, 0x55FF55 } };
-
-#endif
-    int[][] texmap = { 
-        { 0x00FF ,0xFF00 ,  0x00FF , 0xFF00 } , 
-        { 0xFF00, 0x00FF ,  0xFF00, 0x00FF } , 
-        { 0x00FF ,0xFF00 ,  0x00FF , 0xFF00 } , 
-        { 0xFF00, 0x00FF ,  0xFF00, 0x00FF } , 
-    };
-
-
-
-    //http://www.flipcode.com/articles/article_mobilegfx04.shtml
-    // ftp://hornet.madtracker.org/mirrors/hornet/code/3d/trifill/texmap/fatmap.txt
     
 
-    /** sample test for pixel filler **/
-    public void paintTriangleMapping(Graphics g, 
-                                     int dtx, int dty,
-                                     int dmx, int dmy,
-                                     int dbx, int dby,
-                                     int col)
+    /**
+     * Triangle mapping 
+     * TODO: to debug, check and test in all possible cases (including flat triangles)
+     * this version is using FP "Floating Point", 
+     * try to make one w/ real float and port it back to FP
+     * @param dtx destination triangle : top point (x coodornate)
+     * @param dmx destination triangle : middle point (x coodornate)
+     * @param dbx destination triangle : bottom point (x coodornate)
+     * @param col : light (unused so far)
+     * s*[x/y] is source triangle (texture)
+     **/
+    public void paintTriangleMapping
+        (Graphics g, 
+         int dtx, int dty, int dmx, int dmy, 
+         int dbx, int dby,
+         //int stx, int sty, int smx, int smy, int sbx, int sby,
+         int col)
     {
         
-
-        //int stx, int sty, int smx, int smy, int sbx, int sby; 
         int stx; int sty; int smx; int smy; int sbx; int sby; 
         stx= sty=0; smx=0; smy=2; sbx=4; sby=4;
 
 
-        int t=0;
-        // sort 
+        int t;
+        // debug("sort points");
         if ( dty > dby ) {
             swap(dby,dty,t); swap(dbx,dtx,t); 
             swap(sby,sty,t); swap(sbx,stx,t); 
@@ -358,8 +347,6 @@ class Raster
         int sx, sy, slx, sly, srx;
         int sox=0, soy=0;
         int ssox=0, ssoy=0;
-        //debug("upper part of the triangle");
-        //setCurrentColor(g, 0xFF);
 
         sox = FPdivProtected ( ( sbx - smx ) , ( dby - dty ) , 0 );
         soy = FPdivProtected ( ( sby - sty ) , ( dby - dty ) , 0 );
@@ -367,22 +354,18 @@ class Raster
         ssox = FPdivProtected ( ( sbx - smx ) , ( dbx - dmx ) , 0 );
         ssoy = FPdivProtected ( ( sbx - smx ) , ( dmy - dty ) , 0 );
         
-        sx = stx;
-        sy = sty;
-        
+        sx = stx; sy = sty;
+
         int dlx, drx;
         int ddlx, ddrx, ddy;
         int ssx, ssy;
         int s = 1;
         TYPE_COLOR color;
-        
-        dlx = tofloat(dtx); drx = dlx; // Fixed Point Maths
+
+        dlx = FPtoFloat(dtx); drx = dlx; // Fixed Point Maths
         for (ddy=dty; ddy<dmy; ddy++ ) {
             ddlx = FPtoInt(dlx); ddrx = FPtoInt(drx);
-            
-            slx = sx;
-            sly = sy;
-            
+            slx = sx; sly = sy;
             for(x=ddlx ;x <= ddrx ; x++) {
                 //color= COLOR_FG; 
                 ssx = clip( FPtoInt(slx),0,3);
@@ -397,17 +380,25 @@ class Raster
             
             sx += s * sox;
             sy += s * soy;
-                          
         }
         // if ( true ) return;
         //MACRO_println(" bottom part of the triangle");
         //debug("- paintTriangleMapping");
     }
+    int[][] texmap = { 
+        { 0x00FF ,0xFF00 ,  0x00FF , 0xFF00 } , 
+        { 0xFF00, 0x00FF ,  0xFF00, 0x00FF } , 
+        { 0x00FF ,0xFF00 ,  0x00FF , 0xFF00 } , 
+        { 0xFF00, 0x00FF ,  0xFF00, 0x00FF } , 
+    };
 
+    // http://www.flipcode.com/articles/article_mobilegfx04.shtml
+    // ftp://hornet.madtracker.org/mirrors/hornet/code/3d/trifill/texmap/fatmap.txt
 
-    public void paintLineHLinear(Graphics g,
-                                 int y, int l, int r, 
-                                 int[][] M)
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    public void paintLineHLinear
+        (Graphics g, int y, int l, int r, int[][] M)
     {
         //debug("+ paintLineLinear =" + l + " / " + r + " @ " + y);
         int t=0;
@@ -435,11 +426,9 @@ class Raster
     }
 
 
-    public void paintTriangleMappingLinear(Graphics g,
-                                     int xt, int yt,
-                                     int xm, int ym,
-                                     int xb, int yb,
-                                     int light)
+    public void paintTriangleMappingLinear
+        (Graphics g,
+         int xt, int yt, int xm, int ym, int xb, int yb, int light)
     {
         debug("+ paintTriangleMapping" );
         int t=0;
@@ -538,10 +527,8 @@ class Raster
 
         
     }
-    public void printTriangle(
-                              int xt, int yt,
-                              int xm, int ym,
-                              int xb, int yb)
+    public void printTriangle
+        (int xt, int yt, int xm, int ym, int xb, int yb)
     {
         debug(
               " { " + xt + ","+ yt + "}, {"
@@ -549,41 +536,13 @@ class Raster
     }
 
 #endif
-    //TODO : use java.lang.reflexion
-    /*
-      Class[] args = { int.class ,int.class , 
-      int.class ,int.class ,int.class ,int.class };
-      Method fillTriangle6int = null;
-      try {
-      fillTriangle6int = Graphics.getMethod("fillTriangle", args );
-      } catch (Exception e) { }
-
-    */
-    /*
-
-Class.forName("com.nokia.mid.ui.Graphics");
-
-
-<glass>   try {
-<glass>             Class.forName("com.nokia.mid.ui.FullCanvas");
-<glass>             nokia = true;
-<glass>             Class klass = Class.forName("tayskangas");
-<glass>             kangas = (Canvas) klass.newInstance();
-<glass>         } catch (Exception e) {
-<glass>             nokia = false;
-<glass>             System.out.println("no nokia found, falling back to regular canvas.");
-<glass>             kangas = (Canvas) new skangas("back");
-
-
-
-    */
-
 #undef swap
 
+#endif // #ifdef PRIVATE
 #ifndef INCLUDE_Raster
 }
 #endif
 
-/* $Id: */
 #endif // Raster_java_in
 
+/* $Id: Raster.java.in,v 1.8 2004-11-02 14:33:14 rzr Exp $ */
