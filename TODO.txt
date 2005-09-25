@@ -16,6 +16,7 @@ Diet3D-0_21-Nokia6600 (2004-03-14)
 
 ### TODO:
 
+- wtk2.2 midp2.0 on linux broken
 - translation
 - perspective
 - texmap 
@@ -23,6 +24,7 @@ Diet3D-0_21-Nokia6600 (2004-03-14)
 - spiral
 - shapes
 - Absolute URL
+
 
 ### Bugs
 

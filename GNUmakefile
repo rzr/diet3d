@@ -1,15 +1,25 @@
-# $Id: GNUmakefile,v 1.15 2004-11-02 14:33:08 rzr Exp $
+# $Id: GNUmakefile,v 1.16 2005-09-25 00:58:16 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PACKAGE ?=Diet3D
+PROJECT ?= Diet3D
+PROJECT_DIST ?= diet3d
+PROJECT_URL ?= "http://rzr.online.fr/java.htm"
+PROJECT ?= ${PROJECT}
+SUFFIX_MIDLET ?=MIDlet
+#SUFFIX_MIDLET=
+###############################################################################
 ENV ?= j2me
 RT_LIST?=midp1_0 midp1_0-nokia midp2_0 imode exen
-RT ?=midp1_0
-#RT ?=midp1_0-nokia
-#RT ?=midp2_0
+# RT ?=midp1_0
+# RT ?=midp1_0
+# RT ?=midp1_0-nokia
+RT ?=midp2_0
+# RT ?= j2se
 
-JAVA_HOME?=/usr/lib/j2se/1.4/
-SW_ARC?=${HOME}/mnt/software/
+JAVA_HOME ?=/usr/lib/j2se/1.4/
+SW_ARC ?=${HOME}/mnt/software/
 # commands
 UNZIP ?= unzip -q
 CONVERTER ?=java -cp ${SW_DIR}midp4palm1.0/Converter/Converter.jar \
@@ -23,8 +33,10 @@ export INFUSIO_PP_WIN INFUSIO_PP_LIN
 #
 SW_DIR ?= /opt/
 SDKV_LIST?=21 20 00 exen
-SDKV ?=21
 #SDKV ?=20
+SDKV ?=2.2
+# SDKV ?=2.1.01
+
 #SDKV=00
 CONFIG=${RT}
 SDK_PATH ?=${SW_DIRW}WTK104 ${SW_DIR}WTK2.1 ${SW_DIR}midp2.0fcs
@@ -37,7 +49,7 @@ ID ?=$(shell date +%Y%m%d%s)
 
 VERSION_MAJ=0
 VERSION_MIN=27
-VERSION_REV=3
+VERSION_REV=5
 
 VERSION_DOT ?= ${VERSION_MAJ}.${VERSION_MIN}.${VERSION_REV}
 VERSION_CHAR ?= ${VERSION_MAJ}_${VERSION_MIN}_${VERSION_REV}
@@ -46,18 +58,12 @@ VERSION ?= ${VERSION_DOT}
 #VERSION ?=0.0.$(shell date +%Y%m%d%H)
 
 # DEFINES+=-DDEVEL -DPRIVATE
-# DEFINES+= -DPRIVATE
+DEFINES+= -DPRIVATE
 # -NOINLINE
 MKDIR ?= @mkdir -p
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # PROJECTlication Specific
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-SUFFIX_MIDLET ?=MIDlet
-#SUFFIX_MIDLET=
-PROJECT ?= Diet3D
-PROJECT_DIST ?= diet3d
-PROJECT_URL ?= "http://rzr.online.fr/java.htm"
-PROJECT ?= ${PROJECT}
 DEFINES+=-DNOINLINE -DVERSION="${VERSION}"
 
 PWD:=$(shell pwd)/
@@ -72,7 +78,8 @@ WEBDIR ?=${HOME}/mnt/public_html/docs/java/${PROJECT_DIST}/
 #URL_BASE?=file://
 #URL_BASE?=http://rzr.online.fr/docs/java/jclasses/
 #URL_BASE?=http://localhost/~${USER}/${PROJECT}/
-URL_BASE?=http://localhost/~rzr/${PROJECT}/
+URL_BASE?=http://nrv.homelinux.org/~${USER}/${PROJECT}/
+#URL_BASE?=http://localhost/~rzr/${PROJECT}/
 
 URL?=${URL_BASE}${DESTDIR}${PROJECT}.jad
 #URL=http://rzr.online.fr/docs/java/jclasses/
@@ -133,10 +140,11 @@ CLASSPATH=${DESTDIR}:.
 FILES=${PROJECT} ${PROJECT}Canvas ${PROJECT}Applet
 OBJS=$(FILES:=.class) ${PROJECT}CommandLine.class
 ALL=${OBJS}
-JAVAC= javac -target "1.1" -g:none
+# JAVAC= javac -target "1.1" -g:none
+JAVAC = javac
 DATA?=applet.htm
 DATA_DIR=${DESTDIR}
-PREVERIFY=echo
+PREVERIFY ?=echo
 endif
 
 
@@ -165,10 +173,12 @@ OBJ_DIR=${SRC_DIR}
 #SRCS_IN?=${FILES:=.java.in}
 #OBJS?=${FILES:=.class}
 #PREVERIFY=${SW_DIR}midp2.0fcs/bin/preverify
-PREVERIFY=echo ${SW_DIR}midp2.0fcs/bin/preverify
-JAR=echo jar
-JAVAC=javac -g:none -target 1.1
-JAVACP=javacp
+
+JAR?=echo jar
+JAVAC?=javac -g:none -target 1.1
+JAVACP?=javacp
+PREVERIFY?=echo preverify
+
 #SRC_DIR_ABS ?=
 #EXEN_RUN ?=cd ${SDK_DIR} && nice wine --
 EXEN_RUN=nice wine --
@@ -200,11 +210,6 @@ FILES ?= ${PROJECT} ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
 # Env Specific
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-ifeq ($(API),"")
-JAVACFLAGS=-d ${OBJ_DIR} -classpath ${CLASSPATH}
-else
-JAVACFLAGS=-bootclasspath ${API} -classpath ${CLASSPATH} -d ${OBJ_DIR}
-endif
 
 ifeq ($(SDKV),10) 
 SDK:=WTK104
@@ -234,6 +239,32 @@ VM=${SDK_DIR}bin/emulator
 endif
 
 
+ifeq ($(SDKV),2.1.01)
+SDK:=j2me_wireless_toolkit-2_1_01
+SDK_DIR:=${SW_DIR}${SDK}/
+API ?=${SDK_DIR}lib/cldcapi10.jar
+API_MIDP ?=${SDK_DIR}lib/midpapi20.jar
+CLASSPATH=${API}:${API_MIDP}:${OBJ_DIR}:${EXT}
+VM=${SDK_DIR}bin/emulator
+endif
+
+ifeq ($(SDKV) , 2.2)
+SDK:=WTK${SDKV}
+SDK_DIR:=${SW_DIR}${SDK}/
+API ?=${SDK_DIR}lib/cldcapi10.jar
+API_MIDP ?=${SDK_DIR}lib/midpapi20.jar
+CLASSPATH=${API}:${API_MIDP}:${OBJ_DIR}:${EXT}
+VM=${SDK_DIR}bin/emulator
+# JAVACFLAGS ?=-d ${OBJ_DIR} -classpath ${CLASSPATH}
+endif
+
+ifeq (${API},"")
+JAVACFLAGS ?=-d ${OBJ_DIR} -classpath ${CLASSPATH}
+else
+JAVACFLAGS ?=-bootclasspath ${API} -classpath ${CLASSPATH} -d ${OBJ_DIR}
+endif
+
+
 # 
 # Default values
 #
@@ -246,11 +277,14 @@ OBJ_DIR ?=${TMP_DIR}${DESTDIR}
 #SRCS=$(wildcard *.java)
 #SRCS=
 #FILES=$(SRCS:.java=) 
-JAVAC ?= javac 
+JAVAC?=javac -target 1.2 -source 1.2
 JAVA ?=java
 APPLETVIEWER ?= appletviewer
-PREVERIFY ?= preverify
 JAR ?= jar
+API ?=
+
+# PREVERIFY ?= preverify
+PREVERIFY ?= ${SDK_DIR}/bin/preverify
 
 #DESTDIR ?=./
 #DESTDIR = ../jclasses-${ENV}/
@@ -275,7 +309,7 @@ export CLASSPATH
 default: all
 
 all compile build: pre ${ALL} post
-	@echo "#- $@"
+	@echo "# $@ : $^"
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~# Application rules
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 help: help-${PROJECT} help-${ENV}
@@ -358,6 +392,7 @@ ${PROJECT}.gif: ${PROJECT}CommandLine.class
 
 #${SRCS}: GNUmakefile
 
+
 exec-micro:
 	${MAKE} RT=midp1_0 exec-memu
 
@@ -393,8 +428,10 @@ xbrowse:
 
 
 %.class:%.java
+#	@echo "#{ $@ : $^"
 	${MKDIR} ${OBJ_DIR}
 	${JAVAC} ${JAVACFLAGS} ${SRC_DIR_ABS}${^F}
+#	@echo "#} $@ : $^"
 
 %.java: %.java.in ${SRCS_IN}
 	${MKDIR} ${SRC_DIR_ABS}
@@ -437,14 +474,14 @@ default-MANIFEST.MF:
 
  #${PROJECT}MIDlet$$Tick.class ${PROJECT}Render.class 
 ${DESTDIR}${PROJECT}.jar:${SRC_DIR_ABS}MANIFEST.MF ${OBJS} ${DESTDIR}
-	@echo "#+ $@"
+	@echo "#{ $@"
 	cd ${OBJ_DIR} && \
 	${PREVERIFY} -classpath ${CLASSPATH} -d . .  && \
 	${JAR} cvfm ${DESTDIR_ABS}${PROJECT}.jar ${SRC_DIR_ABS}MANIFEST.MF . 
 	file ${DESTDIR}${PROJECT}.jar
 	-${CLEAN} ${DESTDIR}${PROJECT}.jad
-	@echo "-$(^F) $(^F:.class=)"
-	@echo "#- $@"
+	@echo "# $(^F) $(^F:.class=)"
+	@echo "#} $@"
 
 jar-size: ${DESTDIR}${PROJECT}.jar
 	@stat $^ | grep "Size:" | sed -e "s/ *Size: \([0-9]*\).*/\1/g" | head -1
@@ -483,13 +520,13 @@ size-bug:
 
 # TODO: size ?
 ${DESTDIR}${PROJECT}.jad: ${SRC_DIR_ABS}MANIFEST.MF ${DESTDIR}${PROJECT}.jar
-	@echo "#+ $@ ${SIZE}"
+	@echo "#{ $@ ${SIZE}"
 	cat $< > $@
 	echo "MIDlet-Jar-URL: ${PROJECT}.jar" >> $@
 	echo "MIDlet-Jar-Size: ${SIZE}">> $@
 	echo "" >> $@
 	sed -e "s/MIDlet-Jar-Size: \([0-9]*\)/MIDlet-Jar-Size: \1/g" < $@
-	@echo "#- $@"
+	@echo "#} $@"
 # 	echo "MIDlet-Version: ${VERSION_DOT}">> $@
 
 
@@ -536,7 +573,7 @@ ${DESTDIR}${PROJECT}Applet.html: ${PROJECT}Applet.class
 	@echo "code=${<F:.class=}" >> $@
 	@echo "></applet>" >> $@
 	@echo "</html>" >> $@
-	@echo "#- $@"
+	@echo "#} $@"
 
 ${DESTDIR}${PROJECT}.html: ${PROJECT}.jar
 	@echo "<html>" > $@
@@ -551,7 +588,7 @@ ${DESTDIR}${PROJECT}.html: ${PROJECT}.jar
 	@echo "</applet><hr><pre>">> $@
 	${MAKE} info-user >> $@
 	@echo "</html>" >> $@
-	@echo "#- $@"
+	@echo "#} $@"
 
 palmos pda prc: 
 	${MAKE} RT=midp1_0 ${PROJECT}.prc
@@ -634,14 +671,8 @@ install-data: ${DATA}
 ${DATA}: ${OBJS}
 	cp ${SRC_IN_DIR}$(@F) ${DATA_DIR}
 
-
-
-
-
 demo: 
 	${MAKE} RT=midp2_0 exec-ri-url
-
-
 
 exec-application: ${PROJECT}Applet
 	cd ${DESTDIR} && \
@@ -663,7 +694,11 @@ names:
 
 info infos: info-proj
 	@echo "# default settings are : "
-	@echo "# SDK=${SDK}"
+	@echo "# SDKV=\"${SDKV}\""
+	@echo "# SDK=\"${SDK}\""
+	@echo "# SDK_DIR=\"${SDK_DIR}\""
+	@echo "# API=\"${API}\""
+	@echo "# JAVACFLAGS=${JAVACFLAGS}"
 	@echo "# SDK_DIR=${SDK_DIR}"
 	@echo "# CLASSPATH=${CLASSPATH}"
 	@echo "# PATH=${PATH}"
@@ -682,12 +717,10 @@ cc-wildcards:
 	${JAVAC} ${JAVACFLAGS} *.java
 
 pre: ${SDK_DIR} dir
-	@echo "- $@"
+#	@echo "#} $@ : $^"
 
 post: modes 
 
-force:
-	echo "forced"
 
 
 rebuild: clean-all all
@@ -823,9 +856,13 @@ uninstall-all:
 
 install-all: ${SDK_PATH}
 
+sdk-check:
+	ls -l ${SW_DIR}
+	ls -l ${API}
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~# Emulators
 # 
+run: exec-${RT}
 
 exec-all: exec-all-midp1_0 exec-all-midp1_0-nokia exec-all-midp2_0 exec-all-j2se exec-all-exen
 
@@ -863,8 +900,12 @@ ri exec-ri: ${DESTDIR}${PROJECT}.jad modes
 #exec-WTK104 exec-WTK2.1 ${PROJECT}: ${SDK_DIR} url
 #	${VM} -Xdescriptor:${URL}
 
-exec-midp2_0 exec-wtk exec-21  exec-WTK2.1: ${DESTDIR}${PROJECT}.jad
-	${SW_DIR}WTK2.1/bin/emulator -Xdescriptor:$^ 
+exec-sdk-wtk: ${DESTDIR}${PROJECT}.jad
+	cd ${<D} && ${SDK_DIR}/bin/emulator -Xdescriptor:${<F}
+
+exec-midp2_0 exec-wtk exec-21  exec-WTK2.1: exec-sdk-wtk
+#	${SDK_DIR}/bin/emulator -Xdescriptor:$^ 
+#	${SW_DIR}WTK2.1/bin/emulator -Xdescriptor:$^ 
 
 exec-midp1_0 exec-bw exec-WTK104: ${DESTDIR}${PROJECT}.jad
 	${SW_DIR}WTK104/bin/emulator -Xdescriptor:$^ 
@@ -1093,6 +1134,7 @@ version:
 	${JAVAC} -help
 	${MAKE} --version
 	${SH} --version
+	${PREVERIFY} -version
 
 info-user:
 	@echo PROJECT=${PROJECT}
@@ -1109,7 +1151,7 @@ cvs-tag:
 	@echo cvs tag "${PROJECT}-${VERSION_CHAR}-${DATE}-${PROFILE}"
 
 force:
-	@echo "- $@"
+	@echo "#} $@ : $^"
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.15 2004-11-02 14:33:08 rzr Exp $
+# $Id: GNUmakefile,v 1.16 2005-09-25 00:58:16 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

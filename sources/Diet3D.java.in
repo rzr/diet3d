@@ -1,10 +1,10 @@
-/* $Id: Diet3D.java.in,v 1.10 2004-11-02 14:33:14 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.11 2005-09-25 00:58:18 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.10 2004-11-02 14:33:14 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.11 2005-09-25 00:58:18 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
@@ -62,7 +62,8 @@ public final class Diet3D
 #define mesh_vf mesh_cube_vf
 #define mesh_vv mesh_cube_vv
 #define mesh_vc mesh_cube_vc
-#include "MeshCube.java.in"
+    // #include "MeshCube.java.in"
+#include "Rubiks.java.in"
 
 #if 0 //def MAPPING
 #undef  mesh_cube_nf
@@ -169,7 +170,11 @@ public final class Diet3D
     static int shape = 0;
     
     static final String vshape[] = { "cube", "sphere", 
-                                     "axis" , "logo2d" , "tux"};
+                                     "axis" , "logo2d" 
+#ifndef WANT_NO_TUX
+                                     , "tux"
+#endif
+    };
     
     static final String vanim[] = { "demo" , "spin" , "no" };
 
@@ -574,11 +579,13 @@ public final class Diet3D
             setCurrentColor(g, COLOR_FG_LINE );
             paintLine(g);
             setCurrentColor(g, COLOR_FG );
-            paintString(g, "Shape " + vshape[shape] + " # " + obj_nf );
+            // paintString(g, "Shape " + vshape[shape] + " # " + obj_nf );
+            paintString(g,  vshape[shape] );
         }
 #ifdef WANT_INFO 
         setCurrentColor(g, COLOR_FG );
-        g.drawString( "" + vmode[mode]  
+        // g.drawString( "" + vmode[mode]  
+        g.drawString(  vmode[mode]  
                       , ( w_ >> 1 )  , h_ - ( h_ >> 2 )  , 
                       g.BASELINE  | g.HCENTER );
 #endif
@@ -604,5 +611,5 @@ public final class Diet3D
 }
 #endif // INCLUDE_Diet3D
 #endif // Diet3D_java_in_
-/* $Id: Diet3D.java.in,v 1.10 2004-11-02 14:33:14 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.11 2005-09-25 00:58:18 rzr Exp $ */
 
