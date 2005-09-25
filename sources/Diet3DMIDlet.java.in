@@ -1,4 +1,4 @@
-/* $Id: Diet3DMIDlet.java.in,v 1.3 2004-11-02 14:33:14 rzr Exp $ */
+/* $Id: Diet3DMIDlet.java.in,v 1.4 2005-09-25 00:58:18 rzr Exp $ */
 #ifndef Diet3DMIDlet_java_in_
 #define Diet3DMIDlet_java_in_
 
@@ -121,4 +121,4 @@ final public class Diet3DMIDlet
 }
 
 #endif
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//#eof "$Id: Diet3DMIDlet.java.in,v 1.4 2005-09-25 00:58:18 rzr Exp $"

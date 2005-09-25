@@ -1,4 +1,4 @@
-/* $Id: Diet3DRender.java.in,v 1.4 2004-11-02 14:33:14 rzr Exp $ */
+/* $Id: Diet3DRender.java.in,v 1.5 2005-09-25 00:58:18 rzr Exp $ */
 #ifndef Diet3DRender_java_in_
 #define Diet3DRender_java_in_
 
@@ -540,6 +540,7 @@ public final class Diet3DRender
 #ifndef INCLUDE_Diet3DRender
 }
 #endif // ifndef INCLUDE_Diet3D
+
 
 #endif //ifndef Diet3D_java_in_
 /* $Id: */

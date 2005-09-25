@@ -1,4 +1,4 @@
-/* $Id: Diet3DCanvas.java.in,v 1.9 2004-11-02 14:33:14 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.10 2005-09-25 00:58:18 rzr Exp $ */
 #ifndef Diet3DCanva_java_in_
 #define Diet3DCanva_java_in_
 /**
@@ -189,7 +189,8 @@ public final class Diet3DCanvas
     {
 #if ! ( (defined AWT ) || ( defined EXEN ) || ( defined NTTDOCOMO ))
         g.setColor( 0x007F7F7F ); // BUG
-        g.drawString( "Diet3D FPS=" + fps, 0, 0, g.TOP | g.LEFT );
+        g.drawString( "Diet3D " , 0, 0, g.TOP | g.LEFT );
+        // g.drawString( "Diet3D FPS=" + fps, 0, 0, g.TOP | g.LEFT );
 
         g.drawString( "www.rzr.free.fr", 
                       getWidth() , getHeight()  , g.BASELINE  | g.RIGHT);
@@ -390,4 +391,4 @@ public final class Diet3DCanvas
 
     */
 #endif // Diet3DCanva_java_in_
-/* $Id: Diet3DCanvas.java.in,v 1.9 2004-11-02 14:33:14 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.10 2005-09-25 00:58:18 rzr Exp $ */

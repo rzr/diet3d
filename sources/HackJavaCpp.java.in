@@ -1,4 +1,4 @@
-/* $Id: HackJavaCpp.java.in,v 1.6 2004-11-02 14:33:14 rzr Exp $ */
+/* $Id: HackJavaCpp.java.in,v 1.7 2005-09-25 00:58:18 rzr Exp $ */
 #ifndef HackJavaCpp_java_in_
 #define HackJavaCpp_java_in_
 
@@ -39,6 +39,7 @@
 
 #ifdef MIDP_1_0
 #define WANT_NO_INFO
+#define WANT_NO_TUX
 #endif
 
 //--------
