@@ -1,0 +1,28 @@
+package fr.online.rzr;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.widget.TextView;
+import android.view.View;
+
+/**
+ * Android midlet
+ * @author www.Philippe.COVAL.free.fr
+ * Copyright and License : http://rzr.online.fr/license.htm
+ **/
+public class Diet3DActivity 
+    extends Activity 
+{
+    /** Called when the activity is first created. */
+    @Override
+
+	public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        View v = null;
+	v = new Diet3DCanvas(this);
+	setContentView(v);
+    }
+}
+
+//#eof "$Id: Diet3DActivity.java.in,v 1.1 2008-10-24 07:19:33 rzr Exp $"

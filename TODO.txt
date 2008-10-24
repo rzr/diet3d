@@ -1,9 +1,12 @@
+http://rzr.online.fr/java.htm
 
 (Offline ? Read 00index.htm wich is a copy of the webpage )
 
-Changelog:
+== Changelog: ==
 
-### cvs tags:
+see ChangeLog file
+
+cvs tags:
 
 Diet3D-0_27_3-20040413-Nokia6610
 Diet3D-0_27_3-20040411-Nokia6600
@@ -14,20 +17,20 @@ Diet3D-0_25_8-20040331-SonyEricssonT610
 Diet3D-0_25_8-20040330-NokiaNGage
 Diet3D-0_21-Nokia6600 (2004-03-14)
 
-### TODO:
+== TODO: ==
 
-- android
-- wtk2.2 midp2.0 on linux broken
-- translation
-- perspective
-- texmap 
-- xml parser, loader
-- spiral
-- shapes
-- Absolute URL
+* android
+* wtk2.2 midp2.0 on linux broken
+* translation
+* perspective
+* texmap 
+* xml parser, loader
+* spiral
+* shapes
+* Absolute URL
 
 
-### Bugs
+== Bugs ==
 
 arrayindexout of bound exc (tux)
 3210i - 
@@ -42,7 +45,8 @@ arrayindexout of bound exc (tux)
 # -35 5500 : crash zsort
 # T610 : no exit/menu
 
-### Random Notes:
+== misc : random Notes ==
+
 http://www.atfgame.net/programming/j3dme.htm
 
     //TODO : use java.lang.reflexion
