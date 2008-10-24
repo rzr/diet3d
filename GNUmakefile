@@ -1,8 +1,11 @@
-# $Id: GNUmakefile,v 1.16 2005-09-25 00:58:16 rzr Exp $
+# $Id: GNUmakefile,v 1.17 2008-10-24 05:44:04 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PACKAGE ?=Diet3D
+PACKAGE?=Diet3D
+
+default: all
+
 PROJECT ?= Diet3D
 PROJECT_DIST ?= diet3d
 PROJECT_URL ?= "http://rzr.online.fr/java.htm"
@@ -32,24 +35,23 @@ export INFUSIO_PP_WIN INFUSIO_PP_LIN
 
 #
 SW_DIR ?= /opt/
-SDKV_LIST?=21 20 00 exen
+SDKV_LIST?=22 21 20 00 exen
 #SDKV ?=20
 SDKV ?=2.2
 # SDKV ?=2.1.01
 
-#SDKV=00
 CONFIG=${RT}
 SDK_PATH ?=${SW_DIRW}WTK104 ${SW_DIR}WTK2.1 ${SW_DIR}midp2.0fcs
 DATE ?=$(shell date +%Y%m%d)
 # regnerated everytime
 #TMP ?=$(shell mktemp)
-TMP=/tmp/tmp-${USER}-${NAME}-${RT}-${SDKV}-${DATE}-tmp
+TMP=/tmp/tmp-${USER}.tmp/${PACKAGE}/${RT}-${SDKV}/
 ID ?=$(shell date +%Y%m%d%s)
 
 
-VERSION_MAJ=0
-VERSION_MIN=27
-VERSION_REV=5
+VERSION_MAJ=1
+VERSION_MIN=0
+VERSION_REV=0
 
 VERSION_DOT ?= ${VERSION_MAJ}.${VERSION_MIN}.${VERSION_REV}
 VERSION_CHAR ?= ${VERSION_MAJ}_${VERSION_MIN}_${VERSION_REV}
@@ -105,6 +107,12 @@ MIDPV="MIDP-2.0"
 ALL+=${DESTDIR}${PROJECT}.jad ${DESTDIR}${PROJECT}.wml ${DESTDIR}${PROJECT}.jar
 endif
 
+ifeq ($(RT),midp2_1) 
+DEFINES+=-DMIDP_2_1
+MIDPV="MIDP-2.1"
+ALL+=${DESTDIR}${PROJECT}.jad ${DESTDIR}${PROJECT}.wml ${DESTDIR}${PROJECT}.jar
+endif
+
 ifeq ($(RT),midp1_0-nokia) 
 DEFINES+= -DNOKIA
 MIDPV="MIDP-1.0"
@@ -146,6 +154,26 @@ DATA?=applet.htm
 DATA_DIR=${DESTDIR}
 PREVERIFY ?=echo
 endif
+
+
+ifeq ($(RT),android) 
+DEFINES+=-DANDROID  -DJ2SE
+SDKV=00
+API=""
+OBJ_DIR=./jclasses-${RT}/
+DESTDIR=${OBJ_DIR}
+CLASSPATH=${DESTDIR}:.
+FILES=${PROJECT} ${PROJECT}Canvas 
+#${PROJECT}Applet
+OBJS=$(FILES:=.class) ${PROJECT}CommandLine.class
+ALL=${OBJS}
+# JAVAC= javac -target "1.1" -g:none
+JAVAC = javac
+#DATA?=applet.htm
+DATA_DIR=${DESTDIR}
+PREVERIFY ?=echo
+endif
+
 
 
 EXEN_TARGET?=le_default.exn
@@ -198,7 +226,8 @@ PVC2ROM=wine -- ${SDK_DIR}bin/vmtools/exenrom/exenrom
 VM_EXEN=${EXEN_RUN} ${SDK_DIR}bin/simulator_v2/generic/Color/gensimu.exe 
 EXN2CTC=wine -- ${HOME}/mnt/bin-WIN32/EXN2CTC.exe
 CLASSPATH=${OBJ_DIR}:${API}
-endif#endif
+endif #endif // exen
+
 
 #FILES= MathFixed ${PROJECT}Render ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
 FILES ?= ${PROJECT} ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
@@ -210,12 +239,22 @@ FILES ?= ${PROJECT} ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
 # Env Specific
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+ifeq ($(SDKV) , 2.2)
+SDK:=wtk
+SDK_DIR:=${SW_DIR}${SDK}/
+API ?=${SDK_DIR}lib/cldcapi10.jar
+API_MIDP ?=${SDK_DIR}lib/midpapi21.jar
+CLASSPATH=${API}:${API_MIDP}:${OBJ_DIR}:${EXT}
+VM=${SDK_DIR}bin/emulator
+# JAVACFLAGS ?=-d ${OBJ_DIR} -classpath ${CLASSPATH}
+endif
 
-ifeq ($(SDKV),10) 
-SDK:=WTK104
-SDK_DIR=${SW_DIR}${SDK}/
-API ?=${SDK_DIR}lib/midpapi.zip
-CLASSPATH=${API}:${EXT}:${OBJ_DIR}
+ifeq ($(SDKV),21)
+SDK:=WTK2.1
+SDK_DIR:=${SW_DIR}${SDK}/
+API ?=${SDK_DIR}lib/cldcapi10.zip
+API_MIDP ?=${SDK_DIR}lib/midpapi20.zip
+CLASSPATH=${API}:${API_MIDP}:${OBJ_DIR}:${EXT}
 VM=${SDK_DIR}bin/emulator
 endif
 
@@ -229,14 +268,14 @@ VM=${SDK_DIR}bin/midp
 CLASSPATH=${API}:${EXT}:${OBJ_DIR}
 endif
 
-ifeq ($(SDKV),21)
-SDK:=WTK2.1
-SDK_DIR:=${SW_DIR}${SDK}/
-API ?=${SDK_DIR}lib/cldcapi10.zip
-API_MIDP ?=${SDK_DIR}lib/midpapi20.zip
-CLASSPATH=${API}:${API_MIDP}:${OBJ_DIR}:${EXT}
+ifeq ($(SDKV),10) 
+SDK:=WTK104
+SDK_DIR=${SW_DIR}${SDK}/
+API ?=${SDK_DIR}lib/midpapi.zip
+CLASSPATH=${API}:${EXT}:${OBJ_DIR}
 VM=${SDK_DIR}bin/emulator
 endif
+
 
 
 ifeq ($(SDKV),2.1.01)
@@ -248,15 +287,6 @@ CLASSPATH=${API}:${API_MIDP}:${OBJ_DIR}:${EXT}
 VM=${SDK_DIR}bin/emulator
 endif
 
-ifeq ($(SDKV) , 2.2)
-SDK:=WTK${SDKV}
-SDK_DIR:=${SW_DIR}${SDK}/
-API ?=${SDK_DIR}lib/cldcapi10.jar
-API_MIDP ?=${SDK_DIR}lib/midpapi20.jar
-CLASSPATH=${API}:${API_MIDP}:${OBJ_DIR}:${EXT}
-VM=${SDK_DIR}bin/emulator
-# JAVACFLAGS ?=-d ${OBJ_DIR} -classpath ${CLASSPATH}
-endif
 
 ifeq (${API},"")
 JAVACFLAGS ?=-d ${OBJ_DIR} -classpath ${CLASSPATH}
@@ -271,12 +301,13 @@ endif
 
 DESTDIR_ABS ?=${PWD}${DESTDIR}
 SRC_DIR_ABS ?=${PWD}${SRC_DIR}
-TMP_DIR ?=/tmp/${SRC_DIR_ABS}/tmp/
+TMP_DIR=/tmp/tmp-${USER}.tmp/${PACKAGE}/${RT}-${SDKV}/${CURDIR}/
 OBJ_DIR ?=${TMP_DIR}${DESTDIR}
 
 #SRCS=$(wildcard *.java)
 #SRCS=
 #FILES=$(SRCS:.java=) 
+#  javac: target release 1.1 conflicts with default source release 1.5
 JAVAC?=javac -target 1.2 -source 1.2
 JAVA ?=java
 APPLETVIEWER ?= appletviewer
@@ -306,11 +337,11 @@ export CLASSPATH
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Rules
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-default: all
-
 all compile build: pre ${ALL} post
 	@echo "# $@ : $^"
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~# Application rules
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Application rules
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 help: help-${PROJECT} help-${ENV}
 	@echo "#"
@@ -434,10 +465,10 @@ xbrowse:
 #	@echo "#} $@ : $^"
 
 %.java: %.java.in ${SRCS_IN}
-	${MKDIR} ${SRC_DIR_ABS}
+	${MKDIR} ${SRC_DIR_ABS} ${TMPDIR}/${@D}
 	cpp -undef -fno-show-column ${DEFINES} -C -P -I. -I ${SRC_IN_DIR} $< \
-> ${TMP}
-	@mv  ${TMP} ${SRC_DIR_ABS}$@
+> "$@.tmp"
+	@mv  "${@}.tmp" "${SRC_DIR_ABS}$@"
 #	@echo -e "\n ### !!! MAKE MAY FAILS, just restart (vpath bug) ### \n"
 #	@ls -l ${SRC_DIR_ABS}$@
 
@@ -493,7 +524,7 @@ SIZE:=` \
 size:
 	@echo "$^ Size = ${SIZE}"
 
-check: ${DESTDIR}${PROJECT}.jad ${DESTDIR}${PROJECT}.jar
+check: ${API} ${DESTDIR}${PROJECT}.jad ${DESTDIR}${PROJECT}.jar
 	@echo "#+ $@"
 	@ls -l ${DESTDIR}${PROJECT}.jar
 	@grep Size: ${DESTDIR}${PROJECT}.jad
@@ -564,6 +595,14 @@ ${DESTDIR}${PROJECT}.wml: ${DESTDIR}${PROJECT}.jad
 </wml>\
 " > $@
 	@echo "#- $@"
+
+
+${DESTDIR}imode.html:
+	echo "<object declare id=${PROJECT} data=${URL_JAM} \
+ type=\"application/x-jam\"></object>\
+ <a ijam=\"#${PROJECT]\" href=fail.htm>Download</a>\
+" > $@
+
 
 applethtml: ${DESTDIR}${PROJECT}Applet.html
 
@@ -710,6 +749,7 @@ info-proj:
 	@echo "# PROJECT=${PROJECT}"
 	@echo "# ALL=${ALL}"
 	@echo "# OBJS=${OBJS}"
+	@echo "# SRCS=${SRCS}"
 
 
 cc-wildcards:
@@ -754,7 +794,7 @@ install-post:
 	@echo "MIDlet-Jar-URL: Diet3D.jar"
 
 
-TMP_DIR=${HOME}/tmp/${PROJECT}/${DATE}/${PROJECT}/
+#TMP_DIR=${HOME}/tmp/${PROJECT}/${DATE}/${PROJECT}/
 install-src:  AUTHORS README COPYING src-midp1_0 jclasses-midp1_0 
 	-mkdir -p ${TMP_DIR}
 	cp -rf $^ ${TMP_DIR}
@@ -784,7 +824,7 @@ GEN_PATH ?= tmpclasses tmplib  classes  res src bin
 
 clean-all: clean clean-src clean-src-all
 	-@${CLEAN} -rf ${DESTDIR}../jclasses* ${OBJ_DIR}../jclasses* ${DESTDIR} jclasses-midp*  ${GEN_PATH} \
-	/tmp/home/${USER} 2>&1 2>/dev/null
+	/tmp/tmp-${USER}.tmp/${PACKAGE}/ 2>&1 2>/dev/null
 	-@${CLEAN} *.log 2>&1 2>/dev/null
 	ls
 	@echo "# $@"
@@ -1129,6 +1169,9 @@ info-project:
 	@echo OBJ_DIR=${OBJ_DIR}
 # imported rules 
 
+apt:
+	sudo apt-get install make free-java-sdk
+
 version:
 	${JAVA} -version
 	${JAVAC} -help
@@ -1153,5 +1196,11 @@ cvs-tag:
 force:
 	@echo "#} $@ : $^"
 #	@echo EMAIL=${EMAIL}
-# $Id: GNUmakefile,v 1.16 2005-09-25 00:58:16 rzr Exp $
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+android:
+	${MAKE} RT=$@ clean srcs
+	cp -rfa src-$@/* ~/workspace/diet3dandroid/src/fr/online/rzr/
+
+# $Id: GNUmakefile,v 1.17 2008-10-24 05:44:04 rzr Exp $
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

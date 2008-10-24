@@ -1,4 +1,4 @@
-/* $Id: Diet3DMIDlet.java.in,v 1.4 2005-09-25 00:58:18 rzr Exp $ */
+/* $Id: Diet3DMIDlet.java.in,v 1.5 2008-10-24 05:44:04 rzr Exp $ */
 #ifndef Diet3DMIDlet_java_in_
 #define Diet3DMIDlet_java_in_
 
@@ -46,23 +46,18 @@ final public class Diet3DMIDlet
         //msg += System.getProperty("microedition.profiles" ); //crash uemu
         //fmMain.append( msg );
 
-        lanim = new ChoiceGroup( "Animation :", 
-                                 Choice.EXCLUSIVE, 
-                                 mCanvas.mRender.vanim, null);
+        lanim = new ChoiceGroup
+	    ( "Animation :", Choice.EXCLUSIVE, mCanvas.mRender.vanim, null);
         fmMain.append( lanim ); 
 
-
-        lshape = new ChoiceGroup( "Choose Shape :", 
-                                  Choice.EXCLUSIVE, 
-                                  mCanvas.mRender.vshape, null);
+        lshape = new ChoiceGroup
+	    ( "Choose Shape :", Choice.EXCLUSIVE, mCanvas.mRender.vshape, null);
         fmMain.append( lshape); 
 
-
-        lrender = new ChoiceGroup( "Choose Rendering mode :", 
-                                   Choice.EXCLUSIVE, 
-                                   mCanvas.mRender.vmode, null);
+        lrender = new ChoiceGroup
+	    ( "Choose Rendering mode :"
+	      , Choice.EXCLUSIVE, mCanvas.mRender.vmode, null);
         fmMain.append( lrender); 
-
 
         //--
         mExitCommand = new Command("Exit", Command.EXIT, 0);
@@ -121,4 +116,4 @@ final public class Diet3DMIDlet
 }
 
 #endif
-//#eof "$Id: Diet3DMIDlet.java.in,v 1.4 2005-09-25 00:58:18 rzr Exp $"
+//#eof "$Id: Diet3DMIDlet.java.in,v 1.5 2008-10-24 05:44:04 rzr Exp $"

@@ -16,3 +16,5 @@ public static final int mesh_vc[]= {
 //public static obj_center = new int[obj_nf][3];
 //} Object
 //} Scene
+
+//#eof "$Id: MeshCube.java.in,v 1.2 2008-10-24 05:44:04 rzr Exp $"
