@@ -1,10 +1,10 @@
-/* $Id: Diet3D.java.in,v 1.12 2008-10-24 05:44:04 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.13 2008-10-24 07:19:33 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.12 2008-10-24 05:44:04 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.13 2008-10-24 07:19:33 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
@@ -422,6 +422,7 @@ public final class Diet3D
     }
     recalc();
   }
+
   public void update()
   {
     rx_ = rx_%MathFixed.sinesize;
@@ -525,7 +526,8 @@ public final class Diet3D
     void paint(Graphics g)
   {
 #ifdef ANDROID
-    paintVertex(g);
+    setCurrentColor(g, COLOR_FG_LINE );
+    paintLine(g);
 #else
     setCurrentColor(g, COLOR_BG );
     g.fillRect( 0 , 0, w_ , h_ ); //bound box trick //TODO
@@ -602,7 +604,6 @@ public final class Diet3D
     //showStatus(s);
     return s;
   }
-
 #endif //FULL
 
 #ifndef INCLUDE_Diet3D
@@ -610,4 +611,4 @@ public final class Diet3D
 #endif // INCLUDE_Diet3D
 #endif // Diet3D_java_in_
 
-/* #eof "$Id: Diet3D.java.in,v 1.12 2008-10-24 05:44:04 rzr Exp $" */
+/* #eof "$Id: Diet3D.java.in,v 1.13 2008-10-24 07:19:33 rzr Exp $" */

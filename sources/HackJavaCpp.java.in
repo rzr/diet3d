@@ -1,4 +1,4 @@
-/* $Id: HackJavaCpp.java.in,v 1.8 2008-10-24 05:44:04 rzr Exp $ */
+/* $Id: HackJavaCpp.java.in,v 1.9 2008-10-24 07:19:33 rzr Exp $ */
 #ifndef HackJavaCpp_java_in_
 #define HackJavaCpp_java_in_
 
@@ -51,11 +51,12 @@ import android.graphics.Canvas;
 import android.view.View;
 import android.graphics.Paint;
 import android.content.Context;
-//# define Canvas View
 # define Graphics Canvas
+//# define Canvas View
+// #define setColor drawColor
+
 # define HAVE_DISPLAY_NO
 # define HAVE_IMAGE_NO
-
 #endif // ANDROID
 
 
@@ -185,8 +186,12 @@ import com.nokia.mid.ui.*;
 #if ( ( defined MIDP_2_0 ) || ( defined NOKIA ))
 #endif
 
+#ifdef ANDROID
+# define setCurrentColor(g,col)  g.drawColor(COLOR(col))
+#else
+# define setCurrentColor(g,col)  g.setColor(COLOR(col))
+#endif
 
-#define setCurrentColor(g,col)  g.setColor(COLOR(col))
 #define swap(a,b,t) { t=a; a=b; b=t; }
 
 #define clip(x,min,max)  (( x < min) ? min : ( (x > max)  ? max : x ))
@@ -208,4 +213,4 @@ import com.nokia.mid.ui.*;
 
 #endif //HackJavaCpp_java_in_
 
-/* #eof "$Id: HackJavaCpp.java.in,v 1.8 2008-10-24 05:44:04 rzr Exp $" */
+/* #eof "$Id: HackJavaCpp.java.in,v 1.9 2008-10-24 07:19:33 rzr Exp $" */

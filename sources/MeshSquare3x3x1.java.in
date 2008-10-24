@@ -1,0 +1,51 @@
+// # URL; http://rzr.online.fr/java.htm
+//class Rubiks {  
+   
+//number of vertex of a 2x2x2 cube 
+public static final int mesh_nv =  3 * 3 * 1; // 27
+
+//number of faces of a 2x2x2 cube (6 x 4 faces of 2 triangle)
+public static final int mesh_nf =  2 * 4 * 1; // 48
+
+// vertex must be between -11585 and +11585
+
+
+
+
+  static final int x = 11585; 
+  static final int y = x;
+
+public static final int mesh_vv[][]= {
+ { - x , y , 0   } ,   {   0 , y , 0  }     ,    {  x , y , 0  } , // row 4
+ { -x , 0 , 0    } ,   {  0 , 0 , 0  }       ,    { x , 0 , 0  } , // row 5
+ { - x , -y , 0  } ,   { 0 , -y ,0  }        ,    { x , -y , 0 } , // row 6
+ };
+
+
+
+//coordinates of the faces 
+public static final int mesh_vf[][]= {
+
+ { 0 , 1 , 3 } , { 3 , 1 , 4 } , // for up left scare
+ { 1 , 2 , 4 } , { 4 , 2 , 5 } , //     up right scare
+ { 3 , 4 , 6 } , { 6 , 4 , 7 } , //     bottom left
+ { 4 , 5 , 7 } , { 7 , 5 , 8 } , //     bottom right
+
+};
+    
+public static final int mesh_vc[]= { 
+    0xff0000,  0xff0000, 
+    0x00ff00,  0x00ff00,
+    0x0000ff,  0x0000ff,
+    0xff00ff,  0xff00ff, 
+}; 
+    
+//    public void rotateFrontRow( int rownum , boolean rightOrLeft) {}   
+    
+    
+    
+//} 
+
+
+
+
