@@ -1,4 +1,4 @@
-/* $Id: Diet3DRender.java.in,v 1.5 2005-09-25 00:58:18 rzr Exp $ */
+/* $Id: Diet3DRender.java.in,v 1.6 2008-10-24 05:44:04 rzr Exp $ */
 #ifndef Diet3DRender_java_in_
 #define Diet3DRender_java_in_
 
@@ -11,416 +11,439 @@
 public final class Diet3DRender
 {
 #endif //ifndef INCLUDE_Diet3D
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
 #ifdef NO_INLINE     //check for it later
-    public void screen(int[] r)
-    {
+  public void screen(int[] r)
+  {
 
 #if 0  
-        // TODO: Perspective: f =  1. -  ( 1. /  ( SQRT2 * boundboxZ   + z )) ;
-        //if ( r[2] + bound <= 0 ) { debug("!!!!"); }
+    // TODO: Perspective: f =  1. -  ( 1. /  ( SQRT2 * boundboxZ   + z )) ;
+    //if ( r[2] + bound <= 0 ) { debug("!!!!"); }
 
-        int perspscale = MathFixed.one  ; //BUG
+    int perspscale = MathFixed.one  ; //BUG
 
-        perspscale =  div( one , (  screenscale * bound  +  r[2]  )  ); //CHECK
+    perspscale =  div( one , (  screenscale * bound  +  r[2]  )  ); //CHECK
 
-        //debug("p="+perspscale); 
-        //if ( perspscale < 0 ) { debug("*** 0 "); } if ( perspscale > one ) { debug("*** 1");  }
+    //debug("p="+perspscale); 
+    //if ( perspscale < 0 ) { debug("*** 0 "); } if ( perspscale > one ) { debug("*** 1");  }
 
-        r[0] = ( mult( r[0],  perspscale ) );
-        r[1] = ( mult( r[1] , perspscale ) );
+    r[0] = ( mult( r[0],  perspscale ) );
+    r[1] = ( mult( r[1] , perspscale ) );
         
-        r[0] =   ( r[0]  ) + screen[0];
-        r[1] = - ( r[1]  ) + screen[1]; 
+    r[0] =   ( r[0]  ) + screen[0];
+    r[1] = - ( r[1]  ) + screen[1]; 
 
-        //debug("d="+ r[2] );        
-        r[2] = mult( r[2] , div (one , (screenscale * bound )) ) ;// + screen[2] ;
-        //r[2] = ( r[2] / 12 ) 
-        //debug("s="+ r[2] );
-        //trim( r[2] );        
-        //r[2] =   ( r[2] << scale ) + screen[2]; //useless / needed  v lenght tranf 
+    //debug("d="+ r[2] );        
+    r[2] = mult( r[2] , div (one , (screenscale * bound )) ) ;// + screen[2] ;
+    //r[2] = ( r[2] / 12 ) 
+    //debug("s="+ r[2] );
+    //trim( r[2] );        
+    //r[2] =   ( r[2] << scale ) + screen[2]; //useless / needed  v lenght tranf 
 
         
 #else
-        trimV(r);
-        r[0] =   ( r[0] << scale ) + screen[0];
-        r[1] = - ( r[1] << scale ) + screen[1]; 
-        r[2] =   ( r[2] << scale ) + screen[2]; //useless / needed  v lenght tranf
+    trimV(r);
+    r[0] =   ( r[0] << scale ) + screen[0];
+    r[1] = - ( r[1] << scale ) + screen[1]; 
+    r[2] =   ( r[2] << scale ) + screen[2]; //useless / needed  v lenght tranf
 #endif //persp
-    }
+  }
 #else
-#define MACROscreen(r) { \
- trimV(r); \
-        r[0] =   (r[0] << scale) +  screen[0]  ; \
-        r[1] = - (r[1] << scale) +  screen[1]  ; \
-        r[2] =   (r[2] << scale) +  screen[2]  ; \
-}
+#define MACROscreen(r) {                        \
+    trimV(r);                                   \
+    r[0] =   (r[0] << scale) +  screen[0]  ;    \
+    r[1] = - (r[1] << scale) +  screen[1]  ;    \
+    r[2] =   (r[2] << scale) +  screen[2]  ;    \
+  }
 #define screen(r)  MACROscreen(r) 
 #endif //INLINE
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         
-    /** store in r[]  vertex[i] after viewing transform */
-    public void coord(int i, int[] r)
-    {
-        MathFixed.multMV(  m_, obj_vv[i] ,  r );
-        screen(r);
-    }
-    /** face[i] **/
+  /** store in r[]  vertex[i] after viewing transform */
+  public void coord(int i, int[] r)
+  {
+    MathFixed.multMV(  m_, obj_vv[i] ,  r );
+    screen(r);
+  }
+  /** face[i] **/
 #ifdef NO_INLINE
-    public void coordFace(int i, int[] a, int[]b, int[]c)
-    {
-        MathFixed.multMV( m_, obj_vv[ obj_vf[i][0] ] , a );
-        MathFixed.multMV( m_, obj_vv[ obj_vf[i][1] ] , b );
-        MathFixed.multMV( m_, obj_vv[ obj_vf[i][2] ] , c );
-        screen(a);
-        screen(b);
-        screen(c);
-    }
+  public void coordFace(int i, int[] a, int[]b, int[]c)
+  {
+    MathFixed.multMV( m_, obj_vv[ obj_vf[i][0] ] , a );
+    MathFixed.multMV( m_, obj_vv[ obj_vf[i][1] ] , b );
+    MathFixed.multMV( m_, obj_vv[ obj_vf[i][2] ] , c );
+    screen(a);
+    screen(b);
+    screen(c);
+  }
 #else
-#define coordFace(i,a,b,c) {\
-        MathFixed.multMV( m_, obj_vv[ obj_vf[i][0] ] , a ); \
-        MathFixed.multMV( m_, obj_vv[ obj_vf[i][1] ] , b ); \
-        MathFixed.multMV( m_, obj_vv[ obj_vf[i][2] ] , c ); \
-        screen(a); \
-        screen(b); \
-        screen(c); \
-    }
+#define coordFace(i,a,b,c) {                            \
+    MathFixed.multMV( m_, obj_vv[ obj_vf[i][0] ] , a ); \
+    MathFixed.multMV( m_, obj_vv[ obj_vf[i][1] ] , b ); \
+    MathFixed.multMV( m_, obj_vv[ obj_vf[i][2] ] , c ); \
+    screen(a);                                          \
+    screen(b);                                          \
+    screen(c);                                          \
+  }
         
 #endif
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public void paintVertex(Graphics g) 
-    {
-        setCurrentColor(g,COLOR_FG_POINT);
-        for(int i=0; i < obj_nv; i++) {
-            coord(i, vn);
-            g.drawLine( vn[0], vn[1], vn[0], vn[1]);
-        }
-        //debug("-paintVertex");
+  public void paintVertex(Graphics g) 
+  {
+#ifdef ANDROID
+    //TODO
+#else
+    setCurrentColor(g,COLOR_FG_POINT);
+#endif
+    for(int i=0; i < obj_nv; i++) {
+      coord(i, vn);
+#ifdef ANDROID
+      MACROdrawLineColored( g, vn[0], vn[1], vn[0], vn[1], COLOR_FG_POINT);
+#else
+      g.drawLine( vn[0], vn[1], vn[0], vn[1]);
+#endif
     }
+    //debug("#{ paintVertex");
+  }
 
+  public void paintString(Graphics g, String s)
+  {
+#if ! ( (defined AWT ) || ( defined EXEN ) || ( defined NTTDOCOMO )     \
+        || ( defined ANDROID ) )
+    g.drawString
+      ( s , w_ >> 1 , h_ >> 1 , g.BASELINE  | g.HCENTER );
+    //debug(s);
+#endif
+  }
+
+
+#ifndef ANDROID // TODO
 
     public void paintLine(Graphics g) 
     {
-        TYPE_COLOR c= COLOR_FG_FACE;
-        for(int i=0; i < obj_nf; i++) {
-            coordFace(i,va,vb,vc);
-            if ( obj_vc != null ) c = obj_vc[i];
-            setCurrentColor(g,c);
-            g.drawLine( va[0] , va[1] , vb[0] , vb[1] );
-            g.drawLine( va[0] , va[1] , vc[0] , vc[1] );
-            g.drawLine( vc[0] , vc[1] , vb[0] , vb[1] );
-            // debug("-paintLine " + obj_nf );
-        }
+      TYPE_COLOR c= COLOR_FG_FACE;
+      for(int i=0; i < obj_nf; i++) {
+        coordFace(i,va,vb,vc);
+        if ( obj_vc != null ) c = obj_vc[i];
+        setCurrentColor(g,c);
+        g.drawLine( va[0] , va[1] , vb[0] , vb[1] );
+        g.drawLine( va[0] , va[1] , vc[0] , vc[1] );
+        g.drawLine( vc[0] , vc[1] , vb[0] , vb[1] );
+        // debug("#{ paintLine " + obj_nf );
+      }
     }
 
 #ifdef PRIVATE
     public void paintFlat(Graphics g) 
     {
-        TYPE_COLOR c= COLOR_FG_FACE;
-        for(int i=0; i < obj_nf; i++) {
-            coordFace(i,va,vb,vc);
-            paintTriangle( g, va, vb, vc, c );
-        }
+      TYPE_COLOR c= COLOR_FG_FACE;
+      for(int i=0; i < obj_nf; i++) {
+        coordFace(i,va,vb,vc);
+        paintTriangle( g, va, vb, vc, c );
+      }
     }
 
     /** backface culling **/
     public void paintFront(Graphics g)
     {
-        // setCurrentColor(g, 0x00FFFF00 );//yellow
-        // paintFace(g);
-        for(int i=0; i < obj_nf; i++) {
-            //setCurrentColor(g, obj_vc[i] ); 
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
-            MathFixed.normVVV( va, vb, vc, vn);
-            if ( vn[2] <= 0 ) { // 
-                screen(va); screen(vb); screen(vc);
-                g.drawLine( va[0] , va[1] , vb[0] , vb[1] );
-                g.drawLine( va[0] , va[1] , vc[0] , vc[1] );
-                g.drawLine( vc[0] , vc[1] , vb[0] , vb[1] );
-            }
-            //else { debug("skip"); }
+      // setCurrentColor(g, 0x00FFFF00 );//yellow
+      // paintFace(g);
+      for(int i=0; i < obj_nf; i++) {
+        //setCurrentColor(g, obj_vc[i] ); 
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
+        MathFixed.normVVV( va, vb, vc, vn);
+        if ( vn[2] <= 0 ) { // 
+          screen(va); screen(vb); screen(vc);
+          g.drawLine( va[0] , va[1] , vb[0] , vb[1] );
+          g.drawLine( va[0] , va[1] , vc[0] , vc[1] );
+          g.drawLine( vc[0] , vc[1] , vb[0] , vb[1] );
         }
-        //setCurrentColor(g, 0x00000000 );
-        //paintLine(g);
-        //debug("-paintFront");
+        //else { debug("skip"); }
+      }
+      //setCurrentColor(g, 0x00000000 );
+      //paintLine(g);
+      //debug("#{ paintFront");
     }
 
 
     public void paintFrontFace(Graphics g)
     {
-        // setCurrentColor(g, 0x00FFFF00 );//yellow
-        // paintFace(g);
-        TYPE_COLOR c= COLOR_FG_FACE;
-        for(int i=0; i < obj_nf; i++) {
-            //setCurrentColor(g, obj_vc[i] ); 
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
-            MathFixed.normVVV( va, vb, vc, vn);
-            if ( vn[2] <= 0 ) { // 
-                screen(va); screen(vb); screen(vc);
-                if ( obj_vc != null ) c = obj_vc[i];
-                paintTriangle( g, va, vb, vc, c );
+      // setCurrentColor(g, 0x00FFFF00 );//yellow
+      // paintFace(g);
+      TYPE_COLOR c= COLOR_FG_FACE;
+      for(int i=0; i < obj_nf; i++) {
+        //setCurrentColor(g, obj_vc[i] ); 
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
+        MathFixed.normVVV( va, vb, vc, vn);
+        if ( vn[2] <= 0 ) { // 
+          screen(va); screen(vb); screen(vc);
+          if ( obj_vc != null ) c = obj_vc[i];
+          paintTriangle( g, va, vb, vc, c );
 
-            }
-            //else { debug("skip"); }
         }
-        //setCurrentColor(g, 0x00000000 );
-        //paintLine(g);
-        //debug("-paintFront");
+        //else { debug("skip"); }
+      }
+      //setCurrentColor(g, 0x00000000 );
+      //paintLine(g);
+      //debug("#{ paintFront");
     }
 
 
     public void paintLight(Graphics g)
     {
-        int t=0,r=0,c=0;
-        //paintFlat(g);
-        for(int i=0; i < obj_nf; i++) {
-            //debug("."+i);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
-            //MathFixed.print(va); MathFixed.print(vb); MathFixed.print(vc);
-            MathFixed.normVVV( va, vb, vc, vn);
-            if ( vn[2] <= 0 ) { //
-                //MathFixed.printV(vn);
+      int t=0,r=0,c=0;
+      //paintFlat(g);
+      for(int i=0; i < obj_nf; i++) {
+        //debug("."+i);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
+        //MathFixed.print(va); MathFixed.print(vb); MathFixed.print(vc);
+        MathFixed.normVVV( va, vb, vc, vn);
+        if ( vn[2] <= 0 ) { //
+          //MathFixed.printV(vn);
 
-                trimV(vn); // recalc ~~~ CHECK
-                vn[0] =   (vn[0] << scale); 
-                vn[1] =   (vn[1] << scale); 
-                vn[2] =   (vn[2] << scale); 
+          trimV(vn); // recalc ~~~ CHECK
+          vn[0] =   (vn[0] << scale); 
+          vn[1] =   (vn[1] << scale); 
+          vn[2] =   (vn[2] << scale); 
 
-                MathFixed.normV(vn,vn); //precalcul on start will save
-                //MathFixed.
-                //printV(vn);
-                r = MathFixed.dotVV( light , vn ); 
-                //debug("index=" + r); 
-                r = ( r * colormapsize ) / MathFixed.one;
-                //debug("index=" + r); 
-                if ( r >=  colormapsize ) { r= colormapsize -1; }
-                if ( r<0 ) { r=0; }
-                screen(va); screen(vb); screen(vc); 
-                c =  colormap[r];
-                if ( obj_vc != null ) c &= obj_vc[i];
-                //setCurrentColor(g,c);
-                paintTriangle( g, va, vb, vc, c );
-            }
-            //else {debug("skip"); }
+          MathFixed.normV(vn,vn); //precalcul on start will save
+          //MathFixed.
+          //printV(vn);
+          r = MathFixed.dotVV( light , vn ); 
+          //debug("index=" + r); 
+          r = ( r * colormapsize ) / MathFixed.one;
+          //debug("index=" + r); 
+          if ( r >=  colormapsize ) { r= colormapsize -1; }
+          if ( r<0 ) { r=0; }
+          screen(va); screen(vb); screen(vc); 
+          c =  colormap[r];
+          if ( obj_vc != null ) c &= obj_vc[i];
+          //setCurrentColor(g,c);
+          paintTriangle( g, va, vb, vc, c );
         }
-        //setCurrentColor(g, COLOR_FG_LINE ); paintLine(g);
+        //else {debug("skip"); }
+      }
+      //setCurrentColor(g, COLOR_FG_LINE ); paintLine(g);
     }
 
     public void paintDynLight(Graphics g)
     {
-        //updated = ( updated > (sinesize >>2) ) ?  0 : updated ; //BUG
-        int index = updated%sinesize;
-        //System.out.println("" + index );
-        //index =( index  < (sinesize >>2) ) ? index
-        //: ( (sinesize >>2 ) - ( index%(sinesize>>2) ) );
-        //System.out.println("d=" + index );
+      //updated = ( updated > (sinesize >>2) ) ?  0 : updated ; //BUG
+      int index = updated%sinesize;
+      //System.out.println("" + index );
+      //index =( index  < (sinesize >>2) ) ? index
+      //: ( (sinesize >>2 ) - ( index%(sinesize>>2) ) );
+      //System.out.println("d=" + index );
 
-        light[0] = sine[ index%sinesize ];      
-        light[1] = sine[(index + (sinesize >>2 ))%sinesize ] ;
-        light[2] = - MathFixed.half;
-        MathFixed.normV(light,light); 
+      light[0] = sine[ index%sinesize ];      
+      light[1] = sine[(index + (sinesize >>2 ))%sinesize ] ;
+      light[2] = - MathFixed.half;
+      MathFixed.normV(light,light); 
         
-        int t=0,r=0,c=0;
-        //paintFlat(g);
-        for(int i=0; i < obj_nf; i++) {
-            //debug("."+i);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
-            //MathFixed.print(va); MathFixed.print(vb); MathFixed.print(vc);
-            MathFixed.normVVV( va, vb, vc, vn);
-            if ( vn[2] <= 0 ) { //
-                //MathFixed.printV(vn);
+      int t=0,r=0,c=0;
+      //paintFlat(g);
+      for(int i=0; i < obj_nf; i++) {
+        //debug("."+i);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
+        //MathFixed.print(va); MathFixed.print(vb); MathFixed.print(vc);
+        MathFixed.normVVV( va, vb, vc, vn);
+        if ( vn[2] <= 0 ) { //
+          //MathFixed.printV(vn);
 
-                trimV(vn); // recalc ~~~ CHECK
-                vn[0] =   (vn[0] << scale); 
-                vn[1] =   (vn[1] << scale); 
-                vn[2] =   (vn[2] << scale); 
+          trimV(vn); // recalc ~~~ CHECK
+          vn[0] =   (vn[0] << scale); 
+          vn[1] =   (vn[1] << scale); 
+          vn[2] =   (vn[2] << scale); 
 
-                MathFixed.normV(vn,vn); //precalcul on start will save
-                //MathFixed.
-                //printV(vn);
-                r = MathFixed.dotVV( light , vn ); 
-                //debug("index=" + r); 
-                r = ( r * colormapsize ) / MathFixed.one;
-                //debug("index=" + r); 
-                if ( r >=  colormapsize ) { r= colormapsize -1; }
-                if ( r<0 ) { r=0; }
-                screen(va); screen(vb); screen(vc); 
-                c =  colormap[r];
-                //if ( obj_vc != null ) { c &= obj_vc[i] ; } // c |= 0x50; }
-                //setCurrentColor(g,c);
-                paintTriangle( g, va, vb, vc, c );
-            }
-            //else {debug("skip"); }
+          MathFixed.normV(vn,vn); //precalcul on start will save
+          //MathFixed.
+          //printV(vn);
+          r = MathFixed.dotVV( light , vn ); 
+          //debug("index=" + r); 
+          r = ( r * colormapsize ) / MathFixed.one;
+          //debug("index=" + r); 
+          if ( r >=  colormapsize ) { r= colormapsize -1; }
+          if ( r<0 ) { r=0; }
+          screen(va); screen(vb); screen(vc); 
+          c =  colormap[r];
+          //if ( obj_vc != null ) { c &= obj_vc[i] ; } // c |= 0x50; }
+          //setCurrentColor(g,c);
+          paintTriangle( g, va, vb, vc, c );
         }
+        //else {debug("skip"); }
+      }
 
-        light[0] *= - (w_ >> 3) ;
-        light[1] *= - (w_ >> 3) ;
+      light[0] *= - (w_ >> 3) ;
+      light[1] *= - (w_ >> 3) ;
         
-        screen( light );
+      screen( light );
 #if ( ! ( defined  NTTDOCOMO || defined EXEN ) )
-        setCurrentColor(g, COLOR_YELLOW );        
-        g.fillArc( light[0] - 4 , light[1] - 4 , 8 , 8 , 0 , 360);
+      setCurrentColor(g, COLOR_YELLOW );        
+      g.fillArc( light[0] - 4 , light[1] - 4 , 8 , 8 , 0 , 360);
 #endif
-        setCurrentColor(g, COLOR_FG_LINE );
-        g.drawLine( light[0] -2 , light[1] , light[0]+2 , light[1]   );
-        g.drawLine( light[0] , light[1] -2 , light[0] , light[1] +2  );
-        //System.out.println("- paintDynLight" + (w_ >> 3) );
+      setCurrentColor(g, COLOR_FG_LINE );
+      g.drawLine( light[0] -2 , light[1] , light[0]+2 , light[1]   );
+      g.drawLine( light[0] , light[1] -2 , light[0] , light[1] +2  );
+      //System.out.println("- paintDynLight" + (w_ >> 3) );
     }
 
     public void paintFrontFast(Graphics g)
     {
-        int i=0;
-        for(i=0; i < obj_nv; i++) {
-            MathFixed.multMV(  m_ , obj_vv[i] , obj_trans[i] );
-        }
+      int i=0;
+      for(i=0; i < obj_nv; i++) {
+        MathFixed.multMV(  m_ , obj_vv[i] , obj_trans[i] );
+      }
 
-        for(i=0; i < obj_nf; i++) {
-            //setCurrentColor(g, obj_vc[i] ); 
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
+      for(i=0; i < obj_nf; i++) {
+        //setCurrentColor(g, obj_vc[i] ); 
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
             
-            MathFixed.normVVV( va, vb, vc, vn);
-            //            if ( vn[2] >= 0 ) { // 
-            screen(va); screen(vb); screen(vc);
-            g.drawLine( va[0] , va[1] , vb[0] , vb[1] );
-            g.drawLine( va[0] , va[1] , vc[0] , vc[1] );
-            g.drawLine( vc[0] , vc[1] , vb[0] , vb[1] );
-            //}
-            //else { debug("skip"); }
-        }
-        //setCurrentColor(g, 0x00000000 );
-        //paintLine(g);
-        //debug("-paintFront");
+        MathFixed.normVVV( va, vb, vc, vn);
+        //            if ( vn[2] >= 0 ) { // 
+        screen(va); screen(vb); screen(vc);
+        g.drawLine( va[0] , va[1] , vb[0] , vb[1] );
+        g.drawLine( va[0] , va[1] , vc[0] , vc[1] );
+        g.drawLine( vc[0] , vc[1] , vb[0] , vb[1] );
+        //}
+        //else { debug("skip"); }
+      }
+      //setCurrentColor(g, 0x00000000 );
+      //paintLine(g);
+      //debug("#{ paintFront");
     }
 
 
     public void paintPixelFiller(Graphics g)
     {
-        paintInit(g);
+      paintInit(g);
 
-        TYPE_COLOR  c = COLOR_FG;
-        setCurrentColor(g, c);
+      TYPE_COLOR  c = COLOR_FG;
+      setCurrentColor(g, c);
 
-        for(int i=0; i < obj_nf; i++) {
-            //setCurrentColor(g, obj_vc[i] ); 
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
-            MathFixed.normVVV( va, vb, vc, vn);
-            if ( vn[2] >= 0 ) { // 
-                screen(va); screen(vb); screen(vc);
-                if ( obj_vc != null ) c = obj_vc[i];
+      for(int i=0; i < obj_nf; i++) {
+        //setCurrentColor(g, obj_vc[i] ); 
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
+        MathFixed.normVVV( va, vb, vc, vn);
+        if ( vn[2] >= 0 ) { // 
+          screen(va); screen(vb); screen(vc);
+          if ( obj_vc != null ) c = obj_vc[i];
                 
-                paintTrianglePixel
-                    (g, va[0],va[1], vb[0],vb[1], vc[0], vc[1] , c );
-            }
+          paintTrianglePixel
+            (g, va[0],va[1], vb[0],vb[1], vc[0], vc[1] , c );
         }
-        paintFlush(g);
-        //paintLine(g);
+      }
+      paintFlush(g);
+      //paintLine(g);
     }
 
 #ifdef ZSORT
     //TODO calc norm 1st if front add to array to be sorted
     public void paintSort(Graphics g)
     {
-        //debug("+paintSort :" + obj_nf );
-        int i=0,r=0;
+      //debug("#{paintSort :" + obj_nf );
+      int i=0,r=0;
         
-        if ( obj_trans == null || obj_center == null ) {
-            paintString(g,"ZSort : Err");
-            return ;
-        }
-        TYPE_COLOR c = COLOR_FG_FACE;
-        setCurrentColor(g,c);
-        for(i=0;i< obj_nv;i++)
-            MathFixed.multMV(  m_ , obj_vv[i] , obj_trans[i] );
+      if ( obj_trans == null || obj_center == null ) {
+        paintString(g,"ZSort : Err");
+        return ;
+      }
+      TYPE_COLOR c = COLOR_FG_FACE;
+      setCurrentColor(g,c);
+      for(i=0;i< obj_nv;i++)
+        MathFixed.multMV(  m_ , obj_vv[i] , obj_trans[i] );
         
-        for(i=0; i < obj_nf; i++) {
-            copyVV ( obj_trans[ obj_vf[i][0] ] , va );
-            copyVV ( obj_trans[ obj_vf[i][1] ] , vb );
-            copyVV ( obj_trans[ obj_vf[i][2] ] , vc );
-            //MathFixed.printV(va); MathFixed.printV(vb); MathFixed.printV(vc);
-            obj_center[i][2] = va[2] + vb[2] + vc[2] ;
-            //debug(""+obj_center[i][2] );
-        }
-        quickSort( obj_center, 0, obj_nf -1 );
-        for(i=0; i < obj_nf; i++) {
-            //debug(""+obj_center[i][2] );
-            copyVV ( obj_trans[ obj_vf[i][0] ] , va );
-            copyVV ( obj_trans[ obj_vf[i][1] ] , vb );
-            copyVV ( obj_trans[ obj_vf[i][2] ] , vc );
-            MathFixed.normVVV( va, vb, vc, vn);
-            //MathFixed.printV(va); MathFixed.printV(vb); MathFixed.printV(vc);
-            if ( vn[2] <= 0 ) { // 
-                trimV(vn); // recalc ~~~ CHECK
-                vn[0] =   (vn[0] << scale); 
-                vn[1] =   (vn[1] << scale); 
-                vn[2] =   (vn[2] << scale); 
+      for(i=0; i < obj_nf; i++) {
+        copyVV ( obj_trans[ obj_vf[i][0] ] , va );
+        copyVV ( obj_trans[ obj_vf[i][1] ] , vb );
+        copyVV ( obj_trans[ obj_vf[i][2] ] , vc );
+        //MathFixed.printV(va); MathFixed.printV(vb); MathFixed.printV(vc);
+        obj_center[i][2] = va[2] + vb[2] + vc[2] ;
+        //debug(""+obj_center[i][2] );
+      }
+      quickSort( obj_center, 0, obj_nf -1 );
+      for(i=0; i < obj_nf; i++) {
+        //debug(""+obj_center[i][2] );
+        copyVV ( obj_trans[ obj_vf[i][0] ] , va );
+        copyVV ( obj_trans[ obj_vf[i][1] ] , vb );
+        copyVV ( obj_trans[ obj_vf[i][2] ] , vc );
+        MathFixed.normVVV( va, vb, vc, vn);
+        //MathFixed.printV(va); MathFixed.printV(vb); MathFixed.printV(vc);
+        if ( vn[2] <= 0 ) { // 
+          trimV(vn); // recalc ~~~ CHECK
+          vn[0] =   (vn[0] << scale); 
+          vn[1] =   (vn[1] << scale); 
+          vn[2] =   (vn[2] << scale); 
 
-                MathFixed.normV(vn,vn); //precalcul on start will save
-                r = MathFixed.dotVV( light , vn ); 
-                r = ( r * colormapsize ) / MathFixed.one;
-                //debug("index=" + r); 
-                if ( r >=  colormapsize ) { r= colormapsize -1; }
-                if ( r<0 ) { r=0; }
-                screen(va); screen(vb); screen(vc); 
-                c =  colormap[r];
-                if ( obj_vc != null ) c &= obj_vc[i]; // CHECK
-                paintTriangle( g, va, vb, vc, c );
-            }
+          MathFixed.normV(vn,vn); //precalcul on start will save
+          r = MathFixed.dotVV( light , vn ); 
+          r = ( r * colormapsize ) / MathFixed.one;
+          //debug("index=" + r); 
+          if ( r >=  colormapsize ) { r= colormapsize -1; }
+          if ( r<0 ) { r=0; }
+          screen(va); screen(vb); screen(vc); 
+          c =  colormap[r];
+          if ( obj_vc != null ) c &= obj_vc[i]; // CHECK
+          paintTriangle( g, va, vb, vc, c );
         }
-        //debug("- paintSort");
+      }
+      //debug("#} paintSort");
     }
 
     public void paintSortFlat(Graphics g)
     {
-        //debug("+paintSort :" + obj_nf );
-        int i=0;
+      //debug("#{paintSort :" + obj_nf );
+      int i=0;
 
-        if ( obj_trans == null || obj_center == null ) {
-            paintString(g,"ZSort : Err");
-            return ;
-        }
-        TYPE_COLOR c = COLOR_FG_FACE;
-        setCurrentColor(g,c);
-        for(i=0;i< obj_nv;i++)
-            MathFixed.multMV(  m_ , obj_vv[i] , obj_trans[i] );
+      if ( obj_trans == null || obj_center == null ) {
+        paintString(g,"ZSort : Err");
+        return ;
+      }
+      TYPE_COLOR c = COLOR_FG_FACE;
+      setCurrentColor(g,c);
+      for(i=0;i< obj_nv;i++)
+        MathFixed.multMV(  m_ , obj_vv[i] , obj_trans[i] );
         
-        for(i=0; i < obj_nf; i++) {
-            copyVV ( obj_trans[ obj_vf[i][0] ] , va );
-            copyVV ( obj_trans[ obj_vf[i][1] ] , vb );
-            copyVV ( obj_trans[ obj_vf[i][2] ] , vc );
-            //MathFixed.printV(va); MathFixed.printV(vb); MathFixed.printV(vc);
-            obj_center[i][2] = va[2] + vb[2] + vc[2] ;
-            //debug(""+obj_center[i][2] );
-        }
-        quickSort( obj_center, 0, obj_nf -1 );
-        for(i=0; i < obj_nf; i++) {
-            //debug(""+obj_center[i][2] );
-            copyVV ( obj_trans[ obj_vf[i][0] ] , va );
-            copyVV ( obj_trans[ obj_vf[i][1] ] , vb );
-            copyVV ( obj_trans[ obj_vf[i][2] ] , vc );
+      for(i=0; i < obj_nf; i++) {
+        copyVV ( obj_trans[ obj_vf[i][0] ] , va );
+        copyVV ( obj_trans[ obj_vf[i][1] ] , vb );
+        copyVV ( obj_trans[ obj_vf[i][2] ] , vc );
+        //MathFixed.printV(va); MathFixed.printV(vb); MathFixed.printV(vc);
+        obj_center[i][2] = va[2] + vb[2] + vc[2] ;
+        //debug(""+obj_center[i][2] );
+      }
+      quickSort( obj_center, 0, obj_nf -1 );
+      for(i=0; i < obj_nf; i++) {
+        //debug(""+obj_center[i][2] );
+        copyVV ( obj_trans[ obj_vf[i][0] ] , va );
+        copyVV ( obj_trans[ obj_vf[i][1] ] , vb );
+        copyVV ( obj_trans[ obj_vf[i][2] ] , vc );
 
-            //MathFixed.printV(va); MathFixed.printV(vb); MathFixed.printV(vc);
-            screen(va); screen(vb); screen(vc);
-            if ( obj_vc != null ) c = obj_vc[i];
-            paintTriangle( g, va, vb, vc, c );
-        }
-        //debug("- paintSort");
+        //MathFixed.printV(va); MathFixed.printV(vb); MathFixed.printV(vc);
+        screen(va); screen(vb); screen(vc);
+        if ( obj_vc != null ) c = obj_vc[i];
+        paintTriangle( g, va, vb, vc, c );
+      }
+      //debug("#} paintSort");
     }
 
+#endif //    #ifndef ANDROID // TODO
 
     /* Quick Sort implementation
      */
@@ -428,114 +451,107 @@ public final class Diet3DRender
 
 #define less(a,b) ( a[2] < b[2] )
 #define swap(a,b,t) { t=a; a=b; b=t; }    
-#define swapv3(a,b,t) \
-  { swap(a[0],b[0],t); swap(a[1],b[1],t); swap(a[2],b[2],t); }
+#define swapv3(a,b,t)                                                   \
+    { swap(a[0],b[0],t); swap(a[1],b[1],t); swap(a[2],b[2],t); }
 
     private void swapArray(TYPE a[], int i, int j) 
     {
-        ///swap center
-        TYPE tmp;
-        tmp = a[i];
-        a[i] = a[j];
-        a[j] = tmp;
+      ///swap center
+      TYPE tmp;
+      tmp = a[i];
+      a[i] = a[j];
+      a[j] = tmp;
 
-        // swap face
-        int tmpint;
-        swapv3(obj_vf[i], obj_vf[j] ,tmpint );
-        if ( obj_vc != null ) swap(obj_vc[i], obj_vc[j] ,tmpint );
+      // swap face
+      int tmpint;
+      swapv3(obj_vf[i], obj_vf[j] ,tmpint );
+      if ( obj_vc != null ) swap(obj_vc[i], obj_vc[j] ,tmpint );
     }
 
     protected void quickSort(TYPE a[], int left, int right) 
     {
-        int leftIndex = left;
-        int rightIndex = right;
-        TYPE partionElement;
-        if ( right > left) {
-            //debug("Arbitrarily establishing partition element as the mid");
-            partionElement = a[ ( left + right )>>1 ];
+      int leftIndex = left;
+      int rightIndex = right;
+      TYPE partionElement;
+      if ( right > left) {
+        //debug("Arbitrarily establishing partition element as the mid");
+        partionElement = a[ ( left + right )>>1 ];
 
-            // loop through the array until indices cross
-            while( leftIndex <= rightIndex ) {
-                /// find the first element that is greater than or equal to
-                /// the partionElement starting from the leftIndex.
-                while( ( leftIndex < right )
-                       && less( a[leftIndex] , partionElement ) )
-                    ++leftIndex;
+        // loop through the array until indices cross
+        while( leftIndex <= rightIndex ) {
+          /// find the first element that is greater than or equal to
+          /// the partionElement starting from the leftIndex.
+          while( ( leftIndex < right )
+                 && less( a[leftIndex] , partionElement ) )
+            ++leftIndex;
                 
-                /// find an element that is smaller than or equal to
-                /// the partionElement starting from the rightIndex.
-                while( ( rightIndex > left ) 
-                       && less ( partionElement ,  a[rightIndex] ) )
-                    --rightIndex;
+          /// find an element that is smaller than or equal to
+          /// the partionElement starting from the rightIndex.
+          while( ( rightIndex > left ) 
+                 && less ( partionElement ,  a[rightIndex] ) )
+            --rightIndex;
 
-                //debug("if the indexes have not crossed, swap");
-                if( leftIndex <= rightIndex ) {
-                    swapArray(a, leftIndex, rightIndex);
-                    ++leftIndex;
-                    --rightIndex;
-                }
-            }
-            
-            /// If the right index has not reached the left side of array 
-            /// must now sort the left partition.
-            if( left < rightIndex ) quickSort( a, left, rightIndex );
-
-            /* If the left index has not reached the right side of array
-             * must now sort the right partition.
-             */
-            if( leftIndex < right ) quickSort( a, leftIndex, right );
-
+          //debug("if the indexes have not crossed, swap");
+          if( leftIndex <= rightIndex ) {
+            swapArray(a, leftIndex, rightIndex);
+            ++leftIndex;
+            --rightIndex;
+          }
         }
-        //debug("-quickSort");
+            
+        /// If the right index has not reached the left side of array 
+        /// must now sort the left partition.
+        if( left < rightIndex ) quickSort( a, left, rightIndex );
+
+        /* If the left index has not reached the right side of array
+         * must now sort the right partition.
+         */
+        if( leftIndex < right ) quickSort( a, leftIndex, right );
+
+      }
+      //debug("#{ quickSort");
     }
 #endif//ZSORT
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #ifdef MAPPING
     public void paintMapping(Graphics g)
     {
-        TYPE_COLOR  c = COLOR_FG;
-        setCurrentColor(g, c);
-        for(int i=0; i < obj_nf; i++) {
-            //setCurrentColor(g, obj_vc[i] ); 
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
-            MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
-            MathFixed.normVVV( va, vb, vc, vn);
-            if ( vn[2] >= 0 ) { // 
-                screen(va); screen(vb); screen(vc);
-                if ( obj_vc != null ) c = obj_vc[i];
-                paintTriangleMapping
-                    (g, va[0],va[1], vb[0],vb[1], vc[0], vc[1] , c );
-            }
+      TYPE_COLOR  c = COLOR_FG;
+      setCurrentColor(g, c);
+      for(int i=0; i < obj_nf; i++) {
+        //setCurrentColor(g, obj_vc[i] ); 
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
+        MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
+        MathFixed.normVVV( va, vb, vc, vn);
+        if ( vn[2] >= 0 ) { // 
+          screen(va); screen(vb); screen(vc);
+          if ( obj_vc != null ) c = obj_vc[i];
+          paintTriangleMapping
+            (g, va[0],va[1], vb[0],vb[1], vc[0], vc[1] , c );
         }
-        //paintLine(g);
+      }
+      //paintLine(g);
     }
 #endif // MAPPING
 
 #endif    //#ifdef PRIVATE
 
-    public void paintString(Graphics g, String s)
-    {
-#if ! ( (defined AWT ) || ( defined EXEN ) || ( defined NTTDOCOMO ))
-        g.drawString
-            ( s , w_ >> 1 , h_ >> 1 , g.BASELINE  | g.HCENTER );
-        //debug(s);
-#endif
-    }
 
 #if 0 //def FULL
-    //ifdef FULL // (  ! defined RELEASE ) 
-    ///
-    public static String debug(Object o) 
-    {
+      //ifdef FULL // (  ! defined RELEASE ) 
+      ///
+      public static String debug(Object o) 
+      {
         //if ( true) return ""; //
         String s= o.toString();
         MACRO_println(s);
         //showStatus(s);
         return s;
-    }
-
+      }
 #endif //FULL
+
+
 
 #ifndef INCLUDE_Diet3DRender
 }
@@ -543,4 +559,4 @@ public final class Diet3DRender
 
 
 #endif //ifndef Diet3D_java_in_
-/* $Id: */
+/* #eof "$Id: Diet3DRender.java.in,v 1.6 2008-10-24 05:44:04 rzr Exp $" */

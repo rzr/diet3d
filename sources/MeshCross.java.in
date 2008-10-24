@@ -1,4 +1,4 @@
-/* $Id: MeshCross.java.in,v 1.2 2004-03-25 00:18:16 rzr Exp $ */
+/* $Id: MeshCross.java.in,v 1.3 2008-10-24 05:44:04 rzr Exp $ */
 //Scene { 
 //Object { 
 // Named object: "77V_132F_@_www.rzr.online.fr
@@ -11,3 +11,5 @@ public static final int mesh_vf[][]= {
 };
 //} Object
 //} Scene
+
+//#eof "$Id: MeshCross.java.in,v 1.3 2008-10-24 05:44:04 rzr Exp $"

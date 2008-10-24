@@ -1,4 +1,4 @@
-/* $Id: Raster.java.in,v 1.8 2004-11-02 14:33:14 rzr Exp $ */
+/* $Id: Raster.java.in,v 1.9 2008-10-24 05:44:04 rzr Exp $ */
 #ifndef Raster_java_in
 #define Raster_java_in
 
@@ -9,7 +9,7 @@
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
-  **/
+ **/
 
 #ifndef INCLUDE_Raster
 class Raster
@@ -17,75 +17,95 @@ class Raster
 #endif
 
 #ifdef NOKIA
-    static DirectGraphics dg = null;
-    static int tmpRaster;
+  static DirectGraphics dg = null;
+  static int tmpRaster;
 #endif
-    static int[] colorbuffer = null;
+  static int[] colorbuffer = null;
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-#if ( ( defined MIDP2_0 ) || ( defined NOKIA )) //
-#define MACROpaintPixel(g,x,y,c) \
-   if ( ( y < h_ ) && ( y >= 0 ) && ( x < w_ ) && ( x >= 0 )) \
-     colorbuffer[ y*w_ + x ] = 0xFF000000 | c;
-#else
-#define MACROpaintPixel(g,x,y,c) \
-   setCurrentColor(g,c); g.drawLine(x,y,x,y)
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // paintPixel
+
+#ifdef ANDROID
+  //TODO
+# define MACROpaintPixel(g,x,y,c)                         {     \
+    Paint paint_static = new Paint();                           \
+    g.drawColor( c );  g.drawLine(x,y,x,y,paint_static);        \
+  }
+#elif ( ( defined MIDP2_0 ) || ( defined NOKIA )) //
+
+# define MACROpaintPixel(g,x,y,c)                               \
+  if ( ( y < h_ ) && ( y >= 0 ) && ( x < w_ ) && ( x >= 0 ))    \
+    colorbuffer[ y*w_ + x ] = 0xFF000000 | c;
+
+#else // using java graphics
+
+# define MACROpaintPixel(g,x,y,c)               \
+  setCurrentColor(g,c); g.drawLine(x,y,x,y)
 #endif
-
 
 #ifdef  MACROpaintPixel
 #define paintPixel MACROpaintPixel
 #else
-    public void paintPixel(Graphics g, int x, int y, int c)
-    {
-        setCurrentColor(g,c);
-        g.drawLine(x,y,x,y);
-        //debug("- paintPixel : " + x + "," + y );
-    }
+  public void paintPixel(Graphics g, int x, int y, int c)
+  {
+    setCurrentColor(g,c);
+    g.drawLine(x,y,x,y);
+    //debug("#} paintPixel : " + x + "," + y );
+  }
 #endif
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #ifdef PRIVATE
 
 #if ( ( defined NOKIA ) || ( defined MIDP2_0 ))
-    public void paintInit(Graphics g)
-    {
+  public void paintInit(Graphics g)
+  {
 #ifdef NOKIA
-        if ( dg == null) { dg = DirectUtils.getDirectGraphics(g); }
+    if ( dg == null) { dg = DirectUtils.getDirectGraphics(g); }
 #endif
-        if ( colorbuffer == null) { 
-            //debug("TODO");
-            colorbuffer = new int[hw_];
-        }
-        for(int i=0;i< hw_;i++) colorbuffer[i] = COLOR_BG;
-        //debug
-        //debug("- paintInit "+ w_ + "*" + h_ );
+    if ( colorbuffer == null) { 
+      //debug("TODO");
+      colorbuffer = new int[hw_];
     }
+    for(int i=0;i< hw_;i++) colorbuffer[i] = COLOR_BG;
+    //debug
+    //debug("#} paintInit "+ w_ + "*" + h_ );
+  }
 #else
 #define paintInit(g)
 #endif
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #if ( ( defined NOKIA )  || ( defined MIDP_2_0 ) )
-    public void paintFlush(Graphics g)
-    {
-        if ( colorbuffer != null ) {
+  public void paintFlush(Graphics g)
+  {
+    if ( colorbuffer != null ) {
 #if ( defined NOKIA )
-            dg.drawPixels( colorbuffer, false,  0, w_ , 0, 0, 
-                       w_, h_, 0, dg.TYPE_INT_8888_ARGB );
+      dg.drawPixels( colorbuffer, false,  0, w_ , 0, 0, 
+                     w_, h_, 0, dg.TYPE_INT_8888_ARGB );
                        
 #else
-            g.drawRGB( colorbuffer, 0 , w_ , 0 , 0 , w_ , h_ , false );
+      g.drawRGB( colorbuffer, 0 , w_ , 0 , 0 , w_ , h_ , false );
 #endif 
-        }
-        //debug("- paintFlush "  + colorbuffer );
     }
+    //debug("#} paintFlush "  + colorbuffer );
+  }
 #else
 #define paintFlush(g)
 #endif
 
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+  /* paintLine for android */
+#ifdef ANDROID
+# define MACROdrawLineColored(gfx,bx,by,ex,ey,color)            \
+  { Paint paint = new Paint();                                  \
+    gfx.drawColor( color );  gfx.drawLine(bx,by,ex,ey,paint);   \
+  }
+#else
+# define MACROdrawLineColored(bx,by,ex,ey,color,gfx,ignored)    \
+  { gfx.drawLine(bx,by,ex,ey); }
+#endif
 
 #define MACROpaintLineH(g,y,xa,xb) g.drawLine(xa,y,xb,y)
 
@@ -94,446 +114,440 @@ class Raster
 #ifdef MACROpaintLineH
 #define paintLineH MACROpaintLineH
 #else
-    public void paintLineH(Graphics g, int y, int xa, int xb)
-    {
-        //paintPixel(g,xa,y); paintPixel(g,xb,y);
-        g.drawLine(xa,y,xb,y);
-        //debug("- paintLineH : " + xa + "," + xb );
-    }
+  public void paintLineH(Graphics g, int y, int xa, int xb)
+  {
+    //paintPixel(g,xa,y); paintPixel(g,xb,y);
+    g.drawLine(xa,y,xb,y);
+    //debug("#} paintLineH : " + xa + "," + xb );
+  }
 #endif
 
-    //~~~~~~~~~~~~~~~~
+  //~~~~~~~~~~~~~~~~
 #if  ( ( defined MIDP_1_0 ) && ( ! defined NOKIA )) 
-    /** Software triangle filler (when no accell is provided) **/
-    public void paintTriangleSoft(Graphics g, 
-                                  int tx, int ty,
-                                  int mx, int my,
-                                  int bx, int by)
-    {
-        int t=0;
-        // sort 
-        if ( ty > by ) { swap(by,ty,t); swap(bx,tx,t); }
-        if ( ty > my ) { swap(my,ty,t); swap(mx,tx,t); }
-        if ( my > by ) { swap(my,by,t); swap(mx,bx,t); }
+  /** Software triangle filler (when no accell is provided) **/
+  public void paintTriangleSoft(Graphics g, 
+                                int tx, int ty,
+                                int mx, int my,
+                                int bx, int by)
+  {
+    int t=0;
+    // sort 
+    if ( ty > by ) { swap(by,ty,t); swap(bx,tx,t); }
+    if ( ty > my ) { swap(my,ty,t); swap(mx,tx,t); }
+    if ( my > by ) { swap(my,by,t); swap(mx,bx,t); }
 
-        FPfloat dtb=0, dtm=0, dmb = 0 ; //float !
-        int r=0,l=0;
-        //debug("upper part of the triangle");
+    FPfloat dtb=0, dtm=0, dmb = 0 ; //float !
+    int r=0,l=0;
+    //debug("upper part of the triangle");
         
-        dtb = FPdivProtected ( (bx-tx) , (by-ty) , 0 ) ; // float
-        dtm = FPdivProtected ( (mx-tx) , (my-ty) , 0 ) ; // float
-        dmb = FPdivProtected ( (bx-mx) , (by-my) , 0 ) ; // float
+    dtb = FPdivProtected ( (bx-tx) , (by-ty) , 0 ) ; // float
+    dtm = FPdivProtected ( (mx-tx) , (my-ty) , 0 ) ; // float
+    dmb = FPdivProtected ( (bx-mx) , (by-my) , 0 ) ; // float
 
-        ///
-        FPfloat rx,lx;       
-        int y = 0;
-        rx = lx  = FPtoFloat(tx);
-        if ( mx < tx ) { l = dtm ; r = dtb; } else { l = dtb; r = dtm; }
+    ///
+    FPfloat rx,lx;       
+    int y = 0;
+    rx = lx  = FPtoFloat(tx);
+    if ( mx < tx ) { l = dtm ; r = dtb; } else { l = dtb; r = dtm; }
 
-        //setCurrentColor(g, 0xFF);
-        for (y=ty; y<my; y++ ){
-            paintLineH( g, y, toint(lx) , toint(rx));
-            lx += l;
-            rx += r;
-        }
-        //MACRO_println(" bottom part of the triangle");
-        if ( bx < tx ) { l = dmb ; r = dtb; } else { l = dtb; r = dmb; }
-        lx = FPtoFloat(bx); rx = lx;
-        //setCurrentColor(g, 0xFF00);
-        for (y=by; y>=my; y-- ) { //may speed up ; TODO
-            paintLineH( g, y, toint(lx) , toint(rx));
-            lx -= l;
-            rx -= r; 
-        }
-        //MACRO_println("-fillTriangle");
+    //setCurrentColor(g, 0xFF);
+    for (y=ty; y<my; y++ ){
+      paintLineH( g, y, toint(lx) , toint(rx));
+      lx += l;
+      rx += r;
     }
-
-
-    // warning triangle filler may not be implemented in all devices
-    public void paintTriangle(Graphics g, 
-                              int[] a, int[] b, int[] c, TYPE_COLOR col)
-    {
-        setCurrentColor(g, col );
-        paintTriangleSoft(g,a[0],a[1],b[0],b[1],c[0],c[1]);
+    //MACRO_println(" bottom part of the triangle");
+    if ( bx < tx ) { l = dmb ; r = dtb; } else { l = dtb; r = dmb; }
+    lx = FPtoFloat(bx); rx = lx;
+    //setCurrentColor(g, 0xFF00);
+    for (y=by; y>=my; y-- ) { //may speed up ; TODO
+      paintLineH( g, y, toint(lx) , toint(rx));
+      lx -= l;
+      rx -= r; 
     }
+    //MACRO_println("-fillTriangle");
+  }
+
+
+  // warning triangle filler may not be implemented in all devices
+  public void paintTriangle(Graphics g, 
+                            int[] a, int[] b, int[] c, TYPE_COLOR col)
+  {
+    setCurrentColor(g, col );
+    paintTriangleSoft(g,a[0],a[1],b[0],b[1],c[0],c[1]);
+  }
 #else
-    // SEE MACROpaintTriangle for speed up
+  // SEE MACROpaintTriangle for speed up
 #ifdef NO_INLINE
-    public void paintTriangle(Graphics g,
-                              int[] a, int[] b, int[] c, TYPE_COLOR col)
-    {
+  public void paintTriangle(Graphics g,
+                            int[] a, int[] b, int[] c, TYPE_COLOR col)
+  {
 
 #ifdef AWT
-        setCurrentColor(g, col );
-        Polygon poly= new Polygon();
-        poly.addPoint(a[0],a[1]);
-        poly.addPoint(b[0],b[1]);
-        poly.addPoint(c[0],c[1]);
-        g.fillPolygon(poly);
+    setCurrentColor(g, col );
+    Polygon poly= new Polygon();
+    poly.addPoint(a[0],a[1]);
+    poly.addPoint(b[0],b[1]);
+    poly.addPoint(c[0],c[1]);
+    g.fillPolygon(poly);
 #else
 #if (( defined MIDP_2_0 ) || ( defined EXEN ))
-        setCurrentColor(g, col );
-        g.fillTriangle( a[0],a[1],b[0],b[1],c[0],c[1] );
+    setCurrentColor(g, col );
+    g.fillTriangle( a[0],a[1],b[0],b[1],c[0],c[1] );
 #else
 #ifdef NOKIA 
-        setCurrentColor(g, col );
-        dg = DirectUtils.getDirectGraphics(g);
-        dg.fillTriangle(a[0],a[1],b[0],b[1],c[0],c[1], cpp); //cpp?
+    setCurrentColor(g, col );
+    dg = DirectUtils.getDirectGraphics(g);
+    dg.fillTriangle(a[0],a[1],b[0],b[1],c[0],c[1], cpp); //cpp?
 #else //default
-        setCurrentColor(g, col );
-        g.drawLine( a[0] , a[1] , b[0] , b[1] );
-        g.drawLine( a[0] , a[1] , c[0] , c[1] );
-        g.drawLine( c[0] , c[1] , b[0] , b[1] );
+    setCurrentColor(g, col );
+    g.drawLine( a[0] , a[1] , b[0] , b[1] );
+    g.drawLine( a[0] , a[1] , c[0] , c[1] );
+    g.drawLine( c[0] , c[1] , b[0] , b[1] );
 #endif // NOKIA
 #endif // MIDP_2_0
 #endif // AWT
-        //debug("-paintTriangle");
-    }
+    //debug("#{ paintTriangle");
+  }
 #else // INLINE
 #ifdef AWT
-#define paintTriangle(g,a,b,c,col)  { \
-     Polygon poly= new Polygon(); \
-     poly.addPoint(a[0],a[1]); \
-     poly.addPoint(b[0],b[1]); \
-     poly.addPoint(c[0],c[1]); \
-     setCurrentColor(g, col ); \
-     g.fillPolygon(poly); \
-    } 
+#define paintTriangle(g,a,b,c,col)  {           \
+    Polygon poly= new Polygon();                \
+    poly.addPoint(a[0],a[1]);                   \
+    poly.addPoint(b[0],b[1]);                   \
+    poly.addPoint(c[0],c[1]);                   \
+    setCurrentColor(g, col );                   \
+    g.fillPolygon(poly);                        \
+  } 
 #else //AWT
 #if (( defined MIDP_2_0 ) || ( defined EXEN ))
-#define paintTriangle(g,a,b,c,col)  { \
-     setCurrentColor(g, col );\
-     g.fillTriangle( a[0],a[1],b[0],b[1],c[0],c[1] ); \
-    }
+#define paintTriangle(g,a,b,c,col)  {                   \
+    setCurrentColor(g, col );                           \
+    g.fillTriangle( a[0],a[1],b[0],b[1],c[0],c[1] );    \
+  }
 #else // MIDP
 #ifdef NOKIA
-#define paintTriangle(g,a,b,c,col)  { \
-     DirectGraphics dg = DirectUtils.getDirectGraphics(g); \
-     dg.setARGBColor(0xFF000000|col); /* fix N3650v*00 v4.13,20-08-2003,NHL-8 bug  */ \
-     dg.fillTriangle(a[0],a[1],b[0],b[1],c[0],c[1], 0xFF000000|col ); \
-    }
+#define paintTriangle(g,a,b,c,col)  {                                   \
+    DirectGraphics dg = DirectUtils.getDirectGraphics(g);               \
+    dg.setARGBColor(0xFF000000|col); /* fix N3650v*00 v4.13,20-08-2003,NHL-8 bug  */ \
+    dg.fillTriangle(a[0],a[1],b[0],b[1],c[0],c[1], 0xFF000000|col );    \
+  }
 #else // NOKIA / default 
-#define paintTriangle(g,a,b,c,col)  { \
-        setCurrentColor(g, col ); \
-        g.drawLine( a[0] , a[1] , b[0] , b[1] ); \
-        g.drawLine( a[0] , a[1] , c[0] , c[1] );\
-        g.drawLine( c[0] , c[1] , b[0] , b[1] );\
-    }
+#define paintTriangle(g,a,b,c,col)  {           \
+    setCurrentColor(g, col );                   \
+    g.drawLine( a[0] , a[1] , b[0] , b[1] );    \
+    g.drawLine( a[0] , a[1] , c[0] , c[1] );    \
+    g.drawLine( c[0] , c[1] , b[0] , b[1] );    \
+  }
 #endif // nokia 
 #endif // mipd2_0
 #endif //AWT
 #endif //INLINE
 #endif //
 
-    /** sample test for pixel filler **/
-    public void paintTrianglePixel(Graphics g, 
-                                   int dtx, int dty,
-                                   int dmx, int dmy,
-                                   int dbx, int dby,
-                                   int col)
-    {
-        //debug("sort");
-        int t=0;
-        if ( dty > dmy ) { swap(dmy,dty,t); swap(dmx,dtx,t); }
-        if ( dty > dby ) { swap(dby,dty,t); swap(dbx,dtx,t); }
-        if ( dmy > dby ) { swap(dmy,dby,t); swap(dmx,dbx,t); }
-        //debug("calc variations");
-        FPfloat dvtb, dvtm, dvmb; 
-        dvtb = FPdivProtected( (dbx-dtx) , (dby-dty) , 0 ); // float
-        dvtm = FPdivProtected( (dmx-dtx) , (dmy-dty) , 0 ); // float
-        dvmb = FPdivProtected( (dbx-dmx) , (dby-dmy) , 0 ); // float
-        //
-        FPfloat dorx,dolx; // step in X , when y++
-        //debug("upper part of the triangle");
-        if ( dbx > dmx ) { dolx = dvtm; dorx = dvtb; }
-        else { dolx = dvtb; dorx = dvtm; }
-        debug2gtif( dolx , dorx );
-        //if ( dolx > dorx ) swap(dolx, dorx,t); //!!!
-        //
-        TYPE_COLOR color;
-        int dx,dy;
-        FPfloat dlx, drx;
-        int ddrx, ddlx, ddry;
-        //
-        dlx = FPtoFloat(dtx); drx = dlx; // Fixed Point Maths
-        for (dy=dty; dy<dmy; dy++ ){
-            //if ( dlx > drx ) System.out.println(">t");
-            ddlx = FPtoInt(dlx); ddrx = FPtoInt(drx);
-            debug2gtif( ddlx , ddrx );
-            if ( ddlx > ddrx ) swap(ddlx, ddrx,t); //!!!
-            for(dx=ddlx ;dx <= ddrx ; dx++) {
-                color = colormap[ 2*(dy+dx)% (colormapsize-1)] ;
-                color &= col ;
-                paintPixel(g,dx,dy,color);
-            }
-            dlx += dolx; drx += dorx;
-        }
-        //if ( true ) return ;
-        //MACRO_println(" bottom part of the triangle");
-        if ( dtx < dmx ) { dolx = dvtb ; dorx = dvmb; }  //OPT
-        else { dolx = dvmb; dorx = dvtb; }
-        //if ( dolx > dorx ) swap(dolx, dorx,t);
-        dlx = tofloat(dbx); drx = dlx;
-        for (dy=dby; dy>=dmy; dy-- ) {
-            ddlx = FPtoInt(dlx); ddrx = FPtoInt(drx);
-            debug2gtif( ddlx , ddrx );
-            if ( ddlx > ddrx ) swap(ddlx, ddrx,t); //!!!
-            for(dx=ddlx ;dx <= ddrx ; dx++) {
-                color = colormap[(2*(dy+dx))% (colormapsize-1)] ;
-                color &= col;
-                paintPixel(g,dx,dy,color);
-            }
-            dlx -= dolx; drx -= dorx; 
-        }
-        //MACRO_println("-fillTriangle");
+  /** sample test for pixel filler **/
+  public void paintTrianglePixel(Graphics g, 
+                                 int dtx, int dty,
+                                 int dmx, int dmy,
+                                 int dbx, int dby,
+                                 int col)
+  {
+    //debug("sort");
+    int t=0;
+    if ( dty > dmy ) { swap(dmy,dty,t); swap(dmx,dtx,t); }
+    if ( dty > dby ) { swap(dby,dty,t); swap(dbx,dtx,t); }
+    if ( dmy > dby ) { swap(dmy,dby,t); swap(dmx,dbx,t); }
+    //debug("calc variations");
+    FPfloat dvtb, dvtm, dvmb; 
+    dvtb = FPdivProtected( (dbx-dtx) , (dby-dty) , 0 ); // float
+    dvtm = FPdivProtected( (dmx-dtx) , (dmy-dty) , 0 ); // float
+    dvmb = FPdivProtected( (dbx-dmx) , (dby-dmy) , 0 ); // float
+    //
+    FPfloat dorx,dolx; // step in X , when y++
+    //debug("upper part of the triangle");
+    if ( dbx > dmx ) { dolx = dvtm; dorx = dvtb; }
+    else { dolx = dvtb; dorx = dvtm; }
+    debug2gtif( dolx , dorx );
+    //if ( dolx > dorx ) swap(dolx, dorx,t); //!!!
+    //
+    TYPE_COLOR color;
+    int dx,dy;
+    FPfloat dlx, drx;
+    int ddrx, ddlx, ddry;
+    //
+    dlx = FPtoFloat(dtx); drx = dlx; // Fixed Point Maths
+    for (dy=dty; dy<dmy; dy++ ){
+      //if ( dlx > drx ) System.out.println(">t");
+      ddlx = FPtoInt(dlx); ddrx = FPtoInt(drx);
+      debug2gtif( ddlx , ddrx );
+      if ( ddlx > ddrx ) swap(ddlx, ddrx,t); //!!!
+      for(dx=ddlx ;dx <= ddrx ; dx++) {
+        color = colormap[ 2*(dy+dx)% (colormapsize-1)] ;
+        color &= col ;
+        paintPixel(g,dx,dy,color);
+      }
+      dlx += dolx; drx += dorx;
     }
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //if ( true ) return ;
+    //MACRO_println(" bottom part of the triangle");
+    if ( dtx < dmx ) { dolx = dvtb ; dorx = dvmb; }  //OPT
+    else { dolx = dvmb; dorx = dvtb; }
+    //if ( dolx > dorx ) swap(dolx, dorx,t);
+    dlx = tofloat(dbx); drx = dlx;
+    for (dy=dby; dy>=dmy; dy-- ) {
+      ddlx = FPtoInt(dlx); ddrx = FPtoInt(drx);
+      debug2gtif( ddlx , ddrx );
+      if ( ddlx > ddrx ) swap(ddlx, ddrx,t); //!!!
+      for(dx=ddlx ;dx <= ddrx ; dx++) {
+        color = colormap[(2*(dy+dx))% (colormapsize-1)] ;
+        color &= col;
+        paintPixel(g,dx,dy,color);
+      }
+      dlx -= dolx; drx -= dorx; 
+    }
+    //MACRO_println("-fillTriangle");
+  }
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #ifdef MAPPING     // TODO
-
-    
-
-    /**
-     * Triangle mapping 
-     * TODO: to debug, check and test in all possible cases (including flat triangles)
-     * this version is using FP "Floating Point", 
-     * try to make one w/ real float and port it back to FP
-     * @param dtx destination triangle : top point (x coodornate)
-     * @param dmx destination triangle : middle point (x coodornate)
-     * @param dbx destination triangle : bottom point (x coodornate)
-     * @param col : light (unused so far)
-     * s*[x/y] is source triangle (texture)
-     **/
-    public void paintTriangleMapping
-        (Graphics g, 
-         int dtx, int dty, int dmx, int dmy, 
-         int dbx, int dby,
-         //int stx, int sty, int smx, int smy, int sbx, int sby,
-         int col)
-    {
+  /**
+   * Triangle mapping 
+   * TODO: to debug, check and test in all possible cases (including flat triangles)
+   * this version is using FP "Floating Point", 
+   * try to make one w/ real float and port it back to FP
+   * @param dtx destination triangle : top point (x coodornate)
+   * @param dmx destination triangle : middle point (x coodornate)
+   * @param dbx destination triangle : bottom point (x coodornate)
+   * @param col : light (unused so far)
+   * s*[x/y] is source triangle (texture)
+   **/
+  public void paintTriangleMapping
+    (Graphics g, 
+     int dtx, int dty, int dmx, int dmy, 
+     int dbx, int dby,
+     //int stx, int sty, int smx, int smy, int sbx, int sby,
+     int col)
+  {
         
-        int stx; int sty; int smx; int smy; int sbx; int sby; 
-        stx= sty=0; smx=0; smy=2; sbx=4; sby=4;
+    int stx; int sty; int smx; int smy; int sbx; int sby; 
+    stx= sty=0; smx=0; smy=2; sbx=4; sby=4;
 
 
-        int t;
-        // debug("sort points");
-        if ( dty > dby ) {
-            swap(dby,dty,t); swap(dbx,dtx,t); 
-            swap(sby,sty,t); swap(sbx,stx,t); 
-        }
-        if ( dty > dmy ) { 
-            swap(dmy,dty,t); swap(dmx,dtx,t);
-            swap(smy,sty,t); swap(smx,stx,t);
-        }
-        if ( dmy > dby ) { 
-            swap(dmy,dby,t); swap(dmx,dbx,t); 
-            swap(smy,sby,t); swap(smx,sbx,t); 
-        }
-        //debug("calc variations");
-        FPfloat dvtb, dvtm, dvmb; 
-        dvtb = FPdivProtected( (dbx-dtx) , (dby-dty) , 0 ); // float
-        dvtm = FPdivProtected( (dmx-dtx) , (dmy-dty) , 0 ); // float
-        dvmb = FPdivProtected( (dbx-dmx) , (dby-dmy) , 0 ); // float
-        //
-        FPfloat dorx,dolx; // step in X , when y++
-        //debug("upper part of the triangle");
-        if ( dbx > dmx ) { dolx = dvtm; dorx = dvtb; }
-        else { dolx = dvtb; dorx = dvtm; }
-        debug2gt( dolx , dorx );
-        debug2gtif( dolx , dorx );
-        ///
-        int dor=0,dol=0;
-        int dx, x;
-        int sx, sy, slx, sly, srx;
-        int sox=0, soy=0;
-        int ssox=0, ssoy=0;
-
-        sox = FPdivProtected ( ( sbx - smx ) , ( dby - dty ) , 0 );
-        soy = FPdivProtected ( ( sby - sty ) , ( dby - dty ) , 0 );
-        
-        ssox = FPdivProtected ( ( sbx - smx ) , ( dbx - dmx ) , 0 );
-        ssoy = FPdivProtected ( ( sbx - smx ) , ( dmy - dty ) , 0 );
-        
-        sx = stx; sy = sty;
-
-        int dlx, drx;
-        int ddlx, ddrx, ddy;
-        int ssx, ssy;
-        int s = 1;
-        TYPE_COLOR color;
-
-        dlx = FPtoFloat(dtx); drx = dlx; // Fixed Point Maths
-        for (ddy=dty; ddy<dmy; ddy++ ) {
-            ddlx = FPtoInt(dlx); ddrx = FPtoInt(drx);
-            slx = sx; sly = sy;
-            for(x=ddlx ;x <= ddrx ; x++) {
-                //color= COLOR_FG; 
-                ssx = clip( FPtoInt(slx),0,3);
-                ssy = clip( FPtoInt(sly),0,3);
-                color = texmap[ssx][ssy];
-                paintPixel(g,x,ddy,color);
-                slx+= s * ssox;
-                sly+= s * ssoy;
-            }
-            dlx +=  dolx;
-            drx +=  dorx;
-            
-            sx += s * sox;
-            sy += s * soy;
-        }
-        // if ( true ) return;
-        //MACRO_println(" bottom part of the triangle");
-        //debug("- paintTriangleMapping");
+    int t;
+    // debug("sort points");
+    if ( dty > dby ) {
+      swap(dby,dty,t); swap(dbx,dtx,t); 
+      swap(sby,sty,t); swap(sbx,stx,t); 
     }
-    int[][] texmap = { 
-        { 0x00FF ,0xFF00 ,  0x00FF , 0xFF00 } , 
-        { 0xFF00, 0x00FF ,  0xFF00, 0x00FF } , 
-        { 0x00FF ,0xFF00 ,  0x00FF , 0xFF00 } , 
-        { 0xFF00, 0x00FF ,  0xFF00, 0x00FF } , 
+    if ( dty > dmy ) { 
+      swap(dmy,dty,t); swap(dmx,dtx,t);
+      swap(smy,sty,t); swap(smx,stx,t);
+    }
+    if ( dmy > dby ) { 
+      swap(dmy,dby,t); swap(dmx,dbx,t); 
+      swap(smy,sby,t); swap(smx,sbx,t); 
+    }
+    //debug("calc variations");
+    FPfloat dvtb, dvtm, dvmb; 
+    dvtb = FPdivProtected( (dbx-dtx) , (dby-dty) , 0 ); // float
+    dvtm = FPdivProtected( (dmx-dtx) , (dmy-dty) , 0 ); // float
+    dvmb = FPdivProtected( (dbx-dmx) , (dby-dmy) , 0 ); // float
+    //
+    FPfloat dorx,dolx; // step in X , when y++
+    //debug("upper part of the triangle");
+    if ( dbx > dmx ) { dolx = dvtm; dorx = dvtb; }
+    else { dolx = dvtb; dorx = dvtm; }
+    debug2gt( dolx , dorx );
+    debug2gtif( dolx , dorx );
+    ///
+    int dor=0,dol=0;
+    int dx, x;
+    int sx, sy, slx, sly, srx;
+    int sox=0, soy=0;
+    int ssox=0, ssoy=0;
+
+    sox = FPdivProtected ( ( sbx - smx ) , ( dby - dty ) , 0 );
+    soy = FPdivProtected ( ( sby - sty ) , ( dby - dty ) , 0 );
+        
+    ssox = FPdivProtected ( ( sbx - smx ) , ( dbx - dmx ) , 0 );
+    ssoy = FPdivProtected ( ( sbx - smx ) , ( dmy - dty ) , 0 );
+        
+    sx = stx; sy = sty;
+
+    int dlx, drx;
+    int ddlx, ddrx, ddy;
+    int ssx, ssy;
+    int s = 1;
+    TYPE_COLOR color;
+
+    dlx = FPtoFloat(dtx); drx = dlx; // Fixed Point Maths
+    for (ddy=dty; ddy<dmy; ddy++ ) {
+      ddlx = FPtoInt(dlx); ddrx = FPtoInt(drx);
+      slx = sx; sly = sy;
+      for(x=ddlx ;x <= ddrx ; x++) {
+        //color= COLOR_FG; 
+        ssx = clip( FPtoInt(slx),0,3);
+        ssy = clip( FPtoInt(sly),0,3);
+        color = texmap[ssx][ssy];
+        paintPixel(g,x,ddy,color);
+        slx+= s * ssox;
+        sly+= s * ssoy;
+      }
+      dlx +=  dolx;
+      drx +=  dorx;
+            
+      sx += s * sox;
+      sy += s * soy;
+    }
+    // if ( true ) return;
+    //MACRO_println(" bottom part of the triangle");
+    //debug("#} paintTriangleMapping");
+  }
+  int[][] texmap = { 
+    { 0x00FF ,0xFF00 ,  0x00FF , 0xFF00 } , 
+    { 0xFF00, 0x00FF ,  0xFF00, 0x00FF } , 
+    { 0x00FF ,0xFF00 ,  0x00FF , 0xFF00 } , 
+    { 0xFF00, 0x00FF ,  0xFF00, 0x00FF } , 
+  };
+
+  // http://www.flipcode.com/articles/article_mobilegfx04.shtml
+  // ftp://hornet.madtracker.org/mirrors/hornet/code/3d/trifill/texmap/fatmap.txt
+
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  public void paintLineHLinear
+    (Graphics g, int y, int l, int r, int[][] M)
+  {
+    //debug("#{ paintLineLinear =" + l + " / " + r + " @ " + y);
+    int t=0;
+    if ( l > r )  { swap(l,r ,t); }
+
+    //int l =  FPtoInt(cxl); int r = FPtoInt(cxr);
+    //paintLineH(g, y,l , r ); if ( true) return;
+        
+    int[] dest = { 0 , tofloat(y) , 1 };
+    int[] orig = { 0 , 0 };
+        
+    for (int x= l  ; x <= r ; x++) {
+      dest[0] = x ;
+      orig[0] = 0; orig[1] = 0;
+      for (int j=0; j<3; j++) {
+        orig[0] += FPmult( M[0][j] , dest[j] ) ;
+        orig[1] += FPmult( M[0][j] , dest[j] ) ;
+      }
+      debug("Texcoord:" + orig[0] + " ," + orig[1] );
+      //setCurrentColor( src );
+      paintPixel(g, FPtoInt(x) ,y , COLOR_FG);
+    }
+    //paintPixel(g, FPtoInt(cxr) ,y );   paintPixel(g, FPtoInt(cxl) ,y );
+    debug("#} paintLineLinear =" + l + " / " + r + " @ " + y);
+  }
+
+
+  public void paintTriangleMappingLinear
+    (Graphics g,
+     int xt, int yt, int xm, int ym, int xb, int yb, int light)
+  {
+    debug("#{ paintTriangleMapping" );
+    int t=0;
+
+    if ( yt > yb ) { swap(yb,yt,t); swap(xb,xt,t); }
+    if ( yt > ym ) { swap(ym,yt,t); swap(xm,xt,t); }
+    if ( ym > yb ) { swap(ym,yb,t); swap(xm,xb,t); }
+
+    int[][] d ={ { FPtoFloat(xt), FPtoFloat(yt) },
+                 { FPtoFloat(xm), FPtoFloat(ym) }, 
+                 { FPtoFloat(xb), FPtoFloat(yb) } };
+        
+    int[][] s ={ { 2 * one , 2 * one } , 
+                 { one , 2 *one } ,
+                 { one , 2* one } };
+        
+    //debug("compute linear transform");
+    int det =  
+      FPmult( s[0][0] , ( s[1][1]  - s[2][1] ) ) +
+      FPmult( s[1][0] , ( s[2][1]  - s[0][1] ) ) +
+      FPmult( s[2][0] , ( s[0][1]  - s[1][1] ) );
+        
+    debug("det == " + det );
+    if ( det == 0 ) {
+      debug("det == 0");
+      return;
+    }
+    int m[][] = new int[2][3];
+
+    int[][] inv = { 
+      { ( s[1][1] - s[2][1] ) ,
+        ( s[2][1] - s[0][1] ) ,
+        ( s[0][1] - s[1][1] ) } ,
+
+      { ( s[2][0] - s[1][0] ) ,
+        ( s[0][0] - s[2][0] ) ,
+        ( s[1][0] - s[0][0] ) } ,
+
+      {   FPmult( s[1][0] , s[2][1] ) - FPmult( s[2][0] , s[1][1] ),
+          FPmult( s[2][0] , s[0][1] ) - FPmult( s[0][0] , s[2][1] ),
+          FPmult( s[0][0] , s[1][1] ) - FPmult( s[1][0] , s[0][1] )
+      }
     };
 
-    // http://www.flipcode.com/articles/article_mobilegfx04.shtml
-    // ftp://hornet.madtracker.org/mirrors/hornet/code/3d/trifill/texmap/fatmap.txt
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    public void paintLineHLinear
-        (Graphics g, int y, int l, int r, int[][] M)
-    {
-        //debug("+ paintLineLinear =" + l + " / " + r + " @ " + y);
-        int t=0;
-        if ( l > r )  { swap(l,r ,t); }
-
-        //int l =  FPtoInt(cxl); int r = FPtoInt(cxr);
-        //paintLineH(g, y,l , r ); if ( true) return;
-        
-        int[] dest = { 0 , tofloat(y) , 1 };
-        int[] orig = { 0 , 0 };
-        
-        for (int x= l  ; x <= r ; x++) {
-            dest[0] = x ;
-            orig[0] = 0; orig[1] = 0;
-            for (int j=0; j<3; j++) {
-                orig[0] += FPmult( M[0][j] , dest[j] ) ;
-                orig[1] += FPmult( M[0][j] , dest[j] ) ;
-            }
-            debug("Texcoord:" + orig[0] + " ," + orig[1] );
-            //setCurrentColor( src );
-            paintPixel(g, FPtoInt(x) ,y , COLOR_FG);
-        }
-        //paintPixel(g, FPtoInt(cxr) ,y );   paintPixel(g, FPtoInt(cxl) ,y );
-        debug("- paintLineLinear =" + l + " / " + r + " @ " + y);
-    }
-
-
-    public void paintTriangleMappingLinear
-        (Graphics g,
-         int xt, int yt, int xm, int ym, int xb, int yb, int light)
-    {
-        debug("+ paintTriangleMapping" );
-        int t=0;
-
-        if ( yt > yb ) { swap(yb,yt,t); swap(xb,xt,t); }
-        if ( yt > ym ) { swap(ym,yt,t); swap(xm,xt,t); }
-        if ( ym > yb ) { swap(ym,yb,t); swap(xm,xb,t); }
-
-        int[][] d ={ { FPtoFloat(xt), FPtoFloat(yt) },
-                     { FPtoFloat(xm), FPtoFloat(ym) }, 
-                     { FPtoFloat(xb), FPtoFloat(yb) } };
-        
-        int[][] s ={ { 2 * one , 2 * one } , 
-                     { one , 2 *one } ,
-                     { one , 2* one } };
-        
-        //debug("compute linear transform");
-        int det =  
-            FPmult( s[0][0] , ( s[1][1]  - s[2][1] ) ) +
-            FPmult( s[1][0] , ( s[2][1]  - s[0][1] ) ) +
-            FPmult( s[2][0] , ( s[0][1]  - s[1][1] ) );
-        
-        debug("det == " + det );
-        if ( det == 0 ) {
-            debug("det == 0");
-            return;
-        }
-        int m[][] = new int[2][3];
-
-        int[][] inv = { 
-            { ( s[1][1] - s[2][1] ) ,
-              ( s[2][1] - s[0][1] ) ,
-              ( s[0][1] - s[1][1] ) } ,
-
-            { ( s[2][0] - s[1][0] ) ,
-              ( s[0][0] - s[2][0] ) ,
-              ( s[1][0] - s[0][0] ) } ,
-
-            {   FPmult( s[1][0] , s[2][1] ) - FPmult( s[2][0] , s[1][1] ),
-                FPmult( s[2][0] , s[0][1] ) - FPmult( s[0][0] , s[2][1] ),
-                FPmult( s[0][0] , s[1][1] ) - FPmult( s[1][0] , s[0][1] )
-            }
-        };
-
-        //
-
-        for (int i=0; i<3; i++) {
-            m[0][i] = 0;
-            m[1][i] = 0;
+    //
+    for (int i=0; i<3; i++) {
+      m[0][i] = 0;
+      m[1][i] = 0;
             
-            for (int j=0; j<3; j++) {
-                m[0][i] += FPmult( inv[i][j] , d[j][0] );
-                m[1][i] += FPmult( inv[i][j] , d[j][1] );
-            }
-            m[0][i] = FPdiv( m[0][i] , det);
-            m[1][i] = FPdiv( m[1][i] , det);
-        }
-        //
-
-        int dtb=0, dtm=0, dmb = 0 ; //float !
-        int r=0,l=0;
-        //debug("upper part of the triangle");
-        int rx=xt, lx=xt , y = 0;
-        //#if 0
-        if ( (yt-yb) != 0 ) 
-            dtb = FPdiv ( (xb-xt), (yb-yt) ) ; // float
-
-        if ( (yt-ym) != 0 )
-            dtm = FPdiv ( (xm-xt) , (ym-yt) ) ; // float
-
-        if ( xm < xt ) { l = dtm ; r = dtb; } else { l = dtb; r = dtm; }
-        
-        lx = tofloat(xt); rx = lx; // Fixed Point Maths
-        //setCurrentColor(g, 0xFF);
-        for (y=yt; y<ym; y++ ) {
-            //paintLineH( g, y, toint(lx) , toint(rx));
-            paintLineHLinear(g,y,lx,rx, m);
-            lx += l;
-            rx += r;
-        }
-        //MACRO_println(" bottom part of the triangle");
-        if ( (yb-ym) != 0 ) dmb =  FPdiv( (xb-xm) ,(yb-ym) ) ; // float
-        else r = 0;
-        
-        if ( xb < xt ) { l = dmb ; r = dtb; } else { l = dtb; r = dmb; }
-
-        lx = tofloat(xb); rx = lx;
-        //setCurrentColor(g, 0xFF00);
-        for (y=yb; y>=ym; y-- ) {
-            //paintLineH( g, y, toint(lx) , toint(rx));
-            paintLineHLinear(g,y,lx,rx, m);
-            lx -= l;
-            rx -= r; 
-        }
-
-
-        
+      for (int j=0; j<3; j++) {
+        m[0][i] += FPmult( inv[i][j] , d[j][0] );
+        m[1][i] += FPmult( inv[i][j] , d[j][1] );
+      }
+      m[0][i] = FPdiv( m[0][i] , det);
+      m[1][i] = FPdiv( m[1][i] , det);
     }
-    public void printTriangle
-        (int xt, int yt, int xm, int ym, int xb, int yb)
-    {
-        debug(
-              " { " + xt + ","+ yt + "}, {"
-              + xm + ","+ ym + "}, {" + xb + ","+ yb + "}");
+    //
+
+    int dtb=0, dtm=0, dmb = 0 ; //float !
+    int r=0,l=0;
+    //debug("upper part of the triangle");
+    int rx=xt, lx=xt , y = 0;
+    //#if 0
+    if ( (yt-yb) != 0 ) 
+      dtb = FPdiv ( (xb-xt), (yb-yt) ) ; // float
+
+    if ( (yt-ym) != 0 )
+      dtm = FPdiv ( (xm-xt) , (ym-yt) ) ; // float
+
+    if ( xm < xt ) { l = dtm ; r = dtb; } else { l = dtb; r = dtm; }
+        
+    lx = tofloat(xt); rx = lx; // Fixed Point Maths
+    //setCurrentColor(g, 0xFF);
+    for (y=yt; y<ym; y++ ) {
+      //paintLineH( g, y, toint(lx) , toint(rx));
+      paintLineHLinear(g,y,lx,rx, m);
+      lx += l;
+      rx += r;
     }
+    //MACRO_println(" bottom part of the triangle");
+    if ( (yb-ym) != 0 ) dmb =  FPdiv( (xb-xm) ,(yb-ym) ) ; // float
+    else r = 0;
+        
+    if ( xb < xt ) { l = dmb ; r = dtb; } else { l = dtb; r = dmb; }
+
+    lx = tofloat(xb); rx = lx;
+    //setCurrentColor(g, 0xFF00);
+    for (y=yb; y>=ym; y-- ) {
+      //paintLineH( g, y, toint(lx) , toint(rx));
+      paintLineHLinear(g,y,lx,rx, m);
+      lx -= l;
+      rx -= r; 
+    }
+  }
+
+  public void printTriangle
+    (int xt, int yt, int xm, int ym, int xb, int yb)
+  {
+    debug(
+          " { " + xt + ","+ yt + "}, {"
+          + xm + ","+ ym + "}, {" + xb + ","+ yb + "}");
+  }
 
 #endif
 #undef swap
@@ -545,4 +559,4 @@ class Raster
 
 #endif // Raster_java_in
 
-/* $Id: Raster.java.in,v 1.8 2004-11-02 14:33:14 rzr Exp $ */
+/* #eof "$Id: Raster.java.in,v 1.9 2008-10-24 05:44:04 rzr Exp $" */

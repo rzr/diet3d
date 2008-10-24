@@ -1,0 +1,17 @@
+2008-10-24  Philippe Coval  <rzr@users.sf.net>
+
+	* Rebuilt for wtk
+	* WIP android port
+	* indented code to emacs c-mode
+
+2004-11-02  Philippe Coval  <rzr@users.sf.net>
+
+	* Rebuilt ?
+
+2004-03-08  Philippe Coval  <rzr@users.sf.net>
+
+	* Init SCM (cvs)
+
+2003-11-09  Philippe Coval  <rzr@users.sf.net>
+
+	* Init project : http://rzr.online.fr/java.htm

@@ -1,6 +1,7 @@
-# $Id: README,v 1.7 2004-11-02 14:33:09 rzr Exp $
+Package: diet3d
 Subject: Diet3D Java J2ME 3D Engine Demo
 @author: www.Philippe.COVAL.online.fr - Rev: $Author: rzr $ 
-Copyright: GPL @ http://rzr.online.fr/license.htm
+Copyright: GPL-3+ @ http://rzr.online.fr/license.htm
 URL: http://rzr.online.fr/java.htm
-# $Id: README,v 1.7 2004-11-02 14:33:09 rzr Exp $
+
+#eof "$Id: README,v 1.8 2008-10-24 05:44:04 rzr Exp $"
