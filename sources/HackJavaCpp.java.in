@@ -1,4 +1,4 @@
-/* $Id: HackJavaCpp.java.in,v 1.9 2008-10-24 07:19:33 rzr Exp $ */
+/* $Id: HackJavaCpp.java.in,v 1.10 2008-10-31 10:10:39 rzr Exp $ */
 #ifndef HackJavaCpp_java_in_
 #define HackJavaCpp_java_in_
 
@@ -9,7 +9,7 @@
  **/
 // Then edit *.java.in : 
 
-// This in a template java source file wich can be preprocessed with GNU cpp
+// This in a template java source file which can be preprocessed with GNU cpp
 // see CppHack.java.in
 
 // File Generated this way (may help):
@@ -51,6 +51,8 @@ import android.graphics.Canvas;
 import android.view.View;
 import android.graphics.Paint;
 import android.content.Context;
+import android.graphics.Color; 
+
 # define Graphics Canvas
 //# define Canvas View
 // #define setColor drawColor
@@ -159,19 +161,31 @@ import com.nokia.mid.ui.*;
 
 #define TYPE_COLOR        int
 
-#define COLOR_BLACK      0x00000000
-#define COLOR_WHITE      0x00FFFFFF
-#define COLOR_YELLOW     0x00FFFF00
-#define COLOR_RED        0x00FF0000
-#define COLOR_GREEN      0x0000FF00
-#define COLOR_BLUE       0x000000FF
-
 #ifdef AWT
-#define COLOR(x)         ( new Color(x) )
+# define COLOR(x)         ( new Color(x) )
 //#define TYPE_COLOR       Color
+#elif defined ANDROID
+# define COLOR(x) Color.x
 #else
-#define COLOR(x)         x
+# define COLOR(x) x
 #endif
+
+#ifdef ANDROID
+# define COLOR_WHITE 	COLOR(WHITE)
+# define COLOR_BLACK	COLOR(BLACK)
+# define COLOR_YELLOW	COLOR(YELLOW)
+# define COLOR_RED		COLOR(RED)
+# define COLOR_GREEN	COLOR(GREEN)
+# define COLOR_BLUE		COLOR(BLUE)
+#else
+# define COLOR_BLACK      0x00000000
+# define COLOR_WHITE      0x00FFFFFF
+# define COLOR_YELLOW     0x00FFFF00
+# define COLOR_RED        0x00FF0000
+# define COLOR_GREEN      0x0000FF00
+# define COLOR_BLUE       0x000000FF
+#endif
+
 
 #define COLOR_BG         COLOR_WHITE
 #define COLOR_FG         COLOR_BLACK
@@ -187,9 +201,9 @@ import com.nokia.mid.ui.*;
 #endif
 
 #ifdef ANDROID
-# define setCurrentColor(g,col)  g.drawColor(COLOR(col))
+# define setCurrentColor(g,col)  g.drawColor(col)
 #else
-# define setCurrentColor(g,col)  g.setColor(COLOR(col))
+# define setCurrentColor(g,col)  g.setColor(col)
 #endif
 
 #define swap(a,b,t) { t=a; a=b; b=t; }
@@ -213,4 +227,4 @@ import com.nokia.mid.ui.*;
 
 #endif //HackJavaCpp_java_in_
 
-/* #eof "$Id: HackJavaCpp.java.in,v 1.9 2008-10-24 07:19:33 rzr Exp $" */
+/* #eof "$Id: HackJavaCpp.java.in,v 1.10 2008-10-31 10:10:39 rzr Exp $" */

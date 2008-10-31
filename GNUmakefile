@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.17 2008-10-24 05:44:04 rzr Exp $
+# $Id: GNUmakefile,v 1.18 2008-10-31 10:10:39 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -163,7 +163,7 @@ API=""
 OBJ_DIR=./jclasses-${RT}/
 DESTDIR=${OBJ_DIR}
 CLASSPATH=${DESTDIR}:.
-FILES=${PROJECT} ${PROJECT}Canvas 
+FILES=${PROJECT} ${PROJECT}Canvas ${PROJECT}Activity
 #${PROJECT}Applet
 OBJS=$(FILES:=.class) ${PROJECT}CommandLine.class
 ALL=${OBJS}
@@ -1198,9 +1198,15 @@ force:
 #	@echo EMAIL=${EMAIL}
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+android_DIR=src/fr/online/rzr/
+#android_DIR=~/workspace/diet3dandroid/src/fr/online/rzr/
 android:
 	${MAKE} RT=$@ clean srcs
-	cp -rfa src-$@/* ~/workspace/diet3dandroid/src/fr/online/rzr/
+	cp -rfa src-$@/* ${android_DIR}/
 
-# $Id: GNUmakefile,v 1.17 2008-10-24 05:44:04 rzr Exp $
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ide: /opt/eclipse/eclipse
+	$<
+
+#eof "$Id: GNUmakefile,v 1.18 2008-10-31 10:10:39 rzr Exp $"
+
