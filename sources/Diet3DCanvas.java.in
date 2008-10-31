@@ -1,4 +1,4 @@
-/* $Id: Diet3DCanvas.java.in,v 1.12 2008-10-24 07:19:33 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.13 2008-10-31 10:10:39 rzr Exp $ */
 #ifndef Diet3DCanva_java_in_
 #define Diet3DCanva_java_in_
 /**
@@ -112,15 +112,20 @@ implements Runnable
 #endif
 
 #ifdef ANDROID
+
+ static Canvas canvas_ = null;
+
   public void repaint()
   {
     //TODO
+    if ( canvas_ != null ) paint( canvas_ );
   }
   @Override
   protected void onDraw(Canvas canvas)
   {
 	super.onDraw(canvas);
 	paint(canvas);
+	canvas_ = canvas;
   }
 
 #endif
@@ -423,4 +428,4 @@ final class Tick extends TimerTask
 
 #endif // Diet3DCanva_java_in_
 
-/*#eof "$Id: Diet3DCanvas.java.in,v 1.12 2008-10-24 07:19:33 rzr Exp $" */
+/*#eof "$Id: Diet3DCanvas.java.in,v 1.13 2008-10-31 10:10:39 rzr Exp $" */

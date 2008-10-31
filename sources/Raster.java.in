@@ -1,4 +1,4 @@
-/* $Id: Raster.java.in,v 1.9 2008-10-24 05:44:04 rzr Exp $ */
+/* $Id: Raster.java.in,v 1.10 2008-10-31 10:10:39 rzr Exp $ */
 #ifndef Raster_java_in
 #define Raster_java_in
 
@@ -98,10 +98,12 @@ class Raster
 
   /* paintLine for android */
 #ifdef ANDROID
-# define MACROdrawLineColored(gfx,bx,by,ex,ey,color)            \
-  { Paint paint = new Paint();                                  \
-    gfx.drawColor( color );  gfx.drawLine(bx,by,ex,ey,paint);   \
-  }
+     # define MACROdrawLineColored(gfx,bx,by,ex,ey,color)      \
+     { Paint paint = new Paint();                              \
+       if ( false) paint.setColor( color);                     \
+       gfx.drawColor( color);                                  \
+       gfx.drawLine(bx,by,ex,ey,paint);                        \
+     }
 #else
 # define MACROdrawLineColored(bx,by,ex,ey,color,gfx,ignored)    \
   { gfx.drawLine(bx,by,ex,ey); }
@@ -190,24 +192,25 @@ class Raster
     poly.addPoint(b[0],b[1]);
     poly.addPoint(c[0],c[1]);
     g.fillPolygon(poly);
-#else
-#if (( defined MIDP_2_0 ) || ( defined EXEN ))
+#elif (( defined MIDP_2_0 ) || ( defined EXEN ))
     setCurrentColor(g, col );
     g.fillTriangle( a[0],a[1],b[0],b[1],c[0],c[1] );
-#else
-#ifdef NOKIA 
+#elif defined NOKIA 
     setCurrentColor(g, col );
     dg = DirectUtils.getDirectGraphics(g);
     dg.fillTriangle(a[0],a[1],b[0],b[1],c[0],c[1], cpp); //cpp?
-#else //default
+#elif( defined ANDROID )
+     setCurrentColor(g, col );
+     MACROdrawLineColored(a[0], a[1], b[0], b[1] );
+     MACROdrawLineColored(a[0], a[1], c[0], c[1] );
+     MACROdrawLineColored(c[0], c[1], b[0], b[1] );
+#else
     setCurrentColor(g, col );
     g.drawLine( a[0] , a[1] , b[0] , b[1] );
     g.drawLine( a[0] , a[1] , c[0] , c[1] );
     g.drawLine( c[0] , c[1] , b[0] , b[1] );
-#endif // NOKIA
-#endif // MIDP_2_0
 #endif // AWT
-    //debug("#{ paintTriangle");
+    //debug("#} paintTriangle");
   }
 #else // INLINE
 #ifdef AWT
@@ -559,4 +562,4 @@ class Raster
 
 #endif // Raster_java_in
 
-/* #eof "$Id: Raster.java.in,v 1.9 2008-10-24 05:44:04 rzr Exp $" */
+/* #eof "$Id: Raster.java.in,v 1.10 2008-10-31 10:10:39 rzr Exp $" */
