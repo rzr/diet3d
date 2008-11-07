@@ -1,4 +1,4 @@
-/* $Id: Diet3DCanvas.java.in,v 1.13 2008-10-31 10:10:39 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.14 2008-11-07 17:39:19 rzr Exp $ */
 #ifndef Diet3DCanva_java_in_
 #define Diet3DCanva_java_in_
 /**
@@ -22,6 +22,7 @@
  * Copyright and License : http://rzr.online.fr/license.htm
  **/
 public final class Diet3DCanvas
+
 #ifdef MIDP_2_0
 extends GameCanvas
 #elif defined EXEN
@@ -62,8 +63,8 @@ implements Runnable
 #ifndef HAVE_IMAGE_NO   
   Image moff = null;
 #endif
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //### contructor
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  //### contructor
 #ifdef ANDROID
   public Diet3DCanvas(Context context)
   {
@@ -98,8 +99,8 @@ implements Runnable
   }
 #endif
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // ### missings funct
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // ### missings funct
 
 #ifdef EXEN
   public void onInit() //EXEN
@@ -113,20 +114,21 @@ implements Runnable
 
 #ifdef ANDROID
 
- static Canvas canvas_ = null;
+  static Canvas canvas_ = null;
 
   public void repaint()
   {
     //TODO
     if ( canvas_ != null ) paint( canvas_ );
   }
+
   @Override
-  protected void onDraw(Canvas canvas)
-  {
-	super.onDraw(canvas);
-	paint(canvas);
-	canvas_ = canvas;
-  }
+    protected void onDraw(Canvas canvas)
+    {
+      super.onDraw(canvas);
+      paint(canvas);
+      canvas_ = canvas;
+    }
 
 #endif
 
@@ -162,8 +164,8 @@ implements Runnable
 #if ( (defined MIDP_2_0 )  || (defined NOKIA ) ) 
     //TODO see isMutable && != null
     for(init=0; //(bug on nokia 6600 40<70)
-        ( init<70 ) || ( g == null ) ;
-        init++)   //( ! g.isMutable() ) ||
+	( init<70 ) || ( g == null ) ;
+	init++)   //( ! g.isMutable() ) ||
       g.setColor(255,255,255); 
 #endif
 
@@ -229,7 +231,7 @@ implements Runnable
     // g.drawString( "Diet3D FPS=" + fps, 0, 0, g.TOP | g.LEFT );
 
     g.drawString( "www.rzr.free.fr", 
-                  getWidth() , getHeight()  , g.BASELINE  | g.RIGHT);
+		  getWidth() , getHeight()  , g.BASELINE  | g.RIGHT);
 
 #endif
   }
@@ -248,9 +250,12 @@ implements Runnable
     //if ( t == null )   
     time = getTimerTickCount();
     last = time;
-
+#ifdef ANDROID
+    // mThread = new Thread( context ); //TODO
+#else
     mThread = new Thread(this);
-    mThread.start();
+#endif  
+    if (mThread != null ) mThread.start();
   }
   
   public void stop() { 
@@ -307,10 +312,10 @@ implements Runnable
       if ( mRender.rx_ != 0 ) { mRender.rx_ = 0; return ; } 
       if ( mRender.rz_ != 0 ) { mRender.rz_ = 0; return ; } 
       if ( ( mRender.rx_ == 0 ) &&
-           ( mRender.ry_ == 0 ) &&
-           ( mRender.rz_ == 0 ) ) {
-        mRender.reset();
-        mRender.rx_ = mRender.ry_ = mRender.rz_ = -1;
+	   ( mRender.ry_ == 0 ) &&
+	   ( mRender.rz_ == 0 ) ) {
+	mRender.reset();
+	mRender.rx_ = mRender.ry_ = mRender.rz_ = -1;
       } 
       break;
     case KEY_NUM0:
@@ -361,11 +366,11 @@ implements Runnable
             
     default:
       if (keyCode > 0 ) {
-        mRender.toggleMode();
+	mRender.toggleMode();
       } else {
-        mRender.toggleShape();
+	mRender.toggleShape();
 #ifdef EXEN
-        mRender.toggleMode();
+	mRender.toggleMode();
 #endif
       }
       break;
@@ -395,9 +400,9 @@ implements Runnable
       if ( mRender.rx_ != 0 ) { mRender.rx_ = 0; return ; } 
       if ( mRender.rz_ != 0 ) { mRender.rz_ = 0; return ; } 
       if ( ( mRender.rx_ == 0 ) &&
-           ( mRender.ry_ == 0 ) &&
-           ( mRender.rz_ == 0 ) ) {
-        mRender.rx_ = mRender.ry_ = mRender.rz_ = 1;
+	   ( mRender.ry_ == 0 ) &&
+	   ( mRender.rz_ == 0 ) ) {
+	mRender.rx_ = mRender.ry_ = mRender.rz_ = 1;
       } 
     } else {
       //mRender.toggleMode();
@@ -406,9 +411,10 @@ implements Runnable
 #endif  //MIDP2
 #endif    // #ifndef AWT
 
-    }
+}
 #if 0
-run(){
+run()
+{
   //mTimer.scheduleAtFixedRate( mTick , 100 , 100);
 }
 Timer  mTimer = new Timer();
@@ -428,4 +434,4 @@ final class Tick extends TimerTask
 
 #endif // Diet3DCanva_java_in_
 
-/*#eof "$Id: Diet3DCanvas.java.in,v 1.13 2008-10-31 10:10:39 rzr Exp $" */
+/*#eof "$Id: Diet3DCanvas.java.in,v 1.14 2008-11-07 17:39:19 rzr Exp $" */
