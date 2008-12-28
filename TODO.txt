@@ -83,3 +83,8 @@ Class.forName("com.nokia.mid.ui.Graphics");
 <A-Kaser> l'action d'aller le menu a fait l'erreur array que je t'ai dit plus haut
 <A-Kaser> non 8fps tux+light
 */
+
+
+== android
+
+http://code.google.com/android/samples/LunarLander/src/com/example/android/lunarlander/LunarView.html
