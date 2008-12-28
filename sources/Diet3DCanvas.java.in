@@ -1,4 +1,4 @@
-/* $Id: Diet3DCanvas.java.in,v 1.14 2008-11-07 17:39:19 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.15 2008-12-28 23:49:32 rzr Exp $ */
 #ifndef Diet3DCanva_java_in_
 #define Diet3DCanva_java_in_
 /**
@@ -13,7 +13,7 @@
 //#define MACRO_println System.out.println
 #endif
 
-#ifndef NOINLINE
+#ifndef NO_INLINE
 #define INCLUDE_Diet3D //crash the system
 #endif
 
@@ -28,11 +28,14 @@ extends GameCanvas
 #elif defined EXEN
 extends Gamelet
 #elif defined ANDROID
-extends View
+extends SurfaceView 
 #else
 extends Canvas
 #endif //MIP20, EXEN, ANDROID, default
-#ifndef EXEN
+
+#ifdef ANDROID
+implements SurfaceHolder.Callback , Runnable
+#elif ! defined EXEN
 implements Runnable 
 #endif
 {
@@ -40,8 +43,8 @@ implements Runnable
 #ifndef INCLUDE_Diet3D
   public Diet3D mRender = null; 
 #else
-#include "Diet3D.java.in"
-#define   mRender this
+# include "Diet3D.java.in"
+# define   mRender this
 #endif
 
   public boolean mTrucking = false;
@@ -54,11 +57,15 @@ implements Runnable
   static long time = 0;
   static long last = 0;
   static int init = 0;
-#ifndef EXEN
+#ifdef ANDROID
+  SurfaceHolder mSurfaceHolder_ = null;
+  Context context_ = null;
   Thread mThread = null ;
-#ifndef HAVE_DISPLAY_NO
+#elif defined EXEN
+  Thread mThread = null ;
+# ifndef HAVE_DISPLAY_NO
   Display mDisplay = null;
-#endif
+# endif
 #endif
 #ifndef HAVE_IMAGE_NO   
   Image moff = null;
@@ -75,6 +82,8 @@ implements Runnable
     mRender.init( getWidth() , getHeight() ); // possible bug here // CHK
     //init(); //crash the phone
 #endif
+    mSurfaceHolder_ = getHolder();
+    mSurfaceHolder_.addCallback(this);
     // init();
   }
 #else
@@ -113,13 +122,29 @@ implements Runnable
 #endif
 
 #ifdef ANDROID
-
   static Canvas canvas_ = null;
 
   public void repaint()
   {
+#if ! defined ANDROID
     //TODO
     if ( canvas_ != null ) paint( canvas_ );
+#else
+	  Canvas g = null;
+	  try {
+          g = mSurfaceHolder_.lockCanvas(null);
+          synchronized (mSurfaceHolder_) {
+        	    mRender.paint(g); //  +--javax.microedition.lcdui.Graphics
+
+          }          } finally {
+              // do this in a finally so that if an exception is thrown
+              // during the above, we don't leave the Surface in an
+              // inconsistent state
+              if (g != null) {
+            	  mSurfaceHolder_.unlockCanvasAndPost(g);
+              }
+          }
+#endif
   }
 
   @Override
@@ -130,12 +155,26 @@ implements Runnable
       canvas_ = canvas;
     }
 
+  public void surfaceCreated(SurfaceHolder holder) {
+	  start();
+  }
+  public void surfaceDestroyed(SurfaceHolder holder) {
+  }
+	/* Callback invoked when the surface dimensions change. */
+  public void surfaceChanged(SurfaceHolder holder, int format, int width,
+          int height) 
+  {
+  }
+
 #endif
 
 
   //#define INCLUDE
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  public void update(Graphics g) { paint(g); }
+  public void update(Graphics g) 
+  { 
+    paint(g); 
+  }
 
 #ifndef INCLUDE_Diet3D
 
@@ -164,8 +203,8 @@ implements Runnable
 #if ( (defined MIDP_2_0 )  || (defined NOKIA ) ) 
     //TODO see isMutable && != null
     for(init=0; //(bug on nokia 6600 40<70)
-	( init<70 ) || ( g == null ) ;
-	init++)   //( ! g.isMutable() ) ||
+        ( init<70 ) || ( g == null ) ;
+        init++)   //( ! g.isMutable() ) ||
       g.setColor(255,255,255); 
 #endif
 
@@ -231,7 +270,7 @@ implements Runnable
     // g.drawString( "Diet3D FPS=" + fps, 0, 0, g.TOP | g.LEFT );
 
     g.drawString( "www.rzr.free.fr", 
-		  getWidth() , getHeight()  , g.BASELINE  | g.RIGHT);
+                  getWidth() , getHeight()  , g.BASELINE  | g.RIGHT);
 
 #endif
   }
@@ -250,20 +289,21 @@ implements Runnable
     //if ( t == null )   
     time = getTimerTickCount();
     last = time;
-#ifdef ANDROID
-    // mThread = new Thread( context ); //TODO
-#else
     mThread = new Thread(this);
-#endif  
+
     if (mThread != null ) mThread.start();
   }
   
-  public void stop() { 
+  public void stop() 
+  {
     mTrucking = false; 
     mThread = null ; //.stop();
   }
 
-  public void toggle() { mTrucking = ! mTrucking ; }
+  public void toggle() 
+  {
+    mTrucking = ! mTrucking ; 
+  }
 
   public void run() 
   {
@@ -312,10 +352,10 @@ implements Runnable
       if ( mRender.rx_ != 0 ) { mRender.rx_ = 0; return ; } 
       if ( mRender.rz_ != 0 ) { mRender.rz_ = 0; return ; } 
       if ( ( mRender.rx_ == 0 ) &&
-	   ( mRender.ry_ == 0 ) &&
-	   ( mRender.rz_ == 0 ) ) {
-	mRender.reset();
-	mRender.rx_ = mRender.ry_ = mRender.rz_ = -1;
+           ( mRender.ry_ == 0 ) &&
+           ( mRender.rz_ == 0 ) ) {
+        mRender.reset();
+        mRender.rx_ = mRender.ry_ = mRender.rz_ = -1;
       } 
       break;
     case KEY_NUM0:
@@ -366,11 +406,11 @@ implements Runnable
             
     default:
       if (keyCode > 0 ) {
-	mRender.toggleMode();
+        mRender.toggleMode();
       } else {
-	mRender.toggleShape();
+        mRender.toggleShape();
 #ifdef EXEN
-	mRender.toggleMode();
+        mRender.toggleMode();
 #endif
       }
       break;
@@ -400,9 +440,9 @@ implements Runnable
       if ( mRender.rx_ != 0 ) { mRender.rx_ = 0; return ; } 
       if ( mRender.rz_ != 0 ) { mRender.rz_ = 0; return ; } 
       if ( ( mRender.rx_ == 0 ) &&
-	   ( mRender.ry_ == 0 ) &&
-	   ( mRender.rz_ == 0 ) ) {
-	mRender.rx_ = mRender.ry_ = mRender.rz_ = 1;
+           ( mRender.ry_ == 0 ) &&
+           ( mRender.rz_ == 0 ) ) {
+        mRender.rx_ = mRender.ry_ = mRender.rz_ = 1;
       } 
     } else {
       //mRender.toggleMode();
@@ -410,8 +450,9 @@ implements Runnable
   } 
 #endif  //MIDP2
 #endif    // #ifndef AWT
-
 }
+
+
 #if 0
 run()
 {
@@ -434,4 +475,4 @@ final class Tick extends TimerTask
 
 #endif // Diet3DCanva_java_in_
 
-/*#eof "$Id: Diet3DCanvas.java.in,v 1.14 2008-11-07 17:39:19 rzr Exp $" */
+/*#eof "$Id: Diet3DCanvas.java.in,v 1.15 2008-12-28 23:49:32 rzr Exp $" */

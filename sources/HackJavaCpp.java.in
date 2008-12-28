@@ -1,4 +1,4 @@
-/* $Id: HackJavaCpp.java.in,v 1.10 2008-10-31 10:10:39 rzr Exp $ */
+/* $Id: HackJavaCpp.java.in,v 1.11 2008-12-28 23:49:32 rzr Exp $ */
 #ifndef HackJavaCpp_java_in_
 #define HackJavaCpp_java_in_
 
@@ -47,11 +47,9 @@
 #ifdef ANDROID
 package fr.online.rzr;
 
-import android.graphics.Canvas;
-import android.view.View;
-import android.graphics.Paint;
-import android.content.Context;
-import android.graphics.Color; 
+import android.graphics.*;
+import android.view.*;
+import android.content.*;
 
 # define Graphics Canvas
 //# define Canvas View
@@ -227,4 +225,4 @@ import com.nokia.mid.ui.*;
 
 #endif //HackJavaCpp_java_in_
 
-/* #eof "$Id: HackJavaCpp.java.in,v 1.10 2008-10-31 10:10:39 rzr Exp $" */
+/* #eof "$Id: HackJavaCpp.java.in,v 1.11 2008-12-28 23:49:32 rzr Exp $" */

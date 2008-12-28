@@ -1,4 +1,4 @@
-/* $Id: Raster.java.in,v 1.10 2008-10-31 10:10:39 rzr Exp $ */
+/* $Id: Raster.java.in,v 1.11 2008-12-28 23:49:32 rzr Exp $ */
 #ifndef Raster_java_in
 #define Raster_java_in
 
@@ -25,8 +25,7 @@ class Raster
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // paintPixel
 
-#ifdef ANDROID
-  //TODO
+#ifdef ANDROID  //TODO:optim
 # define MACROpaintPixel(g,x,y,c)                         {     \
     Paint paint_static = new Paint();                           \
     g.drawColor( c );  g.drawLine(x,y,x,y,paint_static);        \
@@ -44,7 +43,7 @@ class Raster
 #endif
 
 #ifdef  MACROpaintPixel
-#define paintPixel MACROpaintPixel
+# define paintPixel MACROpaintPixel
 #else
   public void paintPixel(Graphics g, int x, int y, int c)
   {
@@ -72,7 +71,7 @@ class Raster
     //debug("#} paintInit "+ w_ + "*" + h_ );
   }
 #else
-#define paintInit(g)
+# define paintInit(g)
 #endif
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -80,41 +79,56 @@ class Raster
   public void paintFlush(Graphics g)
   {
     if ( colorbuffer != null ) {
-#if ( defined NOKIA )
+# if ( defined NOKIA )
       dg.drawPixels( colorbuffer, false,  0, w_ , 0, 0, 
                      w_, h_, 0, dg.TYPE_INT_8888_ARGB );
                        
-#else
+# else
       g.drawRGB( colorbuffer, 0 , w_ , 0 , 0 , w_ , h_ , false );
-#endif 
+# endif 
     }
     //debug("#} paintFlush "  + colorbuffer );
   }
 #else
-#define paintFlush(g)
+# define paintFlush(g)
 #endif
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  /* paintLine for android */
-#ifdef ANDROID
-     # define MACROdrawLineColored(gfx,bx,by,ex,ey,color)      \
+#ifdef ANDROID //paintline need a paint object; to optimise
+# define MACROpaintLineColored(gfx,bx,by,ex,ey,color)      \
      { Paint paint = new Paint();                              \
        if ( false) paint.setColor( color);                     \
        gfx.drawColor( color);                                  \
        gfx.drawLine(bx,by,ex,ey,paint);                        \
      }
-#else
-# define MACROdrawLineColored(bx,by,ex,ey,color,gfx,ignored)    \
+#ifdef NO_INLINE
+    public void paintLineColored(Canvas g,int bx, int by, int ex,int ey, int color) 
+    {
+	MACROpaintLineColored(g,bx,by,ex,ey,color);
+    }
+    public void paintLine(Canvas g,int bx, int by, int ex,int ey)
+    {
+       Paint paint = new Paint();          
+       g.drawLine(bx,by,ex,ey,paint);                        \
+    }
+
+#endif // NO_INLINE
+
+#else // ! ANDROID :TODO: test
+# define MACROpaintLineColored(bx,by,ex,ey,color,gfx,ignored)    \
   { gfx.drawLine(bx,by,ex,ey); }
-#endif
+# define MACROpaintLine(g,bx,by,ex,ey) \
+  { gfx.drawLine(bx,by,ex,ey); }
+# define paintLine MACROpaintLine
+#endif //! ANDROID
 
 #define MACROpaintLineH(g,y,xa,xb) g.drawLine(xa,y,xb,y)
 
 #define MACROpaintLineV(g,x,ya,yb) g.drawLine(x,ya,x,yb)
 
 #ifdef MACROpaintLineH
-#define paintLineH MACROpaintLineH
+# define paintLineH MACROpaintLineH
 #else
   public void paintLineH(Graphics g, int y, int xa, int xb)
   {
@@ -178,13 +192,12 @@ class Raster
     setCurrentColor(g, col );
     paintTriangleSoft(g,a[0],a[1],b[0],b[1],c[0],c[1]);
   }
-#else
   // SEE MACROpaintTriangle for speed up
-#ifdef NO_INLINE
+#elif ( defined  NO_INLINE ) 
   public void paintTriangle(Graphics g,
                             int[] a, int[] b, int[] c, TYPE_COLOR col)
   {
-
+    //debug("#{ paintTriangle");
 #ifdef AWT
     setCurrentColor(g, col );
     Polygon poly= new Polygon();
@@ -195,16 +208,16 @@ class Raster
 #elif (( defined MIDP_2_0 ) || ( defined EXEN ))
     setCurrentColor(g, col );
     g.fillTriangle( a[0],a[1],b[0],b[1],c[0],c[1] );
-#elif defined NOKIA 
+#elif ( defined NOKIA )
     setCurrentColor(g, col );
     dg = DirectUtils.getDirectGraphics(g);
     dg.fillTriangle(a[0],a[1],b[0],b[1],c[0],c[1], cpp); //cpp?
-#elif( defined ANDROID )
-     setCurrentColor(g, col );
-     MACROdrawLineColored(a[0], a[1], b[0], b[1] );
-     MACROdrawLineColored(a[0], a[1], c[0], c[1] );
-     MACROdrawLineColored(c[0], c[1], b[0], b[1] );
-#else
+#elif( defined ANDROID ) //TODO:optim Trianglefiller
+    setCurrentColor(g, col ); //TODO:optim
+    paintLineColored(g, a[0], a[1], b[0], b[1] , col); 
+    paintLineColored(g, a[0], a[1], c[0], c[1] , col);
+    paintLineColored(g, c[0], c[1], b[0], b[1] , col);
+#else // Java
     setCurrentColor(g, col );
     g.drawLine( a[0] , a[1] , b[0] , b[1] );
     g.drawLine( a[0] , a[1] , c[0] , c[1] );
@@ -212,9 +225,11 @@ class Raster
 #endif // AWT
     //debug("#} paintTriangle");
   }
+
 #else // INLINE
+
 #ifdef AWT
-#define paintTriangle(g,a,b,c,col)  {           \
+# define paintTriangle(g,a,b,c,col)  {           \
     Polygon poly= new Polygon();                \
     poly.addPoint(a[0],a[1]);                   \
     poly.addPoint(b[0],b[1]);                   \
@@ -222,31 +237,26 @@ class Raster
     setCurrentColor(g, col );                   \
     g.fillPolygon(poly);                        \
   } 
-#else //AWT
-#if (( defined MIDP_2_0 ) || ( defined EXEN ))
-#define paintTriangle(g,a,b,c,col)  {                   \
+#elif (( defined MIDP_2_0 ) || ( defined EXEN )) // AWT
+# define paintTriangle(g,a,b,c,col)  {		\
     setCurrentColor(g, col );                           \
     g.fillTriangle( a[0],a[1],b[0],b[1],c[0],c[1] );    \
   }
-#else // MIDP
-#ifdef NOKIA
-#define paintTriangle(g,a,b,c,col)  {                                   \
+#elif (defined NOKIA )
+# define paintTriangle(g,a,b,c,col)  {                                   \
     DirectGraphics dg = DirectUtils.getDirectGraphics(g);               \
     dg.setARGBColor(0xFF000000|col); /* fix N3650v*00 v4.13,20-08-2003,NHL-8 bug  */ \
     dg.fillTriangle(a[0],a[1],b[0],b[1],c[0],c[1], 0xFF000000|col );    \
   }
 #else // NOKIA / default 
-#define paintTriangle(g,a,b,c,col)  {           \
+# define paintTriangle(g,a,b,c,col)  {           \
     setCurrentColor(g, col );                   \
     g.drawLine( a[0] , a[1] , b[0] , b[1] );    \
     g.drawLine( a[0] , a[1] , c[0] , c[1] );    \
     g.drawLine( c[0] , c[1] , b[0] , b[1] );    \
   }
-#endif // nokia 
-#endif // mipd2_0
-#endif //AWT
 #endif //INLINE
-#endif //
+#endif //INLINE
 
   /** sample test for pixel filler **/
   public void paintTrianglePixel(Graphics g, 
@@ -556,10 +566,11 @@ class Raster
 #undef swap
 
 #endif // #ifdef PRIVATE
+
 #ifndef INCLUDE_Raster
 }
 #endif
 
 #endif // Raster_java_in
 
-/* #eof "$Id: Raster.java.in,v 1.10 2008-10-31 10:10:39 rzr Exp $" */
+/* #eof "$Id: Raster.java.in,v 1.11 2008-12-28 23:49:32 rzr Exp $" */

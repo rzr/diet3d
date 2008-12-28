@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.18 2008-10-31 10:10:39 rzr Exp $
+# $Id: GNUmakefile,v 1.19 2008-12-28 23:49:31 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,7 +61,7 @@ VERSION ?= ${VERSION_DOT}
 
 # DEFINES+=-DDEVEL -DPRIVATE
 DEFINES+= -DPRIVATE
-# -NOINLINE
+
 MKDIR ?= @mkdir -p
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # PROJECTlication Specific
@@ -157,7 +157,7 @@ endif
 
 
 ifeq ($(RT),android) 
-DEFINES+=-DANDROID  -DJ2SE
+DEFINES+=-DANDROID  -DJ2SE -DNO_INLINE
 SDKV=00
 API=""
 OBJ_DIR=./jclasses-${RT}/
@@ -1202,11 +1202,22 @@ android_DIR=src/fr/online/rzr/
 #android_DIR=~/workspace/diet3dandroid/src/fr/online/rzr/
 android:
 	${MAKE} RT=$@ clean srcs
+	mkdir -p "${android_DIR}"
 	cp -rfa src-$@/* ${android_DIR}/
+
+android_opt?=/opt/android-sdk-linux_x86-1.0_r2/
+
+run-android: android-run
+
+android-emu:  ${android_opt}/tools/emulator
+	ps auxf | grep "$<" | grep -v grep || $< &  sleep 100
+
+android-run: ./bin/Diet3D.apk android-emu
+	${android_opt}/tools/adb install  $< 
 
 
 ide: /opt/eclipse/eclipse
 	$<
 
-#eof "$Id: GNUmakefile,v 1.18 2008-10-31 10:10:39 rzr Exp $"
+#eof "$Id: GNUmakefile,v 1.19 2008-12-28 23:49:31 rzr Exp $"
 

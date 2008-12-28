@@ -1,4 +1,4 @@
-/* $Id: Diet3DRender.java.in,v 1.7 2008-10-24 07:19:33 rzr Exp $ */
+/* $Id: Diet3DRender.java.in,v 1.8 2008-12-28 23:49:32 rzr Exp $ */
 #ifndef Diet3DRender_java_in_
 #define Diet3DRender_java_in_
 
@@ -99,6 +99,10 @@ public final class Diet3DRender
     g.drawString
       ( s , w_ >> 1 , h_ >> 1 , g.BASELINE  | g.HCENTER );
     //debug(s);
+#elif ( defined ANDROID)
+    debug(s);
+#else 
+    //TODO
 #endif
   }
 
@@ -112,9 +116,9 @@ public final class Diet3DRender
     for(int i=0; i < obj_nv; i++) {
       coord(i, vn);
 #ifdef ANDROID
-      MACROdrawLineColored( g, vn[0], vn[1], vn[0], vn[1], COLOR_FG_POINT);
+      paintLineColored( g, vn[0], vn[1], vn[0], vn[1], COLOR_FG_POINT);
 #else
-      g.drawLine( vn[0], vn[1], vn[0], vn[1]);
+      paintLine( g, vn[0], vn[1], vn[0], vn[1]);
 #endif
     }
     //debug("#} paintVertex");
@@ -127,20 +131,19 @@ public final class Diet3DRender
       coordFace(i,va,vb,vc);
       if ( obj_vc != null ) c = obj_vc[i];
 #ifdef ANDROID
-      MACROdrawLineColored( g, va[0], va[1], vb[0], vb[1], c);
-      MACROdrawLineColored( g, va[0], va[1], vc[0], vc[1], c);
-      MACROdrawLineColored( g, vc[0], vc[1], vb[0], vb[1], c);
+      paintLineColored( g, va[0], va[1], vb[0], vb[1], c);
+      paintLineColored( g, va[0], va[1], vc[0], vc[1], c);
+      paintLineColored( g, vc[0], vc[1], vb[0], vb[1], c);
 #else
       setCurrentColor(g,c);
-      g.drawLine( va[0] , va[1] , vb[0] , vb[1] );
-      g.drawLine( va[0] , va[1] , vc[0] , vc[1] );
-      g.drawLine( vc[0] , vc[1] , vb[0] , vb[1] );
+      paintLine( g, va[0] , va[1] , vb[0] , vb[1] );
+      paintLine( g, va[0] , va[1] , vc[0] , vc[1] );
+      paintLine( g, vc[0] , vc[1] , vb[0] , vb[1] );
 #endif
     }
     //debug("#} paintLine " + obj_nf );
   }
 
-#ifndef ANDROID // TODO
 
 #ifdef PRIVATE
   public void paintFlat(Graphics g) 
@@ -165,17 +168,18 @@ public final class Diet3DRender
       MathFixed.normVVV( va, vb, vc, vn);
       if ( vn[2] <= 0 ) { // 
         screen(va); screen(vb); screen(vc);
-        g.drawLine( va[0] , va[1] , vb[0] , vb[1] );
-        g.drawLine( va[0] , va[1] , vc[0] , vc[1] );
-        g.drawLine( vc[0] , vc[1] , vb[0] , vb[1] );
+
+        paintLine( g, va[0] , va[1] , vb[0] , vb[1] ); //unified w/ android
+        paintLine( g, va[0] , va[1] , vc[0] , vc[1] );
+        paintLine( g, vc[0] , vc[1] , vb[0] , vb[1] );
+
       }
       //else { debug("skip"); }
     }
     //setCurrentColor(g, 0x00000000 );
     //paintLine(g);
-    //debug("#{ paintFront");
+    //debug("#} paintFront");
   }
-
 
   public void paintFrontFace(Graphics g)
   {
@@ -294,15 +298,16 @@ public final class Diet3DRender
     light[1] *= - (w_ >> 3) ;
         
     screen( light );
-#if ( ! ( defined  NTTDOCOMO || defined EXEN ) )
+#if ( ! ( defined  NTTDOCOMO || defined EXEN || defined ANDROID )) //TODO
     setCurrentColor(g, COLOR_YELLOW );        
     g.fillArc( light[0] - 4 , light[1] - 4 , 8 , 8 , 0 , 360);
 #endif
     setCurrentColor(g, COLOR_FG_LINE );
-    g.drawLine( light[0] -2 , light[1] , light[0]+2 , light[1]   );
-    g.drawLine( light[0] , light[1] -2 , light[0] , light[1] +2  );
-    //System.out.println("- paintDynLight" + (w_ >> 3) );
+    paintLine( g, light[0] -2 , light[1] , light[0]+2 , light[1]   );
+    paintLine( g, light[0] , light[1] -2 , light[0] , light[1] +2  );
+    //debug("#} paintDynLight" + (w_ >> 3) );
   }
+
 
   public void paintFrontFast(Graphics g)
   {
@@ -320,15 +325,15 @@ public final class Diet3DRender
       MathFixed.normVVV( va, vb, vc, vn);
       //            if ( vn[2] >= 0 ) { // 
       screen(va); screen(vb); screen(vc);
-      g.drawLine( va[0] , va[1] , vb[0] , vb[1] );
-      g.drawLine( va[0] , va[1] , vc[0] , vc[1] );
-      g.drawLine( vc[0] , vc[1] , vb[0] , vb[1] );
+      paintLine( g, va[0] , va[1] , vb[0] , vb[1] );
+      paintLine( g, va[0] , va[1] , vc[0] , vc[1] );
+      paintLine( g, vc[0] , vc[1] , vb[0] , vb[1] );
       //}
       //else { debug("skip"); }
     }
     //setCurrentColor(g, 0x00000000 );
     //paintLine(g);
-    //debug("#{ paintFront");
+    //debug("#} paintFront");
   }
 
 
@@ -447,7 +452,6 @@ public final class Diet3DRender
     //debug("#} paintSort");
   }
 
-#endif //    #ifndef ANDROID // TODO
 
   /* Quick Sort implementation
    */
@@ -563,4 +567,4 @@ public final class Diet3DRender
 
 
 #endif //ifndef Diet3D_java_in_
-/* #eof "$Id: Diet3DRender.java.in,v 1.7 2008-10-24 07:19:33 rzr Exp $" */
+/* #eof "$Id: Diet3DRender.java.in,v 1.8 2008-12-28 23:49:32 rzr Exp $" */
