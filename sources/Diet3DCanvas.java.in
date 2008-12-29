@@ -1,4 +1,4 @@
-/* $Id: Diet3DCanvas.java.in,v 1.15 2008-12-28 23:49:32 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.16 2008-12-29 01:11:21 rzr Exp $ */
 #ifndef Diet3DCanva_java_in_
 #define Diet3DCanva_java_in_
 /**
@@ -27,13 +27,13 @@ public final class Diet3DCanvas
 extends GameCanvas
 #elif defined EXEN
 extends Gamelet
-#elif defined ANDROID
+#elif defined ANDROID // SurfaceView widget
 extends SurfaceView 
 #else
 extends Canvas
 #endif //MIP20, EXEN, ANDROID, default
 
-#ifdef ANDROID
+#ifdef ANDROID // widgets thread
 implements SurfaceHolder.Callback , Runnable
 #elif ! defined EXEN
 implements Runnable 
@@ -475,4 +475,4 @@ final class Tick extends TimerTask
 
 #endif // Diet3DCanva_java_in_
 
-/*#eof "$Id: Diet3DCanvas.java.in,v 1.15 2008-12-28 23:49:32 rzr Exp $" */
+/*#eof "$Id: Diet3DCanvas.java.in,v 1.16 2008-12-29 01:11:21 rzr Exp $" */

@@ -1,4 +1,4 @@
-/* $Id: Raster.java.in,v 1.11 2008-12-28 23:49:32 rzr Exp $ */
+/* $Id: Raster.java.in,v 1.12 2008-12-29 01:11:21 rzr Exp $ */
 #ifndef Raster_java_in
 #define Raster_java_in
 
@@ -26,6 +26,7 @@ class Raster
   // paintPixel
 
 #ifdef ANDROID  //TODO:optim
+
 # define MACROpaintPixel(g,x,y,c)                         {     \
     Paint paint_static = new Paint();                           \
     g.drawColor( c );  g.drawLine(x,y,x,y,paint_static);        \
@@ -95,7 +96,7 @@ class Raster
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#ifdef ANDROID //paintline need a paint object; to optimise
+#ifdef ANDROID //paintline need a paint object; to optimize static?
 # define MACROpaintLineColored(gfx,bx,by,ex,ey,color)      \
      { Paint paint = new Paint();                              \
        if ( false) paint.setColor( color);                     \
@@ -115,17 +116,22 @@ class Raster
 
 #endif // NO_INLINE
 
+    #define paintFillRect(g,bw,bh,ew,eh) \
+    { Paint paint = new Paint(); \
+	g.drawRect(0,0,w_,h_,paint); } 
+
+
 #else // ! ANDROID :TODO: test
-# define MACROpaintLineColored(bx,by,ex,ey,color,gfx,ignored)    \
-  { gfx.drawLine(bx,by,ex,ey); }
+//# define MACROpaintLineColored(bx,by,ex,ey,color,gfx,ignored)	\
+//  { gfx.drawLine(bx,by,ex,ey); }
 # define MACROpaintLine(g,bx,by,ex,ey) \
-  { gfx.drawLine(bx,by,ex,ey); }
+  { g.drawLine(bx,by,ex,ey); }
 # define paintLine MACROpaintLine
 #endif //! ANDROID
 
-#define MACROpaintLineH(g,y,xa,xb) g.drawLine(xa,y,xb,y)
+#define MACROpaintLineH(g,y,xa,xb) paintLine( g,xa,y,xb,y)
 
-#define MACROpaintLineV(g,x,ya,yb) g.drawLine(x,ya,x,yb)
+#define MACROpaintLineV(g,x,ya,yb) paintLine( g,x,ya,x,yb)
 
 #ifdef MACROpaintLineH
 # define paintLineH MACROpaintLineH
@@ -133,13 +139,13 @@ class Raster
   public void paintLineH(Graphics g, int y, int xa, int xb)
   {
     //paintPixel(g,xa,y); paintPixel(g,xb,y);
-    g.drawLine(xa,y,xb,y);
+    paintLine( g,xa,y,xb,y);
     //debug("#} paintLineH : " + xa + "," + xb );
   }
 #endif
 
   //~~~~~~~~~~~~~~~~
-#if  ( ( defined MIDP_1_0 ) && ( ! defined NOKIA )) 
+    #if  ( ( ( defined MIDP_1_0 ) && ( ! defined NOKIA ) ) || (defined ANDROID) ) //TODO
   /** Software triangle filler (when no accell is provided) **/
   public void paintTriangleSoft(Graphics g, 
                                 int tx, int ty,
@@ -214,14 +220,15 @@ class Raster
     dg.fillTriangle(a[0],a[1],b[0],b[1],c[0],c[1], cpp); //cpp?
 #elif( defined ANDROID ) //TODO:optim Trianglefiller
     setCurrentColor(g, col ); //TODO:optim
-    paintLineColored(g, a[0], a[1], b[0], b[1] , col); 
-    paintLineColored(g, a[0], a[1], c[0], c[1] , col);
-    paintLineColored(g, c[0], c[1], b[0], b[1] , col);
+    paintTriangleSoft(g,a,b,c,col);
+    //    paintLineColored(g, a[0], a[1], b[0], b[1] , col); 
+    //    paintLineColored(g, a[0], a[1], c[0], c[1] , col);
+    //    paintLineColored(g, c[0], c[1], b[0], b[1] , col);
 #else // Java
     setCurrentColor(g, col );
-    g.drawLine( a[0] , a[1] , b[0] , b[1] );
-    g.drawLine( a[0] , a[1] , c[0] , c[1] );
-    g.drawLine( c[0] , c[1] , b[0] , b[1] );
+    paintLine( g, a[0] , a[1] , b[0] , b[1] );
+    paintLine( g, a[0] , a[1] , c[0] , c[1] );
+    paintLine( g, c[0] , c[1] , b[0] , b[1] );
 #endif // AWT
     //debug("#} paintTriangle");
   }
@@ -251,9 +258,9 @@ class Raster
 #else // NOKIA / default 
 # define paintTriangle(g,a,b,c,col)  {           \
     setCurrentColor(g, col );                   \
-    g.drawLine( a[0] , a[1] , b[0] , b[1] );    \
-    g.drawLine( a[0] , a[1] , c[0] , c[1] );    \
-    g.drawLine( c[0] , c[1] , b[0] , b[1] );    \
+    paintLine( g, a[0] , a[1] , b[0] , b[1] );    \
+    paintLine( g, a[0] , a[1] , c[0] , c[1] );    \
+    paintLine( g, c[0] , c[1] , b[0] , b[1] );    \
   }
 #endif //INLINE
 #endif //INLINE
@@ -573,4 +580,4 @@ class Raster
 
 #endif // Raster_java_in
 
-/* #eof "$Id: Raster.java.in,v 1.11 2008-12-28 23:49:32 rzr Exp $" */
+/* #eof "$Id: Raster.java.in,v 1.12 2008-12-29 01:11:21 rzr Exp $" */

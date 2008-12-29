@@ -1,10 +1,10 @@
-/* $Id: Diet3D.java.in,v 1.15 2008-12-28 23:49:32 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.16 2008-12-29 01:11:21 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.15 2008-12-28 23:49:32 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.16 2008-12-29 01:11:21 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
@@ -526,17 +526,19 @@ public final class Diet3D
 
   void paint(Graphics g)
   {
-#ifdef ANDROID //TODO: check
-    // if (true) return;
-    Paint p = new Paint();
-    setCurrentColor(g, COLOR(BLACK) );
-    g.drawRect(0,0,w_,h_,p);
+#ifdef ANDROID //TODO: check fill screen
+    Paint paint = new Paint();
 
-    setCurrentColor(g, COLOR(WHITE) );
-    paintLine(g);
+    g.drawRect(0,0,w_,h_,paint);
+    g.drawColor( COLOR_BG );
+    //g.drawARGB(0, 255, 255, 255);
+
+    g.drawText( vmode[mode], w_>>1, 40 , paint);
+    //paintLine(g); if ( true)  return; //TODO
 #else
     setCurrentColor(g, COLOR_BG );
     g.fillRect( 0 , 0, w_ , h_ ); //bound box trick //TODO
+#endif
 
     switch(mode) { // [ %n : 0 ... n-1]
     case 1: setCurrentColor(g, COLOR_FG ); paintVertex(g); break;
@@ -594,8 +596,8 @@ public final class Diet3D
     g.drawString(  vmode[mode]  
                    , ( w_ >> 1 )  , h_ - ( h_ >> 2 )  , 
                    g.BASELINE  | g.HCENTER );
+
 #endif
-#endif // ANDROID
   }
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -617,4 +619,4 @@ public final class Diet3D
 #endif // INCLUDE_Diet3D
 #endif // Diet3D_java_in_
 
-/* #eof "$Id: Diet3D.java.in,v 1.15 2008-12-28 23:49:32 rzr Exp $" */
+/* #eof "$Id: Diet3D.java.in,v 1.16 2008-12-29 01:11:21 rzr Exp $" */
