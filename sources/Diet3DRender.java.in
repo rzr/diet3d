@@ -1,4 +1,4 @@
-/* $Id: Diet3DRender.java.in,v 1.8 2008-12-28 23:49:32 rzr Exp $ */
+/* $Id: Diet3DRender.java.in,v 1.9 2008-12-29 01:11:21 rzr Exp $ */
 #ifndef Diet3DRender_java_in_
 #define Diet3DRender_java_in_
 
@@ -99,8 +99,8 @@ public final class Diet3DRender
     g.drawString
       ( s , w_ >> 1 , h_ >> 1 , g.BASELINE  | g.HCENTER );
     //debug(s);
-#elif ( defined ANDROID)
-    debug(s);
+#elif ( defined ANDROID) //TODO: text
+    //debug(s); //TODO
 #else 
     //TODO
 #endif
@@ -108,18 +108,11 @@ public final class Diet3DRender
 
   public void paintVertex(Graphics g) 
   {
-#ifdef ANDROID
-    //TODO
-#else
     setCurrentColor(g,COLOR_FG_POINT);
-#endif
+
     for(int i=0; i < obj_nv; i++) {
       coord(i, vn);
-#ifdef ANDROID
-      paintLineColored( g, vn[0], vn[1], vn[0], vn[1], COLOR_FG_POINT);
-#else
       paintLine( g, vn[0], vn[1], vn[0], vn[1]);
-#endif
     }
     //debug("#} paintVertex");
   }
@@ -130,16 +123,10 @@ public final class Diet3DRender
     for(int i=0; i < obj_nf; i++) {
       coordFace(i,va,vb,vc);
       if ( obj_vc != null ) c = obj_vc[i];
-#ifdef ANDROID
-      paintLineColored( g, va[0], va[1], vb[0], vb[1], c);
-      paintLineColored( g, va[0], va[1], vc[0], vc[1], c);
-      paintLineColored( g, vc[0], vc[1], vb[0], vb[1], c);
-#else
       setCurrentColor(g,c);
       paintLine( g, va[0] , va[1] , vb[0] , vb[1] );
       paintLine( g, va[0] , va[1] , vc[0] , vc[1] );
       paintLine( g, vc[0] , vc[1] , vb[0] , vb[1] );
-#endif
     }
     //debug("#} paintLine " + obj_nf );
   }
@@ -567,4 +554,4 @@ public final class Diet3DRender
 
 
 #endif //ifndef Diet3D_java_in_
-/* #eof "$Id: Diet3DRender.java.in,v 1.8 2008-12-28 23:49:32 rzr Exp $" */
+/* #eof "$Id: Diet3DRender.java.in,v 1.9 2008-12-29 01:11:21 rzr Exp $" */

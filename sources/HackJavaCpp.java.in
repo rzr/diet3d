@@ -1,4 +1,4 @@
-/* $Id: HackJavaCpp.java.in,v 1.11 2008-12-28 23:49:32 rzr Exp $ */
+/* $Id: HackJavaCpp.java.in,v 1.12 2008-12-29 01:11:21 rzr Exp $ */
 #ifndef HackJavaCpp_java_in_
 #define HackJavaCpp_java_in_
 
@@ -162,6 +162,7 @@ import com.nokia.mid.ui.*;
 #ifdef AWT
 # define COLOR(x)         ( new Color(x) )
 //#define TYPE_COLOR       Color
+
 #elif defined ANDROID
 # define COLOR(x) Color.x
 #else
@@ -172,9 +173,9 @@ import com.nokia.mid.ui.*;
 # define COLOR_WHITE 	COLOR(WHITE)
 # define COLOR_BLACK	COLOR(BLACK)
 # define COLOR_YELLOW	COLOR(YELLOW)
-# define COLOR_RED		COLOR(RED)
+# define COLOR_RED	COLOR(RED)
 # define COLOR_GREEN	COLOR(GREEN)
-# define COLOR_BLUE		COLOR(BLUE)
+# define COLOR_BLUE     COLOR(BLUE)
 #else
 # define COLOR_BLACK      0x00000000
 # define COLOR_WHITE      0x00FFFFFF
@@ -189,17 +190,23 @@ import com.nokia.mid.ui.*;
 #define COLOR_FG         COLOR_BLACK
 #define COLOR_FG_POINT   COLOR_FG
 #define COLOR_FG_LINE    COLOR_FG
-#define COLOR_FG_TEST    0x00FF00FF
 
-#define COLOR_FG_FACE    0x000000E0
+#ifdef ANDROID
+# define COLOR_FG_TEST  COLOR_FG
+# define COLOR_FG_FACE  COLOR_FG
+#else
+# define COLOR_FG_TEST    0x00FF00FF
+# define COLOR_FG_FACE    0x000000E0
+#endif
+
 
 
 
 #if ( ( defined MIDP_2_0 ) || ( defined NOKIA ))
 #endif
 
-#ifdef ANDROID
-# define setCurrentColor(g,col)  g.drawColor(col)
+#ifdef ANDROID //TODO
+# define setCurrentColor(g,col)  {} //g.drawColor(col) //TODO
 #else
 # define setCurrentColor(g,col)  g.setColor(col)
 #endif
@@ -225,4 +232,4 @@ import com.nokia.mid.ui.*;
 
 #endif //HackJavaCpp_java_in_
 
-/* #eof "$Id: HackJavaCpp.java.in,v 1.11 2008-12-28 23:49:32 rzr Exp $" */
+/* #eof "$Id: HackJavaCpp.java.in,v 1.12 2008-12-29 01:11:21 rzr Exp $" */
