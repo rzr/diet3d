@@ -1,10 +1,10 @@
-/* $Id: Diet3D.java.in,v 1.16 2008-12-29 01:11:21 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.17 2009-01-08 16:26:24 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.16 2008-12-29 01:11:21 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.17 2009-01-08 16:26:24 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
@@ -173,7 +173,7 @@ public final class Diet3D
     
   static final String vanim[] = { "demo" , "spin" , "no" };
 
-  public static int anim=0;
+  public static int anim=0; ///< 0=animated
 
   public static int tick=0;
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -444,6 +444,8 @@ public final class Diet3D
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   public void tick()
   {
+   // if ( true ) { tick++; return;} //TODO
+    
     if( anim <= 0 ) { 
       switch (tick) {
       case 1: // point
@@ -534,7 +536,7 @@ public final class Diet3D
     //g.drawARGB(0, 255, 255, 255);
 
     g.drawText( vmode[mode], w_>>1, 40 , paint);
-    //paintLine(g); if ( true)  return; //TODO
+  //  if (true) { setCurrentColor(g, COLOR_FG_LINE ); paintLine(g); if ( true)  return; } //TODO
 #else
     setCurrentColor(g, COLOR_BG );
     g.fillRect( 0 , 0, w_ , h_ ); //bound box trick //TODO
@@ -619,4 +621,4 @@ public final class Diet3D
 #endif // INCLUDE_Diet3D
 #endif // Diet3D_java_in_
 
-/* #eof "$Id: Diet3D.java.in,v 1.16 2008-12-29 01:11:21 rzr Exp $" */
+/* #eof "$Id: Diet3D.java.in,v 1.17 2009-01-08 16:26:24 rzr Exp $" */

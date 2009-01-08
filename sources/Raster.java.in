@@ -1,4 +1,4 @@
-/* $Id: Raster.java.in,v 1.12 2008-12-29 01:11:21 rzr Exp $ */
+/* $Id: Raster.java.in,v 1.13 2009-01-08 16:26:24 rzr Exp $ */
 #ifndef Raster_java_in
 #define Raster_java_in
 
@@ -97,11 +97,11 @@ class Raster
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #ifdef ANDROID //paintline need a paint object; to optimize static?
-# define MACROpaintLineColored(gfx,bx,by,ex,ey,color)      \
-     { Paint paint = new Paint();                              \
-       if ( false) paint.setColor( color);                     \
-       gfx.drawColor( color);                                  \
-       gfx.drawLine(bx,by,ex,ey,paint);                        \
+# define MACROpaintLineColored(gfx,bx,by,ex,ey,color) \
+    {  color=color | 0xFF000000 ; Paint paint = new Paint();	      \n\
+            if ( false ) gfx.drawColor( color ); \n\
+       if ( true) paint.setColor( color);                     \n\
+       gfx.drawLine(bx,by,ex,ey,paint);                        \n\
      }
 #ifdef NO_INLINE
     public void paintLineColored(Canvas g,int bx, int by, int ex,int ey, int color) 
@@ -580,4 +580,4 @@ class Raster
 
 #endif // Raster_java_in
 
-/* #eof "$Id: Raster.java.in,v 1.12 2008-12-29 01:11:21 rzr Exp $" */
+/* #eof "$Id: Raster.java.in,v 1.13 2009-01-08 16:26:24 rzr Exp $" */
