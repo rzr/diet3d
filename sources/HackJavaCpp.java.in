@@ -1,4 +1,4 @@
-/* $Id: HackJavaCpp.java.in,v 1.13 2009-01-08 16:26:24 rzr Exp $ */
+/* $Id: HackJavaCpp.java.in,v 1.14 2009-01-08 18:53:25 rzr Exp $ */
 #ifndef HackJavaCpp_java_in_
 #define HackJavaCpp_java_in_
 
@@ -57,6 +57,8 @@ import android.content.*;
 
 # define HAVE_DISPLAY_NO
 # define HAVE_IMAGE_NO
+# define WANT_INFO
+# define WANT_DARK
 #endif // ANDROID
 
 
@@ -187,30 +189,24 @@ import com.nokia.mid.ui.*;
 #endif
 
 
-#define COLOR_BG         COLOR_WHITE
-#define COLOR_FG         COLOR_BLACK
-#define COLOR_FG_POINT   COLOR_FG
-#define COLOR_FG_LINE    COLOR_FG
-
-#ifdef ANDROID
-# define COLOR_FG_TEST  COLOR_FG
-# define COLOR_FG_FACE  COLOR_FG
+#ifdef WANT_DARK
+# define COLOR_BG         COLOR_BLACK
+# define COLOR_FG         COLOR_WHITE
+# define COLOR_FG_POINT   COLOR_RED
+# define COLOR_FG_LINE    COLOR_GREEN
+# define COLOR_FG_TEST    0x00FF00FF
+# define COLOR_FG_FACE    0x000000E0
 #else
+# define COLOR_BG         COLOR_WHITE
+# define COLOR_FG         COLOR_BLACK
+# define COLOR_FG_POINT   COLOR_RED
+# define COLOR_FG_LINE    COLOR_GREEN
 # define COLOR_FG_TEST    0x00FF00FF
 # define COLOR_FG_FACE    0x000000E0
 #endif
 
 
 
-
-#if ( ( defined MIDP_2_0 ) || ( defined NOKIA ))
-#endif
-
-#ifdef ANDROID //TODO
-# define setCurrentColor(g,col)  {} //g.drawColor(col) //TODO
-#else
-# define setCurrentColor(g,col)  g.setColor(col)
-#endif
 
 #define swap(a,b,t) { t=a; a=b; b=t; }
 
@@ -233,4 +229,4 @@ import com.nokia.mid.ui.*;
 
 #endif //HackJavaCpp_java_in_
 
-/* #eof "$Id: HackJavaCpp.java.in,v 1.13 2009-01-08 16:26:24 rzr Exp $" */
+/* #eof "$Id: HackJavaCpp.java.in,v 1.14 2009-01-08 18:53:25 rzr Exp $" */
