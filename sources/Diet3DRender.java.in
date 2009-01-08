@@ -1,4 +1,4 @@
-/* $Id: Diet3DRender.java.in,v 1.10 2009-01-08 16:26:24 rzr Exp $ */
+/* $Id: Diet3DRender.java.in,v 1.11 2009-01-08 18:53:25 rzr Exp $ */
 #ifndef Diet3DRender_java_in_
 #define Diet3DRender_java_in_
 
@@ -95,12 +95,10 @@ public final class Diet3DRender
   public void paintString(Graphics g, String s)
   {
 #if ! ( (defined AWT ) || ( defined EXEN ) || ( defined NTTDOCOMO )     \
-        || ( defined ANDROID ) )
-    g.drawString
-      ( s , w_ >> 1 , h_ >> 1 , g.BASELINE  | g.HCENTER );
+        || ( defined ANDROID ) ) //#display modes
+    setColorPaint( g, COLOR_FG);
+    g.drawString( s , w_ >> 1 , h_ >> 1 , g.BASELINE  | g.HCENTER );
     //debug(s);
-#elif ( defined ANDROID) //TODO: text
-    //debug(s); //TODO
 #else 
     //TODO
 #endif
@@ -108,7 +106,7 @@ public final class Diet3DRender
 
   public void paintVertex(Graphics g) 
   {
-    setCurrentColor(g,COLOR_FG_POINT);
+    setColorPaint(g,COLOR_FG_POINT);
 
     for(int i=0; i < obj_nv; i++) {
       coord(i, vn);
@@ -128,7 +126,7 @@ public final class Diet3DRender
       paintLineColored( g, va[0] , va[1] , vc[0] , vc[1] , c);
       paintLineColored( g, vc[0] , vc[1] , vb[0] , vb[1] , c);
 #else
-      setCurrentColor(g,c);
+      setColorPaint(g,c);
       paintLine( g, va[0] , va[1] , vb[0] , vb[1] );
       paintLine( g, va[0] , va[1] , vc[0] , vc[1] );
       paintLine( g, vc[0] , vc[1] , vb[0] , vb[1] );
@@ -151,10 +149,10 @@ public final class Diet3DRender
   /** backface culling **/
   public void paintFront(Graphics g)
   {
-    // setCurrentColor(g, 0x00FFFF00 );//yellow
+    // setColorPaint(g, 0x00FFFF00 );//yellow
     // paintFace(g);
     for(int i=0; i < obj_nf; i++) {
-      //setCurrentColor(g, obj_vc[i] ); 
+      setColorPaint(g, obj_vc[i] ); 
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
@@ -169,18 +167,18 @@ public final class Diet3DRender
       }
       //else { debug("skip"); }
     }
-    //setCurrentColor(g, 0x00000000 );
+    //setColorPaint(g, 0x00000000 );
     //paintLine(g);
     //debug("#} paintFront");
   }
 
   public void paintFrontFace(Graphics g)
   {
-    // setCurrentColor(g, 0x00FFFF00 );//yellow
+    // setColorPaint(g, 0x00FFFF00 );//yellow
     // paintFace(g);
     TYPE_COLOR c= COLOR_FG_FACE;
     for(int i=0; i < obj_nf; i++) {
-      //setCurrentColor(g, obj_vc[i] ); 
+      setColorPaint(g, obj_vc[i] ); 
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
@@ -193,7 +191,7 @@ public final class Diet3DRender
       }
       //else { debug("skip"); }
     }
-    //setCurrentColor(g, 0x00000000 );
+    //setColorPaint(g, 0x00000000 );
     //paintLine(g);
     //debug("#{ paintFront");
   }
@@ -230,12 +228,12 @@ public final class Diet3DRender
         screen(va); screen(vb); screen(vc); 
         c =  colormap[r];
         if ( obj_vc != null ) c &= obj_vc[i];
-        //setCurrentColor(g,c);
+        setColorPaint(g,c);
         paintTriangle( g, va, vb, vc, c );
       }
       //else {debug("skip"); }
     }
-    //setCurrentColor(g, COLOR_FG_LINE ); paintLine(g);
+    //setColorPaint(g, COLOR_FG_LINE ); paintLine(g);
   }
 
   public void paintDynLight(Graphics g)
@@ -281,7 +279,6 @@ public final class Diet3DRender
         screen(va); screen(vb); screen(vc); 
         c =  colormap[r];
         //if ( obj_vc != null ) { c &= obj_vc[i] ; } // c |= 0x50; }
-        //setCurrentColor(g,c);
         paintTriangle( g, va, vb, vc, c );
       }
       //else {debug("skip"); }
@@ -292,10 +289,10 @@ public final class Diet3DRender
         
     screen( light );
 #if ( ! ( defined  NTTDOCOMO || defined EXEN || defined ANDROID )) //TODO
-    setCurrentColor(g, COLOR_YELLOW );        
+    setColorPaint(g, COLOR_YELLOW );        
     g.fillArc( light[0] - 4 , light[1] - 4 , 8 , 8 , 0 , 360);
 #endif
-    setCurrentColor(g, COLOR_FG_LINE );
+    setColorPaint(g, COLOR_FG_LINE );
     paintLine( g, light[0] -2 , light[1] , light[0]+2 , light[1]   );
     paintLine( g, light[0] , light[1] -2 , light[0] , light[1] +2  );
     //debug("#} paintDynLight" + (w_ >> 3) );
@@ -310,7 +307,7 @@ public final class Diet3DRender
     }
 
     for(i=0; i < obj_nf; i++) {
-      //setCurrentColor(g, obj_vc[i] ); 
+      //setColorPaint(g, obj_vc[i] ); 
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
@@ -324,7 +321,7 @@ public final class Diet3DRender
       //}
       //else { debug("skip"); }
     }
-    //setCurrentColor(g, 0x00000000 );
+    //setColorPaint(g, 0x00000000 );
     //paintLine(g);
     //debug("#} paintFront");
   }
@@ -335,10 +332,10 @@ public final class Diet3DRender
     paintInit(g);
 
     TYPE_COLOR  c = COLOR_FG;
-    setCurrentColor(g, c);
+    setColorPaint(g, c);
 
     for(int i=0; i < obj_nf; i++) {
-      //setCurrentColor(g, obj_vc[i] ); 
+      //setColorPaint(g, obj_vc[i] ); 
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
@@ -367,7 +364,7 @@ public final class Diet3DRender
       return ;
     }
     TYPE_COLOR c = COLOR_FG_FACE;
-    setCurrentColor(g,c);
+    setColorPaint(g,c);
     for(i=0;i< obj_nv;i++)
       MathFixed.multMV(  m_ , obj_vv[i] , obj_trans[i] );
         
@@ -418,7 +415,7 @@ public final class Diet3DRender
       return ;
     }
     TYPE_COLOR c = COLOR_FG_FACE;
-    setCurrentColor(g,c);
+    setColorPaint(g,c);
     for(i=0;i< obj_nv;i++)
       MathFixed.multMV(  m_ , obj_vv[i] , obj_trans[i] );
         
@@ -518,9 +515,9 @@ public final class Diet3DRender
   public void paintMapping(Graphics g)
   {
     TYPE_COLOR  c = COLOR_FG;
-    setCurrentColor(g, c);
+    setColorPaint(g, c);
     for(int i=0; i < obj_nf; i++) {
-      //setCurrentColor(g, obj_vc[i] ); 
+      setColorPaint(g, obj_vc[i] ); 
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
@@ -560,4 +557,4 @@ public final class Diet3DRender
 
 
 #endif //ifndef Diet3D_java_in_
-/* #eof "$Id: Diet3DRender.java.in,v 1.10 2009-01-08 16:26:24 rzr Exp $" */
+/* #eof "$Id: Diet3DRender.java.in,v 1.11 2009-01-08 18:53:25 rzr Exp $" */

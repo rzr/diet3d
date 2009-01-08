@@ -1,4 +1,4 @@
-/* $Id: Raster.java.in,v 1.13 2009-01-08 16:26:24 rzr Exp $ */
+/* $Id: Raster.java.in,v 1.14 2009-01-08 18:53:25 rzr Exp $ */
 #ifndef Raster_java_in
 #define Raster_java_in
 
@@ -23,13 +23,23 @@ class Raster
   static int[] colorbuffer = null;
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#ifdef ANDROID //TODO:refactor paint_static w/ graphics
+    static Paint paint_static = new Paint();
+# define setColorPaint(g,color) \
+    paint_static.setColor( (color) | 0xFF000000) //TODO
+#else
+# define setColorPaint(g,color) \
+    g.setColor(color)
+#endif
+
   // paintPixel
 
 #ifdef ANDROID  //TODO:optim
 
 # define MACROpaintPixel(g,x,y,c)                         {     \
-    Paint paint_static = new Paint();                           \
-    g.drawColor( c );  g.drawLine(x,y,x,y,paint_static);        \
+    setColorPaint(g,c); \
+    g.drawLine(x,y,x+1,y+1,paint_static);	\
   }
 #elif ( ( defined MIDP2_0 ) || ( defined NOKIA )) //
 
@@ -38,9 +48,8 @@ class Raster
     colorbuffer[ y*w_ + x ] = 0xFF000000 | c;
 
 #else // using java graphics
-
-# define MACROpaintPixel(g,x,y,c)               \
-  setCurrentColor(g,c); g.drawLine(x,y,x,y)
+# define MACROpaintPixel(g,x,y,c)        {	\
+    setColorPaint(g,c); g.drawLine(x,y,x,y); }
 #endif
 
 #ifdef  MACROpaintPixel
@@ -48,8 +57,7 @@ class Raster
 #else
   public void paintPixel(Graphics g, int x, int y, int c)
   {
-    setCurrentColor(g,c);
-    g.drawLine(x,y,x,y);
+      MACROpaintPixel(g,x,y,c);
     //debug("#} paintPixel : " + x + "," + y );
   }
 #endif
@@ -98,10 +106,9 @@ class Raster
 
 #ifdef ANDROID //paintline need a paint object; to optimize static?
 # define MACROpaintLineColored(gfx,bx,by,ex,ey,color) \
-    {  color=color | 0xFF000000 ; Paint paint = new Paint();	      \n\
-            if ( false ) gfx.drawColor( color ); \n\
-       if ( true) paint.setColor( color);                     \n\
-       gfx.drawLine(bx,by,ex,ey,paint);                        \n\
+    {  setColorPaint(gfx, color);		      \
+       if ( false ) gfx.drawColor( color ); \
+       gfx.drawLine(bx,by,ex,ey,paint_static); \
      }
 #ifdef NO_INLINE
     public void paintLineColored(Canvas g,int bx, int by, int ex,int ey, int color) 
@@ -110,15 +117,13 @@ class Raster
     }
     public void paintLine(Canvas g,int bx, int by, int ex,int ey)
     {
-       Paint paint = new Paint();          
-       g.drawLine(bx,by,ex,ey,paint);                        \
+       g.drawLine(bx,by,ex,ey,paint_static); 
     }
 
 #endif // NO_INLINE
 
-    #define paintFillRect(g,bw,bh,ew,eh) \
-    { Paint paint = new Paint(); \
-	g.drawRect(0,0,w_,h_,paint); } 
+#define paintFillRect(g,bw,bh,ew,eh) \
+    { 	g.drawRect(0,0,w_,h_,paint_static); } 
 
 
 #else // ! ANDROID :TODO: test
@@ -144,8 +149,9 @@ class Raster
   }
 #endif
 
-  //~~~~~~~~~~~~~~~~
-    #if  ( ( ( defined MIDP_1_0 ) && ( ! defined NOKIA ) ) || (defined ANDROID) ) //TODO
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    #if ( ( ( defined MIDP_1_0 ) && ( ! defined NOKIA ) ) || (defined ANDROID) ) //TODO
   /** Software triangle filler (when no accell is provided) **/
   public void paintTriangleSoft(Graphics g, 
                                 int tx, int ty,
@@ -160,19 +166,19 @@ class Raster
 
     FPfloat dtb=0, dtm=0, dmb = 0 ; //float !
     int r=0,l=0;
+
     //debug("upper part of the triangle");
-        
     dtb = FPdivProtected ( (bx-tx) , (by-ty) , 0 ) ; // float
     dtm = FPdivProtected ( (mx-tx) , (my-ty) , 0 ) ; // float
     dmb = FPdivProtected ( (bx-mx) , (by-my) , 0 ) ; // float
 
     ///
-    FPfloat rx,lx;       
+    FPfloat rx,lx;
     int y = 0;
     rx = lx  = FPtoFloat(tx);
     if ( mx < tx ) { l = dtm ; r = dtb; } else { l = dtb; r = dtm; }
 
-    //setCurrentColor(g, 0xFF);
+    //setColorPaint(g, 0xFF);
     for (y=ty; y<my; y++ ){
       paintLineH( g, y, toint(lx) , toint(rx));
       lx += l;
@@ -181,13 +187,13 @@ class Raster
     //MACRO_println(" bottom part of the triangle");
     if ( bx < tx ) { l = dmb ; r = dtb; } else { l = dtb; r = dmb; }
     lx = FPtoFloat(bx); rx = lx;
-    //setCurrentColor(g, 0xFF00);
+    //setColorPaint(g, 0xFF00);
     for (y=by; y>=my; y-- ) { //may speed up ; TODO
       paintLineH( g, y, toint(lx) , toint(rx));
       lx -= l;
       rx -= r; 
     }
-    //MACRO_println("-fillTriangle");
+    //MACRO_println("#} paintTriangleSoft");
   }
 
 
@@ -195,7 +201,7 @@ class Raster
   public void paintTriangle(Graphics g, 
                             int[] a, int[] b, int[] c, TYPE_COLOR col)
   {
-    setCurrentColor(g, col );
+    setColorPaint(g, col );
     paintTriangleSoft(g,a[0],a[1],b[0],b[1],c[0],c[1]);
   }
   // SEE MACROpaintTriangle for speed up
@@ -205,27 +211,24 @@ class Raster
   {
     //debug("#{ paintTriangle");
 #ifdef AWT
-    setCurrentColor(g, col );
+    setColorPaint(g, col );
     Polygon poly= new Polygon();
     poly.addPoint(a[0],a[1]);
     poly.addPoint(b[0],b[1]);
     poly.addPoint(c[0],c[1]);
     g.fillPolygon(poly);
 #elif (( defined MIDP_2_0 ) || ( defined EXEN ))
-    setCurrentColor(g, col );
+    setColorPaint(g, col );
     g.fillTriangle( a[0],a[1],b[0],b[1],c[0],c[1] );
 #elif ( defined NOKIA )
-    setCurrentColor(g, col );
+    setColorPaint(g, col );
     dg = DirectUtils.getDirectGraphics(g);
     dg.fillTriangle(a[0],a[1],b[0],b[1],c[0],c[1], cpp); //cpp?
 #elif( defined ANDROID ) //TODO:optim Trianglefiller
-    setCurrentColor(g, col ); //TODO:optim
+    setColorPaint(g, col ); //TODO:optim
     paintTriangleSoft(g,a,b,c,col);
-    //    paintLineColored(g, a[0], a[1], b[0], b[1] , col); 
-    //    paintLineColored(g, a[0], a[1], c[0], c[1] , col);
-    //    paintLineColored(g, c[0], c[1], b[0], b[1] , col);
 #else // Java
-    setCurrentColor(g, col );
+    setColorPaint(g, col );
     paintLine( g, a[0] , a[1] , b[0] , b[1] );
     paintLine( g, a[0] , a[1] , c[0] , c[1] );
     paintLine( g, c[0] , c[1] , b[0] , b[1] );
@@ -241,12 +244,12 @@ class Raster
     poly.addPoint(a[0],a[1]);                   \
     poly.addPoint(b[0],b[1]);                   \
     poly.addPoint(c[0],c[1]);                   \
-    setCurrentColor(g, col );                   \
+    setColorPaint(g, col );                   \
     g.fillPolygon(poly);                        \
   } 
 #elif (( defined MIDP_2_0 ) || ( defined EXEN )) // AWT
 # define paintTriangle(g,a,b,c,col)  {		\
-    setCurrentColor(g, col );                           \
+    setColorPaint(g, col );                           \
     g.fillTriangle( a[0],a[1],b[0],b[1],c[0],c[1] );    \
   }
 #elif (defined NOKIA )
@@ -257,7 +260,7 @@ class Raster
   }
 #else // NOKIA / default 
 # define paintTriangle(g,a,b,c,col)  {           \
-    setCurrentColor(g, col );                   \
+    setColorPaint(g, col );                   \
     paintLine( g, a[0] , a[1] , b[0] , b[1] );    \
     paintLine( g, a[0] , a[1] , c[0] , c[1] );    \
     paintLine( g, c[0] , c[1] , b[0] , b[1] );    \
@@ -455,7 +458,7 @@ class Raster
         orig[1] += FPmult( M[0][j] , dest[j] ) ;
       }
       debug("Texcoord:" + orig[0] + " ," + orig[1] );
-      //setCurrentColor( src );
+      //setColorPaint( src );
       paintPixel(g, FPtoInt(x) ,y , COLOR_FG);
     }
     //paintPixel(g, FPtoInt(cxr) ,y );   paintPixel(g, FPtoInt(cxl) ,y );
@@ -538,7 +541,7 @@ class Raster
     if ( xm < xt ) { l = dtm ; r = dtb; } else { l = dtb; r = dtm; }
         
     lx = tofloat(xt); rx = lx; // Fixed Point Maths
-    //setCurrentColor(g, 0xFF);
+    //setColorPaint(g, 0xFF);
     for (y=yt; y<ym; y++ ) {
       //paintLineH( g, y, toint(lx) , toint(rx));
       paintLineHLinear(g,y,lx,rx, m);
@@ -552,7 +555,7 @@ class Raster
     if ( xb < xt ) { l = dmb ; r = dtb; } else { l = dtb; r = dmb; }
 
     lx = tofloat(xb); rx = lx;
-    //setCurrentColor(g, 0xFF00);
+    //setColorPaint(g, 0xFF00);
     for (y=yb; y>=ym; y-- ) {
       //paintLineH( g, y, toint(lx) , toint(rx));
       paintLineHLinear(g,y,lx,rx, m);
@@ -580,4 +583,4 @@ class Raster
 
 #endif // Raster_java_in
 
-/* #eof "$Id: Raster.java.in,v 1.13 2009-01-08 16:26:24 rzr Exp $" */
+/* #eof "$Id: Raster.java.in,v 1.14 2009-01-08 18:53:25 rzr Exp $" */
