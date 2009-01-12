@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.19 2008-12-28 23:49:31 rzr Exp $
+# $Id: GNUmakefile,v 1.20 2009-01-12 09:46:33 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1207,17 +1207,46 @@ android:
 
 android_opt?=/opt/android-sdk-linux_x86-1.0_r2/
 
+ADB?=adb
+ADB?=${android_opt}/tools/adb
+ADB_DEVICE?=/usr/local/bin/adb
+
 run-android: android-run
 
 android-emu:  ${android_opt}/tools/emulator
 	ps auxf | grep "$<" | grep -v grep || $< &  sleep 100
 
 android-run: ./bin/Diet3D.apk android-emu
-	${android_opt}/tools/adb install  $< 
+	${ADB} install  $<
+
+android-upload: ./bin/Diet3D.apk
+	-sudo killall adb
+	-sudo ${ADB_DEVICE} uninstall $<
+	sudo ${ADB_DEVICE} install -r $<
+
+android-help:
+	-sudo ${ADB_DEVICE} jdwp
+	-sudo ${ADB_DEVICE} logcat
+
+
+android-adb-stop:
+	-sudo killall adb
+	-sudo killall ${ADB_DEVICE}
+	ps aux | grep adb
+
+android-stop:
+	-sudo killall adb qemu emulator
+
+stop: android-stop
+	-killall java eclipse
+	-sudo killall java eclipse
 
 
 ide: /opt/eclipse/eclipse
 	$<
 
-#eof "$Id: GNUmakefile,v 1.19 2008-12-28 23:49:31 rzr Exp $"
+diff:
+	cvs diff
+
+#eof "$Id: GNUmakefile,v 1.20 2009-01-12 09:46:33 rzr Exp $"
 

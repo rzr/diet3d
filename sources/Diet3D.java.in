@@ -1,10 +1,10 @@
-/* $Id: Diet3D.java.in,v 1.18 2009-01-08 18:53:25 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.19 2009-01-12 09:46:33 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.18 2009-01-08 18:53:25 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.19 2009-01-12 09:46:33 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
@@ -121,8 +121,13 @@ public final class Diet3D
     
   static int init=0;
     
+
+#ifdef ANDROID
+  public int w_ = 512;
+#else
   public int w_ = 160; //128;
-    
+#endif
+	
   public int h_ = w_;
   public int hw_ = h_ * w_;
     
@@ -368,6 +373,7 @@ public final class Diet3D
     anim = i % vanim.length;
     MathFixed.initIdentity(m_);
   } 
+
   public void toggleAnim() 
   {
     toggleAnim (1+anim);
@@ -527,6 +533,7 @@ public final class Diet3D
 
   void paint(Graphics g)
   {
+    if ( g == null ) return;
 #ifdef ANDROID //TODO: check fill screen
     g.drawColor( COLOR_BG );
     //g.drawARGB(0, 255, 255, 255);
@@ -586,9 +593,10 @@ public final class Diet3D
       paintString(g,  vshape[shape] );
     }
 #ifdef WANT_INFO 
+
     setColorPaint(g, COLOR_FG );
 #ifdef ANDROID
-    g.drawText( vmode[mode], w_>>1, 40 , paint_static);
+    g.drawText( vmode[mode], g.getWidth() >>1, 40 , paint_static);
 #else
 
     // g.drawString( "" + vmode[mode]  
@@ -620,4 +628,4 @@ public final class Diet3D
 #endif // INCLUDE_Diet3D
 #endif // Diet3D_java_in_
 
-/* #eof "$Id: Diet3D.java.in,v 1.18 2009-01-08 18:53:25 rzr Exp $" */
+/* #eof "$Id: Diet3D.java.in,v 1.19 2009-01-12 09:46:33 rzr Exp $" */

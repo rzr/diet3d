@@ -1,4 +1,4 @@
-/* $Id: Diet3DMIDlet.java.in,v 1.5 2008-10-24 05:44:04 rzr Exp $ */
+/* $Id: Diet3DMIDlet.java.in,v 1.6 2009-01-12 09:46:33 rzr Exp $ */
 #ifndef Diet3DMIDlet_java_in_
 #define Diet3DMIDlet_java_in_
 
@@ -103,7 +103,7 @@ final public class Diet3DMIDlet
             //Form waitForm = new Form("Waiting...");
             //mDisplay.setCurrent(waitForm);
             //mCanvas.start();
-            if ( mCanvas.mTrucking == true) {
+            if ( mCanvas.isStarted_ == true) {
                 mCanvas.stop(); 
                 info(); 
             }
@@ -116,4 +116,4 @@ final public class Diet3DMIDlet
 }
 
 #endif
-//#eof "$Id: Diet3DMIDlet.java.in,v 1.5 2008-10-24 05:44:04 rzr Exp $"
+//#eof "$Id: Diet3DMIDlet.java.in,v 1.6 2009-01-12 09:46:33 rzr Exp $"

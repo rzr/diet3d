@@ -1,4 +1,4 @@
-/* $Id: Diet3DCanvas.java.in,v 1.17 2009-01-08 18:53:25 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.18 2009-01-12 09:46:33 rzr Exp $ */
 #ifndef Diet3DCanva_java_in_
 #define Diet3DCanva_java_in_
 /**
@@ -47,7 +47,7 @@ implements Runnable
 # define   mRender this
 #endif
 
-  public boolean mTrucking = false;
+  public boolean isStarted_ = false;
   /** ms per frame */
   static final int mspf = 40; // +500 //40=25fps
   static int fps = 25;
@@ -206,13 +206,13 @@ implements Runnable
         ( init<70 ) || ( g == null ) ;
         init++)   //( ! g.isMutable() ) ||
       g.setColor(255,255,255); 
+#elif defined EXEN
+    g.clearRect(0,0, width, height); //TODO opt w/ bbox
 #endif
 
-#ifdef EXEN
-    g.clearRect(0,0, width, height); //TODO opt w/ bbox
-#else
-#endif
     mRender.paint(g); //  +--javax.microedition.lcdui.Graphics
+
+    //if ( tick < 100 ) { paintInfo(g);}//TODO
 
 #ifdef WANT_INFO
     paintInfo(g);
@@ -275,16 +275,27 @@ implements Runnable
 #ifdef ANDROID //TODO
     paint_static.setColor(COLOR_FG); 
     g.drawText( s , getWidth()>>1, 40 , paint_static); 
-#else if ! ( (defined AWT ) || ( defined EXEN ) || ( defined NTTDOCOMO )  )
+#elif ! ( (defined AWT ) || ( defined EXEN ) || ( defined NTTDOCOMO )  )
     g.setColor( 0x007F7F7F ); // BUG
     g.drawString( "Diet3D " , 0, 0, g.TOP | g.LEFT );
     // g.drawString( "Diet3D FPS=" + fps, 0, 0, g.TOP | g.LEFT );
 
     g.drawString( "www.rzr.free.fr", 
                   getWidth() , getHeight()  , g.BASELINE  | g.RIGHT);
+#else
+    // TODO
 #endif
   }
 
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+public void intro()
+{
+#ifdef ANDROID
+    // paintInfo( canvas_ );
+//TODO: sleep
+#endif
+
+}
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #ifdef EXEN
 
@@ -295,7 +306,7 @@ implements Runnable
 #else
   public void start() 
   {
-    mTrucking = true;
+    isStarted_ = true;
     //if ( t == null )   
     time = getTimerTickCount();
     last = time;
@@ -306,18 +317,18 @@ implements Runnable
   
   public void stop() 
   {
-    mTrucking = false; 
+    isStarted_ = false; 
     mThread = null ; //.stop();
   }
 
   public void toggle() 
   {
-    mTrucking = ! mTrucking ; 
+    isStarted_ = ! isStarted_ ; 
   }
 
   public void run() 
   {
-    while ( mTrucking && ( Thread.currentThread() == mThread ) ) {
+    while ( isStarted_ && ( Thread.currentThread() == mThread ) ) {
       onTimerTick(); //paint etc
       time = ( getTimerTickCount() - time );
       if (  time <= 0  ) time = 1;
@@ -485,4 +496,4 @@ final class Tick extends TimerTask
 
 #endif // Diet3DCanva_java_in_
 
-/*#eof "$Id: Diet3DCanvas.java.in,v 1.17 2009-01-08 18:53:25 rzr Exp $" */
+/*#eof "$Id: Diet3DCanvas.java.in,v 1.18 2009-01-12 09:46:33 rzr Exp $" */
