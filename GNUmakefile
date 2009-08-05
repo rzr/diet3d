@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.20 2009-01-12 09:46:33 rzr Exp $
+# $Id: GNUmakefile,v 1.21 2009-01-30 20:14:20 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -457,7 +457,7 @@ xbrowse:
 # J2ME Section
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
+INDENT_ARGS?=-i2  -nbc  -ce -npcs -npsl -bli0 -bl  -nce -bbo -cbi2 -lp -ci4 -cli2 -i2 
 %.class:%.java
 #	@echo "#{ $@ : $^"
 	${MKDIR} ${OBJ_DIR}
@@ -468,7 +468,7 @@ xbrowse:
 	${MKDIR} ${SRC_DIR_ABS} ${TMPDIR}/${@D}
 	cpp -undef -fno-show-column ${DEFINES} -C -P -I. -I ${SRC_IN_DIR} $< \
 > "$@.tmp"
-	@mv  "${@}.tmp" "${SRC_DIR_ABS}$@"
+	@indent ${INDENT_ARGS} < "${@}.tmp" > "${SRC_DIR_ABS}$@" || mv  "${@}.tmp" "${SRC_DIR_ABS}$@"
 #	@echo -e "\n ### !!! MAKE MAY FAILS, just restart (vpath bug) ### \n"
 #	@ls -l ${SRC_DIR_ABS}$@
 
@@ -820,17 +820,20 @@ clean-bin:
 
 clean: clean-bak clean-bin clean-src
 	@echo "# $@"
+
 GEN_PATH ?= tmpclasses tmplib  classes  res src bin
 
 clean-all: clean clean-src clean-src-all
 	-@${CLEAN} -rf ${DESTDIR}../jclasses* ${OBJ_DIR}../jclasses* ${DESTDIR} jclasses-midp*  ${GEN_PATH} \
 	/tmp/tmp-${USER}.tmp/${PACKAGE}/ 2>&1 2>/dev/null
-	-@${CLEAN} *.log 2>&1 2>/dev/null
+	-@${CLEAN} *.log *.tmp 2>&1 2>/dev/null
 	ls
 	@echo "# $@"
+
 clean-sys:
 	-@${CLEAN} -rf ${SDK_PATH} 2>&1 2>/dev/null
 	@echo "# $@"
+
 clean-src:
 	-@${CLEAN} ${SRC_DIR_ABS}/* 2>&1 2>/dev/null
 	@echo "# $@"
@@ -1170,7 +1173,7 @@ info-project:
 # imported rules 
 
 apt:
-	sudo apt-get install make free-java-sdk
+	sudo apt-get install make free-java-sdk indent
 
 version:
 	${JAVA} -version
@@ -1248,5 +1251,5 @@ ide: /opt/eclipse/eclipse
 diff:
 	cvs diff
 
-#eof "$Id: GNUmakefile,v 1.20 2009-01-12 09:46:33 rzr Exp $"
+#eof "$Id: GNUmakefile,v 1.21 2009-01-30 20:14:20 rzr Exp $"
 

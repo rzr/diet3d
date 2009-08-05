@@ -1,8 +1,8 @@
-/* $Id: HackJavaCpp.java.in,v 1.15 2009-01-12 09:46:33 rzr Exp $ */
+/* $Id: HackJavaCpp.java.in,v 1.16 2009-01-30 20:14:21 rzr Exp $ */
 #ifndef HackJavaCpp_java_in_
 #define HackJavaCpp_java_in_
 
-#include "HackJavaCpp.java.in"
+#include "Config.java.in"
 /**
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
@@ -22,94 +22,6 @@
 // You can think it is ugly, but it saved some of my time
 // If you want more details contact me 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-/**
- * @author www.Philippe.COVAL.free.fr
- * Copyright and License : http://rzr.online.fr/license.htm
- **/
-
-
-#ifndef VERSION
-#define VERSION "1.0.0"
-#endif
-
-#if (( defined MIDP_2_0 ) || ( defined NOKIA ))
-#define WANT_INFO
-#endif
-
-#ifdef MIDP_1_0
-#define WANT_NO_INFO
-#define WANT_NO_TUX
-#endif
-
-//------------------------------------------------------------------------------
-
-#ifdef ANDROID
-package fr.online.rzr;
-
-import android.graphics.*;
-import android.view.*;
-import android.content.*;
-
-# define Graphics Canvas
-//# define Canvas View
-// #define setColor drawColor
-
-# define HAVE_DISPLAY_NO
-# define HAVE_IMAGE_NO
-# define WANT_INFO
-# define WANT_DARK
-#endif // ANDROID
-
-
-#ifdef JRE
-import java.lang.*;
-import java.lang.reflect.*; //not in midp2.0fcs
-#endif
-
-#ifdef AWT
-import java.awt.*;
-# define HAVE_DISPLAY_NO
-#endif
-
-#ifdef EXEN
-import exen.*; //in-fusio.com
-#define HAVE_SYSTEM_NO
-#endif
-
-#ifndef EXEN
-import java.util.*;
-#define HAVE_SYSTEM_NO
-#endif
-
-
-#ifdef NTTDOCOMO
-import com.nttdocomo.ui.Graphics;
-import com.nttdocomo.ui.*;
-#define HAVE_SYSTEM_NO
-#endif
-
-#ifdef MIDP_1_0
-import javax.microedition.lcdui.Graphics; 
-import javax.microedition.lcdui.*; 
-import javax.microedition.midlet.*;
-#endif
-
-#ifdef MIDP_2_0
-import javax.microedition.lcdui.Graphics; 
-import javax.microedition.lcdui.*; 
-import javax.microedition.midlet.*;
-import javax.microedition.lcdui.game.*;
-#define HAVE_SYSTEM_NO
-#endif
-
-#ifdef NOKIA
-import javax.microedition.lcdui.Graphics; 
-import javax.microedition.lcdui.*; 
-import javax.microedition.midlet.*;
-import com.nokia.mid.ui.*;
-#define HAVE_SYSTEM_NO
-#endif
 
 #if ( ! defined DEVEL ) 
 #define MACRO_print(x)  
@@ -229,4 +141,4 @@ import com.nokia.mid.ui.*;
 
 #endif //HackJavaCpp_java_in_
 
-/* #eof "$Id: HackJavaCpp.java.in,v 1.15 2009-01-12 09:46:33 rzr Exp $" */
+/* #eof "$Id: HackJavaCpp.java.in,v 1.16 2009-01-30 20:14:21 rzr Exp $" */

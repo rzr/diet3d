@@ -1,4 +1,4 @@
-/* $Id: Diet3DRender.java.in,v 1.12 2009-01-12 09:46:33 rzr Exp $ */
+/* $Id: Diet3DRender.java.in,v 1.13 2009-01-30 20:14:21 rzr Exp $ */
 #ifndef Diet3DRender_java_in_
 #define Diet3DRender_java_in_
 
@@ -19,14 +19,14 @@ public final class Diet3DRender
 
 #if 0  
     // TODO: Perspective: f =  1. -  ( 1. /  ( SQRT2 * boundboxZ   + z )) ;
-    //if ( r[2] + bound <= 0 ) { debug("!!!!"); }
+    //if ( r[2] + bound <= 0 ) { trace("!!!!"); }
 
     int perspscale = MathFixed.one  ; //BUG
 
     perspscale =  div( one , (  screenscale * bound  +  r[2]  )  ); //CHECK
 
-    //debug("p="+perspscale); 
-    //if ( perspscale < 0 ) { debug("*** 0 "); } if ( perspscale > one ) { debug("*** 1");  }
+    //trace("p="+perspscale); 
+    //if ( perspscale < 0 ) { trace("*** 0 "); } if ( perspscale > one ) { trace("*** 1");  }
 
     r[0] = ( mult( r[0],  perspscale ) );
     r[1] = ( mult( r[1] , perspscale ) );
@@ -34,10 +34,10 @@ public final class Diet3DRender
     r[0] =   ( r[0]  ) + screen[0];
     r[1] = - ( r[1]  ) + screen[1]; 
 
-    //debug("d="+ r[2] );        
+    //trace("d="+ r[2] );        
     r[2] = mult( r[2] , div (one , (screenscale * bound )) ) ;// + screen[2] ;
     //r[2] = ( r[2] / 12 ) 
-    //debug("s="+ r[2] );
+    //trace("s="+ r[2] );
     //trim( r[2] );        
     //r[2] =   ( r[2] << scale ) + screen[2]; //useless / needed  v lenght tranf 
 
@@ -98,7 +98,7 @@ public final class Diet3DRender
         || ( defined ANDROID ) ) //#display modes
     setColorPaint( g, COLOR_FG);
     g.drawString( s , w_ >> 1 , h_ >> 1 , g.BASELINE  | g.HCENTER );
-    //debug(s);
+    //trace(s);
 #else 
     //TODO
 #endif
@@ -112,7 +112,7 @@ public final class Diet3DRender
       coord(i, vn);
       paintLine( g, vn[0], vn[1], vn[0] +1, vn[1] +1);
     }
-    //debug("#} paintVertex");
+    //trace("#} paintVertex");
   }
     
   public void paintLine(Graphics g) 
@@ -121,7 +121,7 @@ public final class Diet3DRender
     for(int i=0; i < obj_nf; i++) {
       coordFace(i,va,vb,vc);
       if ( obj_vc != null ) c = obj_vc[i];
-#if 1 //def ANDROID //TODO
+#if //def ANDROID //TODO
       paintLineColored( g, va[0] , va[1] , vb[0] , vb[1] , c);
       paintLineColored( g, va[0] , va[1] , vc[0] , vc[1] , c);
       paintLineColored( g, vc[0] , vc[1] , vb[0] , vb[1] , c);
@@ -132,7 +132,7 @@ public final class Diet3DRender
       paintLine( g, vc[0] , vc[1] , vb[0] , vb[1] );
 #endif
     }
-    //debug("#} paintLine " + obj_nf );
+    //trace("#} paintLine " + obj_nf );
   }
 
 
@@ -165,11 +165,11 @@ public final class Diet3DRender
         paintLine( g, vc[0] , vc[1] , vb[0] , vb[1] );
 
       }
-      //else { debug("skip"); }
+      //else { trace("skip"); }
     }
     //setColorPaint(g, 0x00000000 );
     //paintLine(g);
-    //debug("#} paintFront");
+    //trace("#} paintFront");
   }
 
   public void paintFrontFace(Graphics g)
@@ -189,11 +189,11 @@ public final class Diet3DRender
         paintTriangle( g, va, vb, vc, c );
 
       }
-      //else { debug("skip"); }
+      //else { trace("skip"); }
     }
     //setColorPaint(g, 0x00000000 );
     //paintLine(g);
-    //debug("#{ paintFront");
+    //trace("#{ paintFront");
   }
 
 
@@ -202,7 +202,7 @@ public final class Diet3DRender
     int t=0,r=0,c=0;
     //paintFlat(g);
     for(int i=0; i < obj_nf; i++) {
-      //debug("."+i);
+      //trace("."+i);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
@@ -220,9 +220,9 @@ public final class Diet3DRender
         //MathFixed.
         //printV(vn);
         r = MathFixed.dotVV( light , vn ); 
-        //debug("index=" + r); 
+        //trace("index=" + r); 
         r = ( r * colormapsize ) / MathFixed.one;
-        //debug("index=" + r); 
+        //trace("index=" + r); 
         if ( r >=  colormapsize ) { r= colormapsize -1; }
         if ( r<0 ) { r=0; }
         screen(va); screen(vb); screen(vc); 
@@ -231,7 +231,7 @@ public final class Diet3DRender
         setColorPaint(g,c);
         paintTriangle( g, va, vb, vc, c );
       }
-      //else {debug("skip"); }
+      //else {trace("skip"); }
     }
     //setColorPaint(g, COLOR_FG_LINE ); paintLine(g);
   }
@@ -253,7 +253,7 @@ public final class Diet3DRender
     int t=0,r=0,c=0;
     //paintFlat(g);
     for(int i=0; i < obj_nf; i++) {
-      //debug("."+i);
+      //trace("."+i);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][0] ] , va);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][1] ] , vb);
       MathFixed.multMV(  m_ , obj_vv[ obj_vf[i][2] ] , vc);
@@ -271,9 +271,9 @@ public final class Diet3DRender
         //MathFixed.
         //printV(vn);
         r = MathFixed.dotVV( light , vn ); 
-        //debug("index=" + r); 
+        //trace("index=" + r); 
         r = ( r * colormapsize ) / MathFixed.one;
-        //debug("index=" + r); 
+        //trace("index=" + r); 
         if ( r >=  colormapsize ) { r= colormapsize -1; }
         if ( r<0 ) { r=0; }
         screen(va); screen(vb); screen(vc); 
@@ -281,7 +281,7 @@ public final class Diet3DRender
         //if ( obj_vc != null ) { c &= obj_vc[i] ; } // c |= 0x50; }
         paintTriangle( g, va, vb, vc, c );
       }
-      //else {debug("skip"); }
+      //else {trace("skip"); }
     }
 
     light[0] *= - (w_ >> 3) ;
@@ -295,7 +295,7 @@ public final class Diet3DRender
     setColorPaint(g, COLOR_FG_LINE );
     paintLine( g, light[0] -2 , light[1] , light[0]+2 , light[1]   );
     paintLine( g, light[0] , light[1] -2 , light[0] , light[1] +2  );
-    //debug("#} paintDynLight" + (w_ >> 3) );
+    //trace("#} paintDynLight" + (w_ >> 3) );
   }
 
 
@@ -319,11 +319,11 @@ public final class Diet3DRender
       paintLine( g, va[0] , va[1] , vc[0] , vc[1] );
       paintLine( g, vc[0] , vc[1] , vb[0] , vb[1] );
       //}
-      //else { debug("skip"); }
+      //else { trace("skip"); }
     }
     //setColorPaint(g, 0x00000000 );
     //paintLine(g);
-    //debug("#} paintFront");
+    //trace("#} paintFront");
   }
 
 
@@ -356,7 +356,7 @@ public final class Diet3DRender
   //TODO calc norm 1st if front add to array to be sorted
   public void paintSort(Graphics g)
   {
-    //debug("#{paintSort :" + obj_nf );
+    //trace("#{paintSort :" + obj_nf );
     int i=0,r=0;
         
     if ( obj_trans == null || obj_center == null ) {
@@ -374,11 +374,11 @@ public final class Diet3DRender
       copyVV ( obj_trans[ obj_vf[i][2] ] , vc );
       //MathFixed.printV(va); MathFixed.printV(vb); MathFixed.printV(vc);
       obj_center[i][2] = va[2] + vb[2] + vc[2] ;
-      //debug(""+obj_center[i][2] );
+      //trace(""+obj_center[i][2] );
     }
     quickSort( obj_center, 0, obj_nf -1 );
     for(i=0; i < obj_nf; i++) {
-      //debug(""+obj_center[i][2] );
+      //trace(""+obj_center[i][2] );
       copyVV ( obj_trans[ obj_vf[i][0] ] , va );
       copyVV ( obj_trans[ obj_vf[i][1] ] , vb );
       copyVV ( obj_trans[ obj_vf[i][2] ] , vc );
@@ -393,7 +393,7 @@ public final class Diet3DRender
         MathFixed.normV(vn,vn); //precalcul on start will save
         r = MathFixed.dotVV( light , vn ); 
         r = ( r * colormapsize ) / MathFixed.one;
-        //debug("index=" + r); 
+        //trace("index=" + r); 
         if ( r >=  colormapsize ) { r= colormapsize -1; }
         if ( r<0 ) { r=0; }
         screen(va); screen(vb); screen(vc); 
@@ -402,12 +402,12 @@ public final class Diet3DRender
         paintTriangle( g, va, vb, vc, c );
       }
     }
-    //debug("#} paintSort");
+    //trace("#} paintSort");
   }
 
   public void paintSortFlat(Graphics g)
   {
-    //debug("#{paintSort :" + obj_nf );
+    //trace("#{paintSort :" + obj_nf );
     int i=0;
 
     if ( obj_trans == null || obj_center == null ) {
@@ -425,11 +425,11 @@ public final class Diet3DRender
       copyVV ( obj_trans[ obj_vf[i][2] ] , vc );
       //MathFixed.printV(va); MathFixed.printV(vb); MathFixed.printV(vc);
       obj_center[i][2] = va[2] + vb[2] + vc[2] ;
-      //debug(""+obj_center[i][2] );
+      //trace(""+obj_center[i][2] );
     }
     quickSort( obj_center, 0, obj_nf -1 );
     for(i=0; i < obj_nf; i++) {
-      //debug(""+obj_center[i][2] );
+      //trace(""+obj_center[i][2] );
       copyVV ( obj_trans[ obj_vf[i][0] ] , va );
       copyVV ( obj_trans[ obj_vf[i][1] ] , vb );
       copyVV ( obj_trans[ obj_vf[i][2] ] , vc );
@@ -439,7 +439,7 @@ public final class Diet3DRender
       if ( obj_vc != null ) c = obj_vc[i];
       paintTriangle( g, va, vb, vc, c );
     }
-    //debug("#} paintSort");
+    //trace("#} paintSort");
   }
 
 
@@ -472,7 +472,7 @@ public final class Diet3DRender
     int rightIndex = right;
     TYPE partionElement;
     if ( right > left) {
-      //debug("Arbitrarily establishing partition element as the mid");
+      //trace("Arbitrarily establishing partition element as the mid");
       partionElement = a[ ( left + right )>>1 ];
 
       // loop through the array until indices cross
@@ -489,7 +489,7 @@ public final class Diet3DRender
                && less ( partionElement ,  a[rightIndex] ) )
           --rightIndex;
 
-        //debug("if the indexes have not crossed, swap");
+        //trace("if the indexes have not crossed, swap");
         if( leftIndex <= rightIndex ) {
           swapArray(a, leftIndex, rightIndex);
           ++leftIndex;
@@ -507,7 +507,7 @@ public final class Diet3DRender
       if( leftIndex < right ) quickSort( a, leftIndex, right );
 
     }
-    //debug("#{ quickSort");
+    //trace("#{ quickSort");
   }
 #endif//ZSORT
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -539,7 +539,7 @@ public final class Diet3DRender
 #if 0 //def FULL
       //ifdef FULL // (  ! defined RELEASE ) 
       ///
-  public static String debug(Object o) 
+  public static String trace(Object o) 
   {
     //if ( true) return ""; //
     String s= o.toString();
@@ -557,4 +557,4 @@ public final class Diet3DRender
 
 
 #endif //ifndef Diet3D_java_in_
-/* #eof "$Id: Diet3DRender.java.in,v 1.12 2009-01-12 09:46:33 rzr Exp $" */
+/* #eof "$Id: Diet3DRender.java.in,v 1.13 2009-01-30 20:14:21 rzr Exp $" */

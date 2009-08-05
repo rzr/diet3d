@@ -1,4 +1,4 @@
-/* $Id: MathFixedGenerator.java,v 1.4 2008-10-24 05:44:04 rzr Exp $ */
+/* $Id: MathFixedGenerator.java,v 1.5 2009-01-30 20:14:21 rzr Exp $ */
 /**
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
@@ -53,9 +53,9 @@ class MathFixedGenerator
   public static double sin(double a, double[] ar , int size)
   {
     a = a%(2. * Math.PI );
-    System.out.println("sin a="+ a ); 
+    //System.out.println("sin a="+ a ); 
     int i= (int) ( .5 + ( ( a * (double) (size ) /  (2.*Math.PI) ) ) );
-    System.out.println("sin i="+ i ); 
+    //System.out.println("sin i="+ i ); 
     return ar[i];
   }
 
@@ -164,4 +164,4 @@ class MathFixedGenerator
   }
 }
 
-/* #eof "$Id: MathFixedGenerator.java,v 1.4 2008-10-24 05:44:04 rzr Exp $" */
+/* #eof "$Id: MathFixedGenerator.java,v 1.5 2009-01-30 20:14:21 rzr Exp $" */

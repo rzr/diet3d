@@ -1,14 +1,15 @@
-/* $Id: Diet3D.java.in,v 1.19 2009-01-12 09:46:33 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.20 2009-01-30 20:14:20 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.19 2009-01-12 09:46:33 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.20 2009-01-30 20:14:20 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
 
+#include "Config.java.in"
 #include "HackJavaCpp.java.in"
 
 #define INCLUDE_MathFixed
@@ -120,14 +121,7 @@ public final class Diet3D
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
   static int init=0;
-    
-
-#ifdef ANDROID
-  public int w_ = 512;
-#else
-  public int w_ = 160; //128;
-#endif
-	
+  public int w_ = DIET3D_SCREEN_WIDTH;
   public int h_ = w_;
   public int hw_ = h_ * w_;
     
@@ -278,7 +272,7 @@ public final class Diet3D
     screen[0] = w_ / 2; screen[1] = h_ / 2;  
     screen[2] = h_;
     //screenscale = bound / ( 8 *  h_ ) ; //CHECK // =12 < 13
-    //debug(""+ screenscale );
+    //trace(""+ screenscale );
     //screen[2] = -  ( mult( MathFixed.sqrt2 ,  MathFixed.one * MathFixed.max(h_,w_) )  / 2 );  //perspective
     // fast lightning
     colormap = new TYPE_COLOR[colormapsize]; //TODO: grey to grey
@@ -361,7 +355,7 @@ public final class Diet3D
       break;
     }
     recalc();
-    // debug("#- toggleShape "+ shape + " ; " + obj_nf );
+    // trace("#- toggleShape "+ shape + " ; " + obj_nf );
   } 
   public void toggleShape() 
   {
@@ -597,6 +591,8 @@ public final class Diet3D
     setColorPaint(g, COLOR_FG );
 #ifdef ANDROID
     g.drawText( vmode[mode], g.getWidth() >>1, 40 , paint_static);
+    g.drawText( "http://rzr.online.fr/java.htm",
+                g.getWidth() >>1, g.getHeight() - 40 , paint_static);
 #else
 
     // g.drawString( "" + vmode[mode]  
@@ -610,14 +606,19 @@ public final class Diet3D
   }
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#if 0 // DEBUG //def FULL
+#ifdef WANT_TRACE //def FULL
       //ifdef FULL // (  ! defined RELEASE ) 
       ///
-  public static String debug(Object o) 
+  public static String trace(Object o) 
   {
     //if ( true) return ""; //
     String s= o.toString();
     MACRO_println(s);
+#ifdef ANDROID
+    int priority= android.util.Log.INFO;
+    String tag="default";
+    android.util.Log.println(priority, tag,s);
+#endif
     //showStatus(s);
     return s;
   }
@@ -628,4 +629,4 @@ public final class Diet3D
 #endif // INCLUDE_Diet3D
 #endif // Diet3D_java_in_
 
-/* #eof "$Id: Diet3D.java.in,v 1.19 2009-01-12 09:46:33 rzr Exp $" */
+/* #eof "$Id: Diet3D.java.in,v 1.20 2009-01-30 20:14:20 rzr Exp $" */
