@@ -1,3 +1,7 @@
+2009-08-05  Philippe Coval  <rzr@gna.org>
+
+	* migrated : local cvs to git : http://gitorious.org/diet3d
+
 2008-12-29  Philippe Coval  <rzr@gna.org>
 
 	* WIP android port in progress, demos modes ok
