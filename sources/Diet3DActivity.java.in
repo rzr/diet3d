@@ -1,4 +1,6 @@
-package fr.online.rzr;
+#include "Config.java.in"
+
+//package fr.online.rzr;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -42,7 +44,7 @@ extends Activity
     {
       super.onCreate(savedInstanceState);
       mCanvas = new Diet3DCanvas(this);
-      mCanvas.mRender.init(300,300);
+      mCanvas.mRender.init( DIET3D_SCREEN_HEIGHT, DIET3D_SCREEN_WIDTH);
       mCanvas.mRender.toggleMode( 2 );
       setContentView(mCanvas);
     }
@@ -62,5 +64,6 @@ extends Activity
       return false;
     }
 }
+//TODO:  dalvikvm -classpath /data/app/fr.online.rzr.apk fr.online.rzr.Diet3DActivity
 
-//#eof "$Id: Diet3DActivity.java.in,v 1.4 2008-12-28 23:49:32 rzr Exp $"
+//#eof "$Id: Diet3DActivity.java.in,v 1.5 2009-01-30 20:14:21 rzr Exp $"

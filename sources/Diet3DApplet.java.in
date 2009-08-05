@@ -1,4 +1,4 @@
-/* $Id: Diet3DApplet.java.in,v 1.4 2008-10-24 05:44:04 rzr Exp $ */
+/* $Id: Diet3DApplet.java.in,v 1.5 2009-01-30 20:14:21 rzr Exp $ */
 #include "HackJavaCpp.java.in"
 
 import java.awt.*;
@@ -6,7 +6,7 @@ import java.applet.Applet;
 /**
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3DApplet.java.in,v 1.4 2008-10-24 05:44:04 rzr Exp $
+ * $Id: Diet3DApplet.java.in,v 1.5 2009-01-30 20:14:21 rzr Exp $
  **/
 
 public final class Diet3DApplet
@@ -24,15 +24,15 @@ implements Runnable
   {
     //w_ = getSize().width;
     //h_ = getHeight(); //.height;
-    //debug("Applet size="+w_+"*"+h_);
+    //trace("Applet size="+w_+"*"+h_);
     mRender  = new Diet3D(w_,h_);
     if ( offi_ == null ) offi_ = createImage( w_, h_ );
   }
 
 
 #ifdef FULL
-#ifdef DEBUG
-  public String debug(Object o) 
+#ifdef WANT_TRACE
+  public String trace(Object o) 
   {
     //if ( true) return ""; //
     String s= o.toString();
@@ -47,7 +47,7 @@ implements Runnable
     if ( offi_ == null ) offi_ = createImage( w_, h_ );
     //try { wait(); } catch (Exception e) {  } //!!sync
     super.init();
-    //debug("#{ init");
+    //trace("#{ init");
   }
   public void start() 
   {
@@ -72,7 +72,7 @@ implements Runnable
   // and nothing else
   public void update(Graphics g)
   {
-    //debug("#{update");
+    //trace("#{update");
     if ( offi_ == null ) offi_ = createImage( w_, h_ );// application
     //offi_.getGraphics().fillRect( 0 , 0 , w_ , h_ );
     mRender.paint( offi_.getGraphics() );
@@ -82,7 +82,7 @@ implements Runnable
   public void run() 
   {
     long time = 0;
-    //debug("#{run");
+    //trace("#{run");
     //if ( off_ == null ) init();
     while( thread_ != null ) {
       time = System.currentTimeMillis();
@@ -93,12 +93,12 @@ implements Runnable
       time = mspf - time ;
       if ( time < 0 ) time = 0; 
       //time = 100;
-      //debug(""+time);
+      //trace(""+time);
       try {
 	Thread.currentThread();
 	Thread.sleep( time ) ; } 
       catch ( InterruptedException  e ) { 
-	//debug("Exeption");
+	//trace("Exeption");
       }
     }
   }
@@ -166,4 +166,4 @@ implements Runnable
   }
 }
 
-//#eof "$Id: Diet3DApplet.java.in,v 1.4 2008-10-24 05:44:04 rzr Exp $"
+//#eof "$Id: Diet3DApplet.java.in,v 1.5 2009-01-30 20:14:21 rzr Exp $"
