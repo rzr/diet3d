@@ -27,7 +27,7 @@ extends Activity
   private static final int MENU_START = 6;
   private static final int MENU_STOP = 7;
 
-  @Override
+ // @Override
     public boolean onCreateOptionsMenu(Menu menu) 
     {
       super.onCreateOptionsMenu(menu);
@@ -39,7 +39,7 @@ extends Activity
   Diet3DCanvas mCanvas = null;
 
   /** Called when the activity is first created. */
-  @Override
+ // @Override
     public void onCreate(Bundle savedInstanceState) 
     {
       super.onCreate(savedInstanceState);
@@ -49,7 +49,7 @@ extends Activity
       setContentView(mCanvas);
     }
     
-  @Override
+ // @Override
     public boolean onOptionsItemSelected(MenuItem item) 
     {
       switch (item.getItemId()) {
@@ -66,4 +66,4 @@ extends Activity
 }
 //TODO:  dalvikvm -classpath /data/app/fr.online.rzr.apk fr.online.rzr.Diet3DActivity
 
-//#eof "$Id: Diet3DActivity.java.in,v 1.5 2009-01-30 20:14:21 rzr Exp $"
+//#eof "$Id: Diet3DActivity.java.in,v 1.4 2008-12-28 23:49:32 rzr Exp $"

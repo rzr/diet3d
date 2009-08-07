@@ -1,4 +1,4 @@
-/* $Id: Diet3DCommandLine.java,v 1.3 2004-03-25 00:18:16 rzr Exp $ */
+/* $Id: Diet3DCommandLine.java,v 1.3 2004/03/25 00:18:16 rzr Exp $ */
 /**
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm

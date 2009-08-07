@@ -1,4 +1,4 @@
-/* $Id: HackJavaCpp.java.in,v 1.16 2009-01-30 20:14:21 rzr Exp $ */
+/* $Id: HackJavaCpp.java.in,v 1.15 2009-01-12 09:46:33 rzr Exp $ */
 #ifndef HackJavaCpp_java_in_
 #define HackJavaCpp_java_in_
 
@@ -30,8 +30,6 @@
 #define MACRO_print(x) System.out.print(x)
 #define MACRO_println(x) System.out.println(x)
 #endif
-
-
 
 #ifdef  DEVEL 
 #define debug MACRO_println
@@ -141,4 +139,4 @@
 
 #endif //HackJavaCpp_java_in_
 
-/* #eof "$Id: HackJavaCpp.java.in,v 1.16 2009-01-30 20:14:21 rzr Exp $" */
+/* #eof "$Id: HackJavaCpp.java.in,v 1.15 2009-01-12 09:46:33 rzr Exp $" */

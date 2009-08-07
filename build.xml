@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="all" name="Diet3D">
+
+<property name="proguard" value="/mnt/c/usr/jclasses/proguard.jar" />
+
+<java fork="yes" classname="proguard.ProGuard" classpath="${proguard}">
+<arg line="-libraryjars ${midp_lib}"/>
+<arg line="-injars build/proguard/${project}-input.jar"/>
+<arg line="-outjar build/proguard/${project}-output.jar"/>
+<arg line="-keep 'public class * extends javax.microedition.midlet.MIDlet'"/>
+</java>
+
+
+</project>

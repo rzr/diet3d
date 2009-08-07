@@ -1,4 +1,4 @@
-/* $Id: Diet3DCanvas.java.in,v 1.19 2009-01-30 20:14:21 rzr Exp $ */
+/* $Id: Diet3DCanvas.java.in,v 1.18 2009-01-12 09:46:33 rzr Exp $ */
 #ifndef Diet3DCanva_java_in_
 #define Diet3DCanva_java_in_
 /**
@@ -152,7 +152,7 @@ implements Runnable
 #endif
   }
 
-  @Override
+//  @Override
     protected void onDraw(Canvas canvas)
     {
       super.onDraw(canvas);
@@ -338,7 +338,7 @@ public void intro()
       time = ( getTimerTickCount() - time );
       if (  time <= 0  ) time = 1;
       fps = (int) 1000 / (int) time ;
-      trace( "time=" + time + "\n");
+      // trace( "time=" + time + "\n");
       if ( time <= mspf ) { time = mspf - time ; } else time=1;
       try { Thread.sleep(time); // may unlock 
       } catch (InterruptedException ex) { ex.printStackTrace(); }
@@ -502,4 +502,4 @@ final class Tick extends TimerTask
 
 #endif // Diet3DCanva_java_in_
 
-/*#eof "$Id: Diet3DCanvas.java.in,v 1.19 2009-01-30 20:14:21 rzr Exp $" */
+/*#eof "$Id: Diet3DCanvas.java.in,v 1.18 2009-01-12 09:46:33 rzr Exp $" */

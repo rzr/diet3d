@@ -1,68 +1,72 @@
-# $Id: GNUmakefile,v 1.21 2009-01-30 20:14:20 rzr Exp $
+# $Id: GNUmakefile,v 1.20 2009-01-12 09:46:33 rzr Exp $
 # * @author www.Philippe.COVAL.free.fr
 # * Copyright and License : http://rzr.online.fr/license.htm
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PACKAGE?=Diet3D
+package?=Diet3D
 
 default: all
 
-PROJECT ?= Diet3D
-PROJECT_DIST ?= diet3d
-PROJECT_URL ?= "http://rzr.online.fr/java.htm"
-PROJECT ?= ${PROJECT}
-SUFFIX_MIDLET ?=MIDlet
+PROJECT?= Diet3D
+PROJECT_DIST?= diet3d
+PROJECT_URL?= "http://rzr.online.fr/java.htm"
+PROJECT?= ${PROJECT}
+vendor=online.rzr
+package_path=fr.${vendor}
+activity=${PROJECT}Activity
+SUFFIX_MIDLET?=MIDlet
 #SUFFIX_MIDLET=
 ###############################################################################
-ENV ?= j2me
+ENV?= j2me
 RT_LIST?=midp1_0 midp1_0-nokia midp2_0 imode exen
-# RT ?=midp1_0
-# RT ?=midp1_0
-# RT ?=midp1_0-nokia
-RT ?=midp2_0
-# RT ?= j2se
+# RT?=midp1_0
+# RT?=midp1_0
+# RT?=midp1_0-nokia
+# RT?=midp2_0
+# RT?= j2se
+RT=android
 
-JAVA_HOME ?=/usr/lib/j2se/1.4/
-SW_ARC ?=${HOME}/mnt/software/
+JAVA_HOME?=/usr/lib/j2se/1.4/
+SW_ARC?=${HOME}/mnt/software/
 # commands
-UNZIP ?= unzip -q
-CONVERTER ?=java -cp ${SW_DIR}midp4palm1.0/Converter/Converter.jar \
+UNZIP?= unzip -q
+CONVERTER?=java -cp ${SW_DIR}midp4palm1.0/Converter/Converter.jar \
 	com.sun.midp.palm.database.MakeMIDPApp  
 FS=\\/
 #export 
-INFUSIO_PP_LIN ?=\/home\/${USER}\/
-INFUSIO_PP_WIN ?=y:
+INFUSIO_PP_LIN?=\/home\/${USER}\/
+INFUSIO_PP_WIN?=y:
 export INFUSIO_PP_WIN INFUSIO_PP_LIN
 
 #
-SW_DIR ?= /opt/
+SW_DIR?= /opt/
 SDKV_LIST?=22 21 20 00 exen
-#SDKV ?=20
-SDKV ?=2.2
-# SDKV ?=2.1.01
+#SDKV?=20
+SDKV?=2.2
+# SDKV?=2.1.01
 
 CONFIG=${RT}
-SDK_PATH ?=${SW_DIRW}WTK104 ${SW_DIR}WTK2.1 ${SW_DIR}midp2.0fcs
-DATE ?=$(shell date +%Y%m%d)
+SDK_PATH?=${SW_DIRW}WTK104 ${SW_DIR}WTK2.1 ${SW_DIR}midp2.0fcs
+DATE?=$(shell date +%Y%m%d)
 # regnerated everytime
-#TMP ?=$(shell mktemp)
-TMP=/tmp/tmp-${USER}.tmp/${PACKAGE}/${RT}-${SDKV}/
-ID ?=$(shell date +%Y%m%d%s)
+#TMP?=$(shell mktemp)
+TMP=/tmp/tmp-${USER}.tmp/${package}/${RT}-${SDKV}/
+ID?=$(shell date +%Y%m%d%s)
 
 
 VERSION_MAJ=1
 VERSION_MIN=0
 VERSION_REV=0
 
-VERSION_DOT ?= ${VERSION_MAJ}.${VERSION_MIN}.${VERSION_REV}
-VERSION_CHAR ?= ${VERSION_MAJ}_${VERSION_MIN}_${VERSION_REV}
+VERSION_DOT?= ${VERSION_MAJ}.${VERSION_MIN}.${VERSION_REV}
+VERSION_CHAR?= ${VERSION_MAJ}_${VERSION_MIN}_${VERSION_REV}
 
-VERSION ?= ${VERSION_DOT}
-#VERSION ?=0.0.$(shell date +%Y%m%d%H)
+VERSION?= ${VERSION_DOT}
+#VERSION?=0.0.$(shell date +%Y%m%d%H)
 
 # DEFINES+=-DDEVEL -DPRIVATE
 DEFINES+= -DPRIVATE
 
-MKDIR ?= @mkdir -p
+MKDIR?= @mkdir -p
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # PROJECTlication Specific
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,12 +75,12 @@ DEFINES+=-DNOINLINE -DVERSION="${VERSION}"
 PWD:=$(shell pwd)/
 DESTDIR=jclasses-${CONFIG}/
 SRC_DIR:=src-${RT}/
-SRC_IN_DIR:=${PWD}sources/
+SRC_IN_DIR:=${CURDIR}/sources/
 #DESTDIR=${SRC_DIR}jclasses-${CONFIG}/
 
 
 
-WEBDIR ?=${HOME}/mnt/public_html/docs/java/${PROJECT_DIST}/
+WEBDIR?=${HOME}/mnt/public_html/docs/java/${PROJECT_DIST}/
 #URL_BASE?=file://
 #URL_BASE?=http://rzr.online.fr/docs/java/jclasses/
 #URL_BASE?=http://localhost/~${USER}/${PROJECT}/
@@ -152,9 +156,12 @@ ALL=${OBJS}
 JAVAC = javac
 DATA?=applet.htm
 DATA_DIR=${DESTDIR}
-PREVERIFY ?=echo
+PREVERIFY?=echo
 endif
 
+ifeq ($(RT),dalvik) 
+RT=android
+endif
 
 ifeq ($(RT),android) 
 DEFINES+=-DANDROID  -DJ2SE -DNO_INLINE
@@ -166,12 +173,13 @@ CLASSPATH=${DESTDIR}:.
 FILES=${PROJECT} ${PROJECT}Canvas ${PROJECT}Activity
 #${PROJECT}Applet
 OBJS=$(FILES:=.class) ${PROJECT}CommandLine.class
-ALL=${OBJS}
+# ALL=${OBJS}
+ALL=${RT}-all
 # JAVAC= javac -target "1.1" -g:none
 JAVAC = javac
 #DATA?=applet.htm
 DATA_DIR=${DESTDIR}
-PREVERIFY ?=echo
+PREVERIFY?=echo
 endif
 
 
@@ -207,8 +215,8 @@ JAVAC?=javac -g:none -target 1.1
 JAVACP?=javacp
 PREVERIFY?=echo preverify
 
-#SRC_DIR_ABS ?=
-#EXEN_RUN ?=cd ${SDK_DIR} && nice wine --
+#SRC_DIR_ABS?=
+#EXEN_RUN?=cd ${SDK_DIR} && nice wine --
 EXEN_RUN=nice wine --
 WMTRANS=${EXEN_RUN} ${SDK_DIR}bin/vmtools/VMTrans.exe
 WMTRANS_FLAGS= -gr -v -gp -g4 -dt -vt
@@ -217,10 +225,10 @@ WMTRANS_FLAGS= -gr -v -gp -g4 -dt -vt
 # -dc "/home/rzr/src/${PROJECT}/src-exen/classes" -do "/home/rzr/src/${PROJECT}/src-exen/pvc" -gr -v -gp -g4 -dt -vt "resource"
 
 SDK_DIR_WIN= Y:\\home\\${USER}\\mnt\\${SDK}\\
-#EXEN_ROM ?= ${SDK_DIR_WIN}etc\\exenrom\\ExEnV2\\lexen.rom
+#EXEN_ROM?= ${SDK_DIR_WIN}etc\\exenrom\\ExEnV2\\lexen.rom
 EXEN_ROM=${SDK_DIR}etc/exenrom/ExEnV2/lexen.rom
-#PVC2ROM ?=wine -- ${SDK_DIR}bin/vmtools/exenrom/exenrom.exe
-#PVC2ROM ?=wine -- ${SDK_DIR}bin/vmtools/exenrom/exenrom.exe
+#PVC2ROM?=wine -- ${SDK_DIR}bin/vmtools/exenrom/exenrom.exe
+#PVC2ROM?=wine -- ${SDK_DIR}bin/vmtools/exenrom/exenrom.exe
 PVC2ROM=wine -- ${SDK_DIR}bin/vmtools/exenrom/exenrom
 
 VM_EXEN=${EXEN_RUN} ${SDK_DIR}bin/simulator_v2/generic/Color/gensimu.exe 
@@ -230,7 +238,7 @@ endif #endif // exen
 
 
 #FILES= MathFixed ${PROJECT}Render ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
-FILES ?= ${PROJECT} ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
+FILES?= ${PROJECT} ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
 #FILES=  ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
 
 
@@ -242,18 +250,18 @@ FILES ?= ${PROJECT} ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
 ifeq ($(SDKV) , 2.2)
 SDK:=wtk
 SDK_DIR:=${SW_DIR}${SDK}/
-API ?=${SDK_DIR}lib/cldcapi10.jar
-API_MIDP ?=${SDK_DIR}lib/midpapi21.jar
+API?=${SDK_DIR}lib/cldcapi10.jar
+API_MIDP?=${SDK_DIR}lib/midpapi21.jar
 CLASSPATH=${API}:${API_MIDP}:${OBJ_DIR}:${EXT}
 VM=${SDK_DIR}bin/emulator
-# JAVACFLAGS ?=-d ${OBJ_DIR} -classpath ${CLASSPATH}
+# JAVACFLAGS?=-d ${OBJ_DIR} -classpath ${CLASSPATH}
 endif
 
 ifeq ($(SDKV),21)
 SDK:=WTK2.1
 SDK_DIR:=${SW_DIR}${SDK}/
-API ?=${SDK_DIR}lib/cldcapi10.zip
-API_MIDP ?=${SDK_DIR}lib/midpapi20.zip
+API?=${SDK_DIR}lib/cldcapi10.zip
+API_MIDP?=${SDK_DIR}lib/midpapi20.zip
 CLASSPATH=${API}:${API_MIDP}:${OBJ_DIR}:${EXT}
 VM=${SDK_DIR}bin/emulator
 endif
@@ -263,7 +271,7 @@ SDK:=midp2.0fcs
 SDK_DIR:=${SW_DIR}${SDK}/
 MIDP_HOME=${SDK_DIR}
 export MIDP_HOME
-API ?=${SDK_DIR}classes/
+API?=${SDK_DIR}classes/
 VM=${SDK_DIR}bin/midp
 CLASSPATH=${API}:${EXT}:${OBJ_DIR}
 endif
@@ -271,7 +279,7 @@ endif
 ifeq ($(SDKV),10) 
 SDK:=WTK104
 SDK_DIR=${SW_DIR}${SDK}/
-API ?=${SDK_DIR}lib/midpapi.zip
+API?=${SDK_DIR}lib/midpapi.zip
 CLASSPATH=${API}:${EXT}:${OBJ_DIR}
 VM=${SDK_DIR}bin/emulator
 endif
@@ -281,17 +289,17 @@ endif
 ifeq ($(SDKV),2.1.01)
 SDK:=j2me_wireless_toolkit-2_1_01
 SDK_DIR:=${SW_DIR}${SDK}/
-API ?=${SDK_DIR}lib/cldcapi10.jar
-API_MIDP ?=${SDK_DIR}lib/midpapi20.jar
+API?=${SDK_DIR}lib/cldcapi10.jar
+API_MIDP?=${SDK_DIR}lib/midpapi20.jar
 CLASSPATH=${API}:${API_MIDP}:${OBJ_DIR}:${EXT}
 VM=${SDK_DIR}bin/emulator
 endif
 
 
 ifeq (${API},"")
-JAVACFLAGS ?=-d ${OBJ_DIR} -classpath ${CLASSPATH}
+JAVACFLAGS?=-d ${OBJ_DIR} -classpath ${CLASSPATH}
 else
-JAVACFLAGS ?=-bootclasspath ${API} -classpath ${CLASSPATH} -d ${OBJ_DIR}
+JAVACFLAGS?=-bootclasspath ${API} -classpath ${CLASSPATH} -d ${OBJ_DIR}
 endif
 
 
@@ -299,35 +307,35 @@ endif
 # Default values
 #
 
-DESTDIR_ABS ?=${PWD}${DESTDIR}
-SRC_DIR_ABS ?=${PWD}${SRC_DIR}
-TMP_DIR=/tmp/tmp-${USER}.tmp/${PACKAGE}/${RT}-${SDKV}/${CURDIR}/
-OBJ_DIR ?=${TMP_DIR}${DESTDIR}
+DESTDIR_ABS?=${CURDIR}/${DESTDIR}
+SRC_DIR_ABS?=${CURDIR}/${SRC_DIR}
+TMP_DIR=/tmp/tmp-${USER}.tmp/${package}/${RT}-${SDKV}/${CURDIR}//
+OBJ_DIR?=${TMP_DIR}${DESTDIR}
 
 #SRCS=$(wildcard *.java)
 #SRCS=
 #FILES=$(SRCS:.java=) 
 #  javac: target release 1.1 conflicts with default source release 1.5
 JAVAC?=javac -target 1.2 -source 1.2
-JAVA ?=java
-APPLETVIEWER ?= appletviewer
-JAR ?= jar
-API ?=
+JAVA?=java
+APPLETVIEWER?= appletviewer
+JAR?= jar
+API?=
 
-# PREVERIFY ?= preverify
-PREVERIFY ?= ${SDK_DIR}/bin/preverify
+# PREVERIFY?= preverify
+PREVERIFY?= ${SDK_DIR}/bin/preverify
 
-#DESTDIR ?=./
+#DESTDIR?=./
 #DESTDIR = ../jclasses-${ENV}/
 DIRPATH=${SRC_DIR_ABS} ${OBJ_DIR} ${DISTDIR_ABS} ${DESTDIR} ${SRC_IN_DIR}
 vpath:=${DIRPATH}
 VPATH:=${DIRPATH}
 PATH:=${JAVA_HOME}/bin/:${PATH}:${SDK_DIR}bin/
 
-SRCS ?= $(FILES:=.java)
-SRCS_IN ?= $(FILES:=.java.in)
-OBJS ?= $(FILES:=.class)
-CLASSPATH ?= ${OBJ_DIR}
+SRCS?=$(FILES:=.java)
+SRCS_IN?=$(FILES:=.java.in)
+OBJS?=$(FILES:=.class)
+CLASSPATH?= ${OBJ_DIR}
 
 
 #export RT SDKV MIDPV SDK SDK_DIR
@@ -343,7 +351,10 @@ all compile build: pre ${ALL} post
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Application rules
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-help: help-${PROJECT} help-${ENV}
+help:  help-${PROJECT} help-${ENV} help-default
+
+help-default:
+	grep -E '.*:' GNUmakefile
 	@echo "#"
 
 help-${PROJECT}: 
@@ -365,6 +376,8 @@ help-${ENV}:
 	@echo "# Options are : make RT=[${RT}] SDKV=[${SDKV}]"
 	@echo "# RT { ${RT_LIST} }"
 	@echo "# SDK { ${SDKV_LIST} }"
+	@echo ""
+	@echo "# VPATH=${VPATH}"
 # 	@echo "make application # 3d demo (lunch it in jvm)"
 
 #mesh:
@@ -433,7 +446,7 @@ exec-memu: ${DESTDIR}${PROJECT}.html  ${DESTDIR}../lib/me-applet.jar modes
 	-${MAKE} browse URL="${URL_BASE}$<"
 	-${APPLETVIEWER} ${URL_BASE}$<
 
-#	appletviewer  ${PWD}$<
+#	appletviewer  ${CURDIR}/$<
 
 ${DESTDIR}../lib/me-applet.jar:
 	${MKDIR} ${@D}
@@ -469,6 +482,7 @@ INDENT_ARGS?=-i2  -nbc  -ce -npcs -npsl -bli0 -bl  -nce -bbo -cbi2 -lp -ci4 -cli
 	cpp -undef -fno-show-column ${DEFINES} -C -P -I. -I ${SRC_IN_DIR} $< \
 > "$@.tmp"
 	@indent ${INDENT_ARGS} < "${@}.tmp" > "${SRC_DIR_ABS}$@" || mv  "${@}.tmp" "${SRC_DIR_ABS}$@"
+	rm "${@}.tmp"
 #	@echo -e "\n ### !!! MAKE MAY FAILS, just restart (vpath bug) ### \n"
 #	@ls -l ${SRC_DIR_ABS}$@
 
@@ -687,6 +701,8 @@ all-post compile-post:
 srcs: ${SRCS}
 	@ls ${SRC_DIR_ABS}
 
+src: ${SRCS_IN}
+
 dir:${DIRPATH}
 
 ${DIRPATH}:
@@ -820,20 +836,17 @@ clean-bin:
 
 clean: clean-bak clean-bin clean-src
 	@echo "# $@"
-
-GEN_PATH ?= tmpclasses tmplib  classes  res src bin
+GEN_PATH?= tmpclasses tmplib  classes  res src bin
 
 clean-all: clean clean-src clean-src-all
 	-@${CLEAN} -rf ${DESTDIR}../jclasses* ${OBJ_DIR}../jclasses* ${DESTDIR} jclasses-midp*  ${GEN_PATH} \
-	/tmp/tmp-${USER}.tmp/${PACKAGE}/ 2>&1 2>/dev/null
-	-@${CLEAN} *.log *.tmp 2>&1 2>/dev/null
+	/tmp/tmp-${USER}.tmp/${package}/ 2>&1 2>/dev/null
+	-@${CLEAN} *.log 2>&1 2>/dev/null
 	ls
 	@echo "# $@"
-
 clean-sys:
 	-@${CLEAN} -rf ${SDK_PATH} 2>&1 2>/dev/null
 	@echo "# $@"
-
 clean-src:
 	-@${CLEAN} ${SRC_DIR_ABS}/* 2>&1 2>/dev/null
 	@echo "# $@"
@@ -852,7 +865,7 @@ url: modes ${DESTDIR}${PROJECT}.jad ${DESTDIR}${PROJECT}.jar
 
 
 modes:
-	find ${PWD} -type f -exec chmod a-x+X {} \;
+	find ${CURDIR}/ -type f -exec chmod a-x+X {} \;
 	-@chmod -R a+rX ${HOME}/public_html/
 	@echo "#- $@"
 
@@ -1068,7 +1081,7 @@ exen-pvc: ${FILES:=.pvc}
 VMTRANS_FLAGS += -do "PVC file" -v -gp -g4 -dt -vt "Target"
 
 exen-build:
-	${MAKE} RT=exen srcs exen-obj exen-pvc pvc-link exen-rom
+	${MAKE} RT=exen src exen-obj exen-pvc pvc-link exen-rom
 
 pvc-link exen-pvc-fast: ${OBJS}
 	-@${CLEAN} ${OBJ_DIR}*.pvc 
@@ -1102,7 +1115,7 @@ bug-exen:
 
 
 bug-all-exen: 
-	${MAKE} RT=exen srcs exen-exenc
+	${MAKE} RT=exen src exen-exenc
 
 
 
@@ -1173,7 +1186,7 @@ info-project:
 # imported rules 
 
 apt:
-	sudo apt-get install make free-java-sdk indent
+	sudo aptitude install make free-java-sdk indent android-sdk android-emulator
 
 version:
 	${JAVA} -version
@@ -1208,29 +1221,39 @@ android:
 	mkdir -p "${android_DIR}"
 	cp -rfa src-$@/* ${android_DIR}/
 
-android_opt?=/opt/android-sdk-linux_x86-1.0_r2/
+android_opt=/opt/android-sdk/
 
-ADB?=adb
-ADB?=${android_opt}/tools/adb
-ADB_DEVICE?=/usr/local/bin/adb
+#ADB?=adb
+#ADB?=${android_opt}/tools/adb
+ADB_DEVICE?=/usr/local/bin/adb-nitdroid
+ADB?=${ADB_DEVICE}
+
 
 run-android: android-run
 
-android-emu:  ${android_opt}/tools/emulator
-	ps auxf | grep "$<" | grep -v grep || $< &  sleep 100
+android-all: ${SRCS} help-android
 
-android-run: ./bin/Diet3D.apk android-emu
+android-emu:  ${android_opt}tools/emulator
+	ps auxf | grep "$<" | grep -v grep || $< & 
+	${<D}/adb wait-for-device
+
+android-install: ./bin/Diet3D.apk android-emu
 	${ADB} install  $<
+
+android-run:
+	adb shell am start -a android.intent.action.MAIN -n ${package_path}/${package_path}.${activity}
+# android-install
+	echo "TODO"
 
 android-upload: ./bin/Diet3D.apk
 	-sudo killall adb
-	-sudo ${ADB_DEVICE} uninstall $<
+	sudo ${ADB_DEVICE} uninstall $<
 	sudo ${ADB_DEVICE} install -r $<
 
 android-help:
-	-sudo ${ADB_DEVICE} jdwp
-	-sudo ${ADB_DEVICE} logcat
-
+	@echo "build it using eclipse"
+#	-sudo ${ADB_DEVICE} jdwp
+#	-sudo ${ADB_DEVICE} logcat
 
 android-adb-stop:
 	-sudo killall adb
@@ -1244,12 +1267,11 @@ stop: android-stop
 	-killall java eclipse
 	-sudo killall java eclipse
 
-
-ide: /opt/eclipse/eclipse
-	$<
+ide: 
+	/opt/eclipse/eclipse ||	eclipse #TODO
 
 diff:
 	cvs diff
 
-#eof "$Id: GNUmakefile,v 1.21 2009-01-30 20:14:20 rzr Exp $"
+#eof "$Id: GNUmakefile,v 1.20 2009-01-12 09:46:33 rzr Exp $"
 
