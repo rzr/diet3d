@@ -1,4 +1,4 @@
-/* $Id: Diet3DRender.java.in,v 1.13 2009-01-30 20:14:21 rzr Exp $ */
+/* $Id: Diet3DRender.java.in,v 1.12 2009-01-12 09:46:33 rzr Exp $ */
 #ifndef Diet3DRender_java_in_
 #define Diet3DRender_java_in_
 
@@ -121,7 +121,7 @@ public final class Diet3DRender
     for(int i=0; i < obj_nf; i++) {
       coordFace(i,va,vb,vc);
       if ( obj_vc != null ) c = obj_vc[i];
-#if //def ANDROID //TODO
+#if 1 //def ANDROID //TODO
       paintLineColored( g, va[0] , va[1] , vb[0] , vb[1] , c);
       paintLineColored( g, va[0] , va[1] , vc[0] , vc[1] , c);
       paintLineColored( g, vc[0] , vc[1] , vb[0] , vb[1] , c);
@@ -557,4 +557,4 @@ public final class Diet3DRender
 
 
 #endif //ifndef Diet3D_java_in_
-/* #eof "$Id: Diet3DRender.java.in,v 1.13 2009-01-30 20:14:21 rzr Exp $" */
+/* #eof "$Id: Diet3DRender.java.in,v 1.12 2009-01-12 09:46:33 rzr Exp $" */

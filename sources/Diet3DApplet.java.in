@@ -1,4 +1,4 @@
-/* $Id: Diet3DApplet.java.in,v 1.5 2009-01-30 20:14:21 rzr Exp $ */
+/* $Id: Diet3DApplet.java.in,v 1.4 2008-10-24 05:44:04 rzr Exp $ */
 #include "HackJavaCpp.java.in"
 
 import java.awt.*;
@@ -6,7 +6,7 @@ import java.applet.Applet;
 /**
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3DApplet.java.in,v 1.5 2009-01-30 20:14:21 rzr Exp $
+ * $Id: Diet3DApplet.java.in,v 1.4 2008-10-24 05:44:04 rzr Exp $
  **/
 
 public final class Diet3DApplet
@@ -166,4 +166,4 @@ implements Runnable
   }
 }
 
-//#eof "$Id: Diet3DApplet.java.in,v 1.5 2009-01-30 20:14:21 rzr Exp $"
+//#eof "$Id: Diet3DApplet.java.in,v 1.4 2008-10-24 05:44:04 rzr Exp $"

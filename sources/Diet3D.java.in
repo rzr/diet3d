@@ -1,10 +1,10 @@
-/* $Id: Diet3D.java.in,v 1.20 2009-01-30 20:14:20 rzr Exp $ */
+/* $Id: Diet3D.java.in,v 1.19 2009-01-12 09:46:33 rzr Exp $ */
 /**
  * This in a template java source file wich can be preprocessed with GNU cpp
  * see CppHack.java.in
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
- * $Id: Diet3D.java.in,v 1.20 2009-01-30 20:14:20 rzr Exp $
+ * $Id: Diet3D.java.in,v 1.19 2009-01-12 09:46:33 rzr Exp $
  **/
 #ifndef Diet3D_java_in_
 #define Diet3D_java_in_
@@ -629,4 +629,4 @@ public final class Diet3D
 #endif // INCLUDE_Diet3D
 #endif // Diet3D_java_in_
 
-/* #eof "$Id: Diet3D.java.in,v 1.20 2009-01-30 20:14:20 rzr Exp $" */
+/* #eof "$Id: Diet3D.java.in,v 1.19 2009-01-12 09:46:33 rzr Exp $" */
