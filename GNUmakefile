@@ -6,29 +6,29 @@ package?=Diet3D
 
 default: all
 
-PROJECT?= Diet3D
-PROJECT_DIST?= diet3d
-PROJECT_URL?= "http://rzr.online.fr/java.htm"
-PROJECT?= ${PROJECT}
+PROJECT?=Diet3D
+PROJECT_DIST=diet3d
+PROJECT_URL?="http://rzr.online.fr/java.htm"
+PROJECT?=${PROJECT}
 vendor=online.rzr
 package_path=fr.${vendor}
 activity=${PROJECT}Activity
 SUFFIX_MIDLET?=MIDlet
 #SUFFIX_MIDLET=
 ###############################################################################
-ENV?= j2me
+ENV?=j2me
 RT_LIST?=midp1_0 midp1_0-nokia midp2_0 imode exen
 # RT?=midp1_0
 # RT?=midp1_0
 # RT?=midp1_0-nokia
-# RT?=midp2_0
-# RT?= j2se
-RT=android
+RT?=midp2_0
+# RT?=j2se
+# RT=android
 
 JAVA_HOME?=/usr/lib/j2se/1.4/
 SW_ARC?=${HOME}/mnt/software/
 # commands
-UNZIP?= unzip -q
+UNZIP?=unzip -q
 CONVERTER?=java -cp ${SW_DIR}midp4palm1.0/Converter/Converter.jar \
 	com.sun.midp.palm.database.MakeMIDPApp  
 FS=\\/
@@ -38,7 +38,7 @@ INFUSIO_PP_WIN?=y:
 export INFUSIO_PP_WIN INFUSIO_PP_LIN
 
 #
-SW_DIR?= /opt/
+SW_DIR?=/opt/
 SDKV_LIST?=22 21 20 00 exen
 #SDKV?=20
 SDKV?=2.2
@@ -57,16 +57,16 @@ VERSION_MAJ=1
 VERSION_MIN=0
 VERSION_REV=0
 
-VERSION_DOT?= ${VERSION_MAJ}.${VERSION_MIN}.${VERSION_REV}
-VERSION_CHAR?= ${VERSION_MAJ}_${VERSION_MIN}_${VERSION_REV}
+VERSION_DOT?=${VERSION_MAJ}.${VERSION_MIN}.${VERSION_REV}
+VERSION_CHAR?=${VERSION_MAJ}_${VERSION_MIN}_${VERSION_REV}
 
-VERSION?= ${VERSION_DOT}
+VERSION?=${VERSION_DOT}
 #VERSION?=0.0.$(shell date +%Y%m%d%H)
 
 # DEFINES+=-DDEVEL -DPRIVATE
 DEFINES+= -DPRIVATE
 
-MKDIR?= @mkdir -p
+MKDIR?=@mkdir -p
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # PROJECTlication Specific
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -225,7 +225,7 @@ WMTRANS_FLAGS= -gr -v -gp -g4 -dt -vt
 # -dc "/home/rzr/src/${PROJECT}/src-exen/classes" -do "/home/rzr/src/${PROJECT}/src-exen/pvc" -gr -v -gp -g4 -dt -vt "resource"
 
 SDK_DIR_WIN= Y:\\home\\${USER}\\mnt\\${SDK}\\
-#EXEN_ROM?= ${SDK_DIR_WIN}etc\\exenrom\\ExEnV2\\lexen.rom
+#EXEN_ROM?=${SDK_DIR_WIN}etc\\exenrom\\ExEnV2\\lexen.rom
 EXEN_ROM=${SDK_DIR}etc/exenrom/ExEnV2/lexen.rom
 #PVC2ROM?=wine -- ${SDK_DIR}bin/vmtools/exenrom/exenrom.exe
 #PVC2ROM?=wine -- ${SDK_DIR}bin/vmtools/exenrom/exenrom.exe
@@ -238,7 +238,7 @@ endif #endif // exen
 
 
 #FILES= MathFixed ${PROJECT}Render ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
-FILES?= ${PROJECT} ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
+FILES?=${PROJECT} ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
 #FILES=  ${PROJECT}Canvas ${PROJECT}${SUFFIX_MIDLET}
 
 
@@ -318,12 +318,12 @@ OBJ_DIR?=${TMP_DIR}${DESTDIR}
 #  javac: target release 1.1 conflicts with default source release 1.5
 JAVAC?=javac -target 1.2 -source 1.2
 JAVA?=java
-APPLETVIEWER?= appletviewer
-JAR?= jar
+APPLETVIEWER?=appletviewer
+JAR?=jar
 API?=
 
-# PREVERIFY?= preverify
-PREVERIFY?= ${SDK_DIR}/bin/preverify
+# PREVERIFY?=preverify
+PREVERIFY?=${SDK_DIR}/bin/preverify
 
 #DESTDIR?=./
 #DESTDIR = ../jclasses-${ENV}/
@@ -335,7 +335,7 @@ PATH:=${JAVA_HOME}/bin/:${PATH}:${SDK_DIR}bin/
 SRCS?=$(FILES:=.java)
 SRCS_IN?=$(FILES:=.java.in)
 OBJS?=$(FILES:=.class)
-CLASSPATH?= ${OBJ_DIR}
+CLASSPATH?=${OBJ_DIR}
 
 
 #export RT SDKV MIDPV SDK SDK_DIR
@@ -836,7 +836,7 @@ clean-bin:
 
 clean: clean-bak clean-bin clean-src
 	@echo "# $@"
-GEN_PATH?= tmpclasses tmplib  classes  res src bin
+GEN_PATH?=tmpclasses tmplib  classes  res src bin
 
 clean-all: clean clean-src clean-src-all
 	-@${CLEAN} -rf ${DESTDIR}../jclasses* ${OBJ_DIR}../jclasses* ${DESTDIR} jclasses-midp*  ${GEN_PATH} \
@@ -844,9 +844,11 @@ clean-all: clean clean-src clean-src-all
 	-@${CLEAN} *.log 2>&1 2>/dev/null
 	ls
 	@echo "# $@"
+
 clean-sys:
 	-@${CLEAN} -rf ${SDK_PATH} 2>&1 2>/dev/null
 	@echo "# $@"
+
 clean-src:
 	-@${CLEAN} ${SRC_DIR_ABS}/* 2>&1 2>/dev/null
 	@echo "# $@"
@@ -1216,10 +1218,15 @@ force:
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 android_DIR=src/fr/online/rzr/
 #android_DIR=~/workspace/diet3dandroid/src/fr/online/rzr/
-android:
-	${MAKE} RT=$@ clean srcs
-	mkdir -p "${android_DIR}"
-	cp -rfa src-$@/* ${android_DIR}/
+android: android-configure android-build
+
+android-configure:
+	${MAKE} RT="android" clean srcs
+	mkdir -p "${android_DIR}" "res"
+	cp -rfa src-android/* "${android_DIR}/"
+
+android-build:
+	@echo "exec eclipse # or hack ant makefiles"
 
 android_opt=/opt/android-sdk/
 
@@ -1247,8 +1254,8 @@ android-run:
 
 android-upload: ./bin/Diet3D.apk
 	-sudo killall adb
-	sudo ${ADB_DEVICE} uninstall $<
-	sudo ${ADB_DEVICE} install -r $<
+	${ADB_DEVICE} uninstall "${package_path}"
+	${ADB_DEVICE} install -r $<
 
 android-help:
 	@echo "build it using eclipse"
@@ -1273,5 +1280,10 @@ ide:
 diff:
 	cvs diff
 
-#eof "$Id: GNUmakefile,v 1.20 2009-01-12 09:46:33 rzr Exp $"
+distclean: clean
+	find . -iname "*.class" -exec rm -v '{}' \;
+###
 
+-include ~/bin/mk-${PROJECT_DIST}.mk
+
+#eof "$Id: GNUmakefile $"

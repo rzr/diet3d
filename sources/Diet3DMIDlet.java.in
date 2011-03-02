@@ -46,6 +46,8 @@ final public class Diet3DMIDlet
         //msg += System.getProperty("microedition.profiles" ); //crash uemu
         //fmMain.append( msg );
 
+#if 0 //ndef INCLUDE_Diet3D
+
         lanim = new ChoiceGroup
 	    ( "Animation :", Choice.EXCLUSIVE, mCanvas.mRender.vanim, null);
         fmMain.append( lanim ); 
@@ -58,7 +60,7 @@ final public class Diet3DMIDlet
 	    ( "Choose Rendering mode :"
 	      , Choice.EXCLUSIVE, mCanvas.mRender.vmode, null);
         fmMain.append( lrender); 
-
+#endif
         //--
         mExitCommand = new Command("Exit", Command.EXIT, 0);
         cmd = new Command("[Menu/Back]", Command.SCREEN, 2);        
@@ -84,6 +86,7 @@ final public class Diet3DMIDlet
     {
         info();
     }
+
     public void exit()
     {
         mCanvas.stop();
@@ -97,9 +100,12 @@ final public class Diet3DMIDlet
         if (c.getCommandType() == Command.EXIT) {
             exit();
         } else { //if ( c == "" ) {
+
+          #if 0 // ndef CONFIG_SUPPORT_API_NET_RIM
             mCanvas.mRender.toggleAnim( lanim.getSelectedIndex() );
             mCanvas.mRender.toggleShape( lshape.getSelectedIndex() );
             mCanvas.mRender.toggleMode( lrender.getSelectedIndex() );
+#endif
             //Form waitForm = new Form("Waiting...");
             //mDisplay.setCurrent(waitForm);
             //mCanvas.start();
