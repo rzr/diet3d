@@ -2,6 +2,18 @@ http://rzr.online.fr/java.htm
 
 (Offline ? Read 00index.htm wich is a copy of the webpage )
 
+
+### RIM  / BLACKBERRY ###
+
+requierements: 
+
+winxp
+http://javadl.sun.com/webapps/download/AutoDL?BundleId=47367
+BlackBerry_JDE_PluginFull_1.3.0.201101051005-15.exe
+
+
+### MISC ###
+
 == TODO: ==
 
 * android

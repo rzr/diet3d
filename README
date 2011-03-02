@@ -5,7 +5,7 @@ Copyright: GPL-2+ @ http://rzr.online.fr/license.htm
 URL: http://rzr.online.fr/java.htm
 
 
-==== Changelog: ====
+### Changelog: ###
 
 see ChangeLog file
 
@@ -21,8 +21,7 @@ Diet3D-0_25_8-20040330-NokiaNGage
 Diet3D-0_21-Nokia6600 (2004-03-14)
 
 
-==== todo ====
-
+### TODO ###
 
 Check TODO.txt for current states
 

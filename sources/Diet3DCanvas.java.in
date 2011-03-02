@@ -14,7 +14,7 @@
 #endif
 
 #ifndef NO_INLINE
-#define INCLUDE_Diet3D //crash the system
+# define INCLUDE_Diet3D //crash the system
 #endif
 
 #ifdef WANT_TRACE
@@ -57,24 +57,36 @@ implements Runnable
   static final int mspf = 40; // +500 //40=25fps
   static int fps = 25;
   // event
-  static final int tick = 2000;
+  static final int tickCanvas = 2000;
 
   static long time = 0;
   static long last = 0;
-  static int init = 0;
+  static int initCanvas = 0;
+
+
 #ifdef ANDROID
   SurfaceHolder mSurfaceHolder_ = null;
   // Context context_ = null;
   Thread mThread = null ;
-#elif defined EXEN
+#else
+
+#if defined EXEN
   Thread mThread = null ;
-# ifndef HAVE_DISPLAY_NO
-  Display mDisplay = null;
-# endif
 #endif
+
+  Thread mThread = null ;
+
+#endif
+
+
+#ifndef HAVE_DISPLAY_NO
+  Display mDisplay = null;
+#endif
+
 #ifndef HAVE_IMAGE_NO   
   Image moff = null;
 #endif
+
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   //### contructor
 #ifdef ANDROID
@@ -190,9 +202,9 @@ implements Runnable
 #endif // pub
     void paint(Graphics g)  //EXEN
   {
-    //if ( init == 0 )
+    //if ( initCanvas == 0 )
     // Pretty strange bug // poco then kern-exec 3 
-    //if ( init == 0 )  // 60 //40=bug // 80-
+    //if ( initCanvas == 0 )  // 60 //40=bug // 80-
 #if ( (defined MIDP_1_0 )  ||(defined MIDP_2_0 )  || (defined NOKIA ) ) 
     g.setClip(0, 0, getWidth(), getHeight());
 #endif
@@ -207,9 +219,9 @@ implements Runnable
 
 #if ( (defined MIDP_2_0 )  || (defined NOKIA ) ) 
     //TODO see isMutable && != null
-    for(init=0; //(bug on nokia 6600 40<70)
-        ( init<70 ) || ( g == null ) ;
-        init++)   //( ! g.isMutable() ) ||
+    for(initCanvas=0; //(bug on nokia 6600 40<70)
+        ( initCanvas<70 ) || ( g == null ) ;
+        initCanvas++)   //( ! g.isMutable() ) ||
       g.setColor(255,255,255); 
 #elif defined EXEN
     g.clearRect(0,0, width, height); //TODO opt w/ bbox
@@ -217,7 +229,7 @@ implements Runnable
 
     mRender.paint(g); //  +--javax.microedition.lcdui.Graphics
 
-    if ( tick < 100 ) { paintInfo(g);}//TODO
+    if ( tickCanvas < 100 ) { paintInfo(g);}//TODO
 
 #ifdef WANT_INFO
     paintInfo(g);
@@ -238,7 +250,7 @@ implements Runnable
     // MACRO_println(".time=" +time + " / last=" + last + " r=" + ( time - last) );        
     time = getTimerTickCount();
         
-    if ( ( time - last )  >  tick ) { last = time; mRender.tick(); }
+    if ( ( time - last )  >  tickCanvas ) { last = time; mRender.tick(); }
 #ifdef MIDP_2_0
     input();
 #endif
@@ -309,14 +321,15 @@ public void intro()
   public int getWidth() { return this.width; }
 
 #else
+
   public void start() 
   {
     isStarted_ = true;
     //if ( t == null )   
     time = getTimerTickCount();
     last = time;
-    mThread = new Thread(this);
 
+    mThread = new Thread(this);
     if (mThread != null ) mThread.start();
   }
   

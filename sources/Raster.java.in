@@ -119,7 +119,6 @@ class Raster
     {
        g.drawLine(bx,by,ex,ey,paint_static); 
     }
-
 #endif // NO_INLINE
 
 #define paintFillRect(g,bw,bh,ew,eh) \
@@ -127,11 +126,17 @@ class Raster
 
 
 #else // ! ANDROID :TODO: test
-//# define MACROpaintLineColored(bx,by,ex,ey,color,gfx,ignored)	\
-//  { gfx.drawLine(bx,by,ex,ey); }
+
+# define MACROpaintLineColored(gfx,bx,by,ex,ey,color)	\
+  { gfx.setColorPaint( color);  gfx.drawLine(bx,by,ex,ey); }
+
 # define MACROpaintLine(g,bx,by,ex,ey) \
   { g.drawLine(bx,by,ex,ey); }
+
 # define paintLine MACROpaintLine
+
+# define paintLineColored MACROpaintLineColored
+
 #endif //! ANDROID
 
 #define MACROpaintLineH(g,y,xa,xb) paintLine( g,xa,y,xb,y)

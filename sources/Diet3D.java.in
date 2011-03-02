@@ -527,7 +527,7 @@ public final class Diet3D
 
   void paint(Graphics g)
   {
-    if ( g == null ) return;
+    if ( ( g == null ) )  return;
 #ifdef ANDROID //TODO: check fill screen
     g.drawColor( COLOR_BG );
     //g.drawARGB(0, 255, 255, 255);
@@ -539,7 +539,7 @@ public final class Diet3D
     switch(mode) { // [ %n : 0 ... n-1]
     case 1: setColorPaint(g, COLOR_FG ); paintVertex(g); break;
 
-    case 2: setColorPaint(g, COLOR_FG_LINE ); paintLine(g); break;
+    case 2: setColorPaint(g, COLOR_FG_LINE ); paintLineGraphics(g); break;
 	
 #ifdef PRIVATE
     case 3: setColorPaint(g, COLOR_FG_FACE ); paintFlat(g); break;
@@ -581,7 +581,7 @@ public final class Diet3D
 #endif // PRIVATE
     default: // 0
       setColorPaint(g, COLOR_FG_LINE );
-      paintLine(g);
+      paintLineGraphics(g);
       setColorPaint(g, COLOR_FG );
       // paintString(g, "Shape " + vshape[shape] + " # " + obj_nf );
       paintString(g,  vshape[shape] );

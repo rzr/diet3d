@@ -3,15 +3,15 @@
 
 import java.awt.*;
 import java.applet.Applet;
+
 /**
  * @author www.Philippe.COVAL.free.fr
  * Copyright and License : http://rzr.online.fr/license.htm
  * $Id: Diet3DApplet.java.in,v 1.4 2008-10-24 05:44:04 rzr Exp $
  **/
-
 public final class Diet3DApplet
-extends Applet 
-implements Runnable  
+  extends Applet
+  implements Runnable
 {
   public static Diet3D mRender = null;
   int h_ = 200;
@@ -29,45 +29,50 @@ implements Runnable
     if ( offi_ == null ) offi_ = createImage( w_, h_ );
   }
 
-
-#ifdef FULL
-#ifdef WANT_TRACE
-  public String trace(Object o) 
+  #ifdef FULL
+  #ifdef WANT_TRACE
+  public String trace(Object o)
   {
     //if ( true) return ""; //
-    String s= o.toString();
+    String s= (o!=null) ? o.toString() : "null";
     MACRO_println(s);
     //showStatus(s);
     return s;
   }
-#endif
-#endif
-  public void init() 
-  {        
+  #endif
+  #endif
+
+  public void init()
+  {
     if ( offi_ == null ) offi_ = createImage( w_, h_ );
     //try { wait(); } catch (Exception e) {  } //!!sync
     super.init();
     //trace("#{ init");
   }
-  public void start() 
+
+  public void start()
   {
     if ( thread_ == null ) thread_ = new Thread(this);
     thread_.start();
   }
+
   public void stop() {
     thread_.stop();
     super.stop();
   }
+
   public void destroy() {
     if ( ( thread_ != null ) && (  thread_.isAlive()) ) {
       thread_.stop();
       thread_ = null ;
     }
   }
-  public void paint(Graphics g)   
+
+  public void paint(Graphics g)
   {
-    update(g);
+    if ( g != null) { update(g); } //WORKAROUND: possible rim bug?
   }
+
   // cant explain why but this shall be update(Graphics)
   // and nothing else
   public void update(Graphics g)
@@ -79,7 +84,7 @@ implements Runnable
     g.drawImage( offi_ ,0,0 , this);
   }
 
-  public void run() 
+  public void run()
   {
     long time = 0;
     //trace("#{run");
@@ -87,18 +92,18 @@ implements Runnable
     while( thread_ != null ) {
       time = System.currentTimeMillis();
       repaint();
-      mRender.update();        
+      mRender.update();
       //try { wait(); } catch (Exception e) {  } //!!sync
       time = ( System.currentTimeMillis() - time );
       time = mspf - time ;
-      if ( time < 0 ) time = 0; 
+      if ( time < 0 ) time = 0;
       //time = 100;
       //trace(""+time);
       try {
-	Thread.currentThread();
-	Thread.sleep( time ) ; } 
-      catch ( InterruptedException  e ) { 
-	//trace("Exeption");
+        Thread.currentThread();
+        Thread.sleep( time ) ; }
+      catch ( InterruptedException  e ) {
+        //trace("Exeption");
       }
     }
   }
@@ -108,16 +113,16 @@ implements Runnable
   // Event Handling - Java 1.0
   //
 
-  public boolean handleEvent(Event evt) 
+  public boolean handleEvent(Event evt)
   {
     switch ( evt.id ) {
     case Event.KEY_PRESS  : {
-      try { handleKeyPressed (  evt.key); } 
+      try { handleKeyPressed (  evt.key); }
       catch ( Exception e) {  }
       break ;
     }
     case Event.KEY_ACTION  : {
-      try { handleKeyPressed (  evt.key); } 
+      try { handleKeyPressed (  evt.key); }
       catch ( Exception e) {  }
       break ;
 
@@ -126,8 +131,7 @@ implements Runnable
     return super.handleEvent(evt);
   }
 
-
-  public void handleKeyPressed(int i) throws Exception 
+  public void handleKeyPressed(int i) throws Exception
   {
 
     switch (i) {
@@ -149,12 +153,12 @@ implements Runnable
 
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-  public static void main( String[] arg) 
+
+  public static void main( String[] arg)
   {
     Diet3DApplet o = new Diet3DApplet();
     Frame f = new Frame();
-         
+
     f.resize( o.w_ , o.h_ );
     f.add(o);
     o.init();
@@ -166,4 +170,4 @@ implements Runnable
   }
 }
 
-//#eof "$Id: Diet3DApplet.java.in,v 1.4 2008-10-24 05:44:04 rzr Exp $"
+//#eof "$Id:$"
